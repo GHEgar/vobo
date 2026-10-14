@@ -20,6 +20,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Componentes de telar vendorizados en `frontend/vendor/`: `muestrario`, `abanico`, `plomada` y
   `lanzadera`.
 
+### Cambiado
+
+- El lint del frontend usa `@npmegar/eslint-config` 0.4.0 desde npm (presets `base`, `react` y
+  `react-app`) en lugar de una config propia.
+
 ### Corregido
 
 - El foco del modal saltaba al botón de cerrar en cada render del padre.
