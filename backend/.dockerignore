@@ -1,0 +1,7 @@
+*
+!app/
+!tests/
+!requirements.txt
+!requirements-dev.txt
+!pyproject.toml
+**/__pycache__

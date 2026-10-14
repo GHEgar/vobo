@@ -1,0 +1,45 @@
+from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+EstadoFalla = Literal["nueva", "en_curso", "lista_para_revalidar", "cerrada"]
+Reproducible = Literal["siempre", "a_veces", "una_vez"]
+TipoFalla = Literal["falla", "no_pude"]
+
+
+class EvidenciaResponse(BaseModel):
+    id: int
+    mime: str
+    url: str
+
+
+class FallaResponse(BaseModel):
+    id: int
+    ronda_id: int
+    caso_id: str
+    caso_titulo: str
+    seccion_id: str
+    seccion_titulo: str = ""
+    seccion_completa: bool = False
+    tipo: TipoFalla = "falla"
+    sistema: str
+    familia: str
+    usuario_email: str
+    paso: int | None
+    paso_texto: str
+    obtenido: str
+    reproducible: Reproducible
+    severidad: str
+    navegador: str
+    url: str
+    version_visible: str
+    creada: datetime
+    estado: EstadoFalla
+    nota_resolucion: str
+    evidencias: list[EvidenciaResponse]
+
+
+class FallaUpdate(BaseModel):
+    estado: EstadoFalla | None = None
+    nota_resolucion: str | None = Field(default=None, max_length=4000)

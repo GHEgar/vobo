@@ -1,0 +1,61 @@
+id: catalogo
+orden: 20
+titulo: Catálogo y búsqueda
+sistema: catalogo
+resumen: >
+  El catálogo es donde los clientes buscan productos. Ahora se puede filtrar por precio
+  y la búsqueda tolera errores de escritura.
+que_cambia:
+  - Antes solo había orden por precio; ahora hay un rango con mínimo y máximo.
+  - Antes «camisa» y «camiza» daban resultados distintos; ahora dan los mismos.
+donde: https://tienda.ejemplo/catalogo
+herramientas:
+  - id: general
+    nombre: General
+    hoy: prod
+  - id: filtro-precio
+    nombre: Filtro por rango de precio
+    hoy: beta
+  - id: busqueda-tolerante
+    nombre: Búsqueda que tolera errores de escritura
+    hoy: prod
+media:
+  - procedimiento: filtrar-por-precio
+    pie: Mover el rango de precio y ver cómo cambia la lista.
+casos:
+  - id: C-CAT-01
+    familia: C
+    herramienta: filtro-precio
+    titulo: El rango de precio deja solo los productos dentro del rango
+    rol: Cliente
+    cuenta: val-cliente-01
+    modo: beta
+    pasos:
+      - texto: Abre el catálogo y pon el rango de 100 a 300.
+        procedimiento: filtrar-por-precio
+      - texto: Recorre la lista hasta el final.
+    esperado: Todos los productos de la lista cuestan entre 100 y 300.
+    severidad: alta
+  - id: C-CAT-02
+    familia: C
+    herramienta: busqueda-tolerante
+    titulo: Una búsqueda con un error de escritura encuentra el producto
+    rol: Cliente
+    cuenta: val-cliente-01
+    modo: prod
+    pasos:
+      - texto: Escribe «camiza» en el buscador y pulsa Enter.
+    esperado: Aparecen las mismas camisas que al buscar «camisa».
+    severidad: media
+  - id: B-CAT-01
+    familia: B
+    herramienta: filtro-precio
+    titulo: Sin sesión el filtro de precio también funciona
+    rol: Visitante
+    cuenta: ninguna
+    modo: beta
+    pasos:
+      - texto: En una ventana de incógnito abre el catálogo sin entrar y usa el rango de precio.
+        procedimiento: ventana-incognito
+    esperado: La lista se filtra igual que con sesión.
+    severidad: baja

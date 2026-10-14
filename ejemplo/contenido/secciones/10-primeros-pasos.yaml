@@ -1,0 +1,63 @@
+id: primeros-pasos
+orden: 10
+titulo: Primeros pasos
+sistema: general
+resumen: >
+  Vas a probar la nueva versión de la tienda en una copia que no afecta a clientes reales.
+  Al terminar cada ronda la copia vuelve a su estado inicial.
+que_cambia:
+  - Trabajas en una copia de producción con datos de prueba.
+  - Usas cuentas de prueba «val-», nunca tu cuenta personal.
+  - Cada caso dice con qué cuenta entrar, qué hacer y qué debe pasar.
+  - Si algo no coincide, marca «Falla» y describe qué viste.
+donde: https://tienda.ejemplo/
+herramientas:
+  - id: general
+    nombre: General
+    hoy: prod
+media:
+  - procedimiento: usar-esta-pagina
+    pie: Cómo abrir un caso, seguir sus pasos y marcar el resultado.
+  - procedimiento: reportar-falla
+    pie: Qué llenar cuando algo no sale como dice el caso.
+  - procedimiento: ventana-incognito
+    pie: Abrir una ventana de incógnito para entrar con otra cuenta sin cerrar la primera.
+casos:
+  - id: A-GEN-01
+    familia: A
+    herramienta: general
+    titulo: Entras a la tienda con tu cuenta de prueba
+    rol: Cliente
+    cuenta: val-cliente-01
+    modo: prod
+    antes: Tener el correo y la contraseña de tu cuenta de prueba.
+    pasos:
+      - texto: Abre https://tienda.ejemplo/ y entra con tu cuenta de prueba.
+        procedimiento: entrar-a-la-tienda
+    esperado: Arriba a la derecha aparece el nombre de tu cuenta de prueba.
+    severidad: critica
+  - id: A-GEN-03
+    familia: A
+    herramienta: general
+    titulo: Una segunda cuenta en incógnito no cierra la primera
+    rol: Cualquiera
+    cuenta: dos cuentas de prueba
+    modo: prod
+    antes: A-GEN-01 marcado como «Pasa».
+    pasos:
+      - texto: En una ventana de incógnito abre https://tienda.ejemplo/ y entra con la segunda cuenta.
+        procedimiento: ventana-incognito
+      - texto: Regresa a la ventana normal y recarga con F5.
+    esperado: Cada ventana sigue mostrando su propia cuenta.
+    severidad: media
+  - id: E-GEN-01
+    familia: E
+    herramienta: general
+    titulo: Nada de lo que probaste quedó a medias
+    rol: Cualquiera
+    cuenta: la que te asignaron
+    modo: prod
+    pasos:
+      - texto: Revisa en Inicio que todos tus casos tengan un resultado.
+    esperado: No queda ningún caso tuyo como pendiente.
+    severidad: baja

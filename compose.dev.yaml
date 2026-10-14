@@ -1,0 +1,36 @@
+name: validaciones-dev
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    ports:
+      - '${FRONTEND_BIND_ADDR:?}:${VITE_DEV_PORT:?}:${VITE_DEV_PORT:?}'
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - ${TEMA_DIR:-./frontend/public/tema}:/app/public/tema:ro
+      - ./frontend/index.html:/app/index.html:ro
+    environment:
+      - VITE_DEV_PORT=${VITE_DEV_PORT:?}
+      - VITE_PROXY_TARGET=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    logging: *logging
+
+  backend:
+    build:
+      target: development
+    ports:
+      - '${BACKEND_BIND_ADDR:?}:${BACKEND_PORT:?}:8000'
+    volumes:
+      - ./backend:/app
+      - ./ejemplo:/ejemplo:ro

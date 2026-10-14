@@ -1,0 +1,64 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-healthcheck: &healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 60s
+  start_interval: 2s
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - APP_ENV=${APP_ENV:?}
+      - AUTH_MODO=${AUTH_MODO:?}
+      - DATABASE_PATH=/data/validacion.sqlite3
+      - EVIDENCIAS_DIR=/evidencias
+      - CONTENIDO_DIR=/contenido
+      - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:?}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:?}
+      - FRONTEND_URL=${FRONTEND_URL:?}
+      - OIDC_ISSUER_URL=${OIDC_ISSUER_URL:-}
+      - OIDC_PUBLIC_URL=${OIDC_PUBLIC_URL:-}
+      - OIDC_EXPECTED_ISSUER=${OIDC_EXPECTED_ISSUER:-}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-}
+      - OIDC_REDIRECT_URI=${OIDC_REDIRECT_URI:-}
+      - OIDC_AUDIENCE=${OIDC_AUDIENCE:-}
+      - OIDC_SCOPE=${OIDC_SCOPE:-openid profile email}
+      - OIDC_TOKEN_TYP=${OIDC_TOKEN_TYP:-}
+      - OIDC_PERMISOS_URL=${OIDC_PERMISOS_URL:-}
+      - OIDC_PERMISOS_CLAIM=${OIDC_PERMISOS_CLAIM:-permissions}
+    secrets:
+      - secret_key
+      - oidc_client_secret
+      - validacion_cuentas
+      - validacion_lectura_token
+    volumes:
+      - datos:/data
+      - evidencias:/evidencias
+      - ${CONTENIDO_DIR:-./ejemplo/contenido}:/contenido:ro
+    healthcheck:
+      <<: *healthcheck
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+    logging: *logging
+
+volumes:
+  datos:
+  evidencias:
+
+secrets:
+  secret_key:
+    file: ./secrets/secret_key
+  oidc_client_secret:
+    file: ./secrets/oidc_client_secret
+  validacion_cuentas:
+    file: ./secrets/validacion_cuentas
+  validacion_lectura_token:
+    file: ./secrets/validacion_lectura_token

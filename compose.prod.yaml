@@ -1,0 +1,48 @@
+name: ${COMPOSE_NOMBRE:-validaciones}
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-healthcheck: &healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 15s
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    environment:
+      - DOMINIO=${DOMINIO:?}
+      - VM_IP=${VM_IP:?}
+    ports:
+      - '${NGINX_BIND_ADDR:?}:${NGINX_PORT:?}:80'
+    volumes:
+      - ${CONTENIDO_DIR:-./ejemplo/contenido}/media:/usr/share/nginx/media:ro
+      - ${TEMA_DIR:-./frontend/public/tema}:/usr/share/nginx/html/tema:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1/health']
+    restart: unless-stopped
+    logging: *logging
+
+  backend:
+    build:
+      target: production
+    expose:
+      - '8000'
+    restart: unless-stopped
+
+volumes:
+  datos:
+    name: ${VOLUMEN_DATOS:-validaciones_datos}
+  evidencias:
+    name: ${VOLUMEN_EVIDENCIAS:-validaciones_evidencias}

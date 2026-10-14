@@ -1,0 +1,18 @@
+nombre: Validaciones
+descripcion: Validación del nuevo ciclo de la tienda en línea antes de publicarlo.
+proyectos:
+  - clave: general
+    nombre: General
+  - clave: catalogo
+    nombre: Catálogo
+  - clave: pedidos
+    nombre: Carrito y pedidos
+  - clave: infraestructura
+    nombre: Respaldos e infraestructura
+cuentas:
+  - prefijo: val-admin
+    descripcion: Administración de la tienda
+  - prefijo: val-cliente
+    descripcion: Cliente con compras previas
+  - prefijo: val-sinpermisos
+    descripcion: Sin ningún rol (para probar que algo NO se ve)

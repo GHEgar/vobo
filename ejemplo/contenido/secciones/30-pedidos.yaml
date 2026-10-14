@@ -1,0 +1,63 @@
+id: pedidos
+orden: 30
+titulo: Carrito y pedidos
+sistema: pedidos
+resumen: >
+  El carrito se puede guardar para después y la administración ve los pedidos con su
+  nuevo estado «Preparando».
+que_cambia:
+  - El carrito guardado sobrevive a cerrar sesión.
+  - Los pedidos tienen un estado intermedio entre «Pagado» y «Enviado».
+donde: https://tienda.ejemplo/carrito
+herramientas:
+  - id: general
+    nombre: General
+    hoy: prod
+  - id: carrito-guardado
+    nombre: Guardar el carrito para después
+    hoy: oculto
+  - id: estado-preparando
+    nombre: Estado «Preparando» en los pedidos
+    hoy: prod
+media:
+  - procedimiento: guardar-carrito
+    pie: Guardar el carrito, salir y encontrarlo al volver.
+casos:
+  - id: C-PED-01
+    familia: C
+    herramienta: carrito-guardado
+    titulo: El carrito guardado sigue ahí al volver a entrar
+    rol: Cliente
+    cuenta: val-cliente-01
+    modo: beta
+    pasos:
+      - texto: Guarda el carrito para después y cierra sesión.
+        procedimiento: guardar-carrito
+      - texto: Vuelve a entrar con la misma cuenta y abre el carrito.
+        procedimiento: entrar-a-la-tienda
+    esperado: El producto que guardaste aparece en «Guardado para después».
+    severidad: alta
+  - id: C-PED-02
+    familia: C
+    herramienta: estado-preparando
+    titulo: La administración marca un pedido como «Preparando»
+    rol: Administración
+    cuenta: val-admin-01
+    modo: prod
+    antes: Que exista al menos un pedido pagado.
+    pasos:
+      - texto: Entra a https://tienda.ejemplo/admin/pedidos y abre un pedido pagado.
+      - texto: Cambia su estado a «Preparando» y guarda.
+    esperado: El pedido aparece como «Preparando» en la lista.
+    severidad: alta
+  - id: B-PED-01
+    familia: B
+    herramienta: estado-preparando
+    titulo: Un cliente no puede cambiar el estado de un pedido
+    rol: Cliente
+    cuenta: val-sinpermisos-01
+    modo: prod
+    pasos:
+      - texto: Entra con la cuenta sin permisos y abre https://tienda.ejemplo/admin/pedidos.
+    esperado: La página dice que no tienes acceso y no muestra pedidos.
+    severidad: critica

@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme static {
+    --color-primario: #1F4E79;
+    --color-primario-hover: #2A6194;
+    --color-primario-suave: #F3F7FB;
+    --color-primario-claro: #E1EBF5;
+    --color-primario-borde: #9DB8D3;
+    --color-primario-anillo: #B4C6D9;
+    --color-primario-medio: #6A88A8;
+
+    --color-texto: #1A1A1A;
+    --color-texto-tenue: #444C55;
+    --color-texto-apagado: #737A82;
+    --color-texto-placeholder: #6B6B6B;
+    --color-texto-deshabilitado: #9B9B9B;
+
+    --color-neutro: #5B6670;
+    --color-neutro-icono: #798189;
+    --color-gris: #CBCBCB;
+    --color-gris-hover: #CECDCD;
+    --color-gris-barra: #BDBDBD;
+    --color-borde: #E2E2E2;
+    --color-borde-control: #CCD3E2;
+    --color-fondo: #F8F8F8;
+    --color-fondo-suave: #F4F4F4;
+    --color-fondo-pagina: #ECEDEF;
+
+    --color-error: #D93025;
+    --color-error-fondo: #FCDBDA;
+    --color-error-fuerte: #B3261E;
+    --color-aviso: #E07800;
+    --color-aviso-fondo: #FEDAB2;
+    --color-aviso-texto: #9E5200;
+    --color-exito: #34A853;
+    --color-exito-fondo: #EAF6ED;
+
+    --color-pasa: #2F5D3A;
+    --color-pasa-fondo: #E8F0EA;
+    --color-pasa-hover: #DDE9E0;
+    --color-pasa-borde: #C9DACD;
+    --color-pasa-barra: #7FA088;
+    --color-falla: #7A2E29;
+    --color-falla-fondo: #F6E9E8;
+    --color-falla-hover: #F0DEDC;
+    --color-falla-borde: #E5CBC9;
+    --color-pendiente: #6B5428;
+    --color-pendiente-fondo: #F4EFE6;
+    --color-pendiente-hover: #EDE6D9;
+    --color-pendiente-borde: #E2D8C5;
+
+    --color-sombra-tenue: #0F2A440F;
+    --color-sombra-suave: #0F2A441A;
+    --color-sombra: #0F2A444D;
+    --color-sombra-campo: #A6B4C298;
+    --color-sombra-menu: #00000029;
+    --color-sombra-gris: #6E6E6E29;
+    --color-sombra-aviso: #E078004D;
+    --color-sombra-foco: #2859C440;
+
+    --tipo-negrita: system-ui, sans-serif;
+    --tipo-negrita-peso: 700;
+    --tipo-media: system-ui, sans-serif;
+    --tipo-media-peso: 500;
+    --tipo-regular: system-ui, sans-serif;
+    --tipo-regular-peso: 400;
+}
+
+@utility tipo-negrita {
+    font-family: var(--tipo-negrita);
+    font-weight: var(--tipo-negrita-peso);
+}
+
+@utility tipo-media {
+    font-family: var(--tipo-media);
+    font-weight: var(--tipo-media-peso);
+}
+
+@utility tipo-regular {
+    font-family: var(--tipo-regular);
+    font-weight: var(--tipo-regular-peso);
+}
+
+@layer base {
+    html {
+        font-family: var(--tipo-regular);
+        font-weight: var(--tipo-regular-peso);
+        color: var(--color-texto);
+        background-color: var(--color-fondo-pagina);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100dvh;
+        background-color: var(--color-fondo-pagina);
+    }
+
+    button {
+        font-family: inherit;
+        cursor: pointer;
+    }
+}

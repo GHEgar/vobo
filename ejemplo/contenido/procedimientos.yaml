@@ -1,0 +1,50 @@
+- id: usar-esta-pagina
+  titulo: Cómo usar esta página
+  url_inicio: https://validaciones.ejemplo/
+  cuenta: val-cliente-01
+  pasos:
+    - Abrir una sección desde Inicio
+    - Abrir el primer caso pendiente
+    - Marcar los pasos
+    - Pulsar «Pasa»
+- id: reportar-falla
+  titulo: Reportar una falla
+  url_inicio: https://validaciones.ejemplo/
+  cuenta: val-cliente-01
+  pasos:
+    - Abrir un caso
+    - Pulsar «Falla»
+    - Escribir qué pasó y elegir el paso
+    - Arrastrar una captura
+    - Pulsar «Enviar falla»
+- id: ventana-incognito
+  titulo: Abrir una ventana de incógnito
+  url_inicio: https://tienda.ejemplo/
+  cuenta: ninguna
+  pasos:
+    - Abrir el menú del navegador
+    - Elegir «Nueva ventana de incógnito»
+- id: entrar-a-la-tienda
+  titulo: Entrar a la tienda
+  url_inicio: https://tienda.ejemplo/
+  cuenta: val-cliente-01
+  pasos:
+    - Pulsar «Entrar» arriba a la derecha
+    - Escribir el correo y la contraseña
+    - Ver el nombre de la cuenta arriba a la derecha
+- id: filtrar-por-precio
+  titulo: Filtrar el catálogo por precio
+  url_inicio: https://tienda.ejemplo/catalogo
+  cuenta: ninguna
+  pasos:
+    - Abrir el panel «Filtros»
+    - Mover los extremos del rango de precio
+    - Ver la lista actualizada
+- id: guardar-carrito
+  titulo: Guardar el carrito para después
+  url_inicio: https://tienda.ejemplo/carrito
+  cuenta: val-cliente-01
+  pasos:
+    - Agregar un producto al carrito
+    - Pulsar «Guardar para después»
+    - Cerrar sesión y volver a entrar

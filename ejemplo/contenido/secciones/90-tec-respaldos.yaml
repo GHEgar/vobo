@@ -1,0 +1,23 @@
+id: tec-respaldos
+orden: 90
+titulo: Respaldos de la base de datos
+sistema: infraestructura
+audiencia: tecnica
+resumen: >
+  El respaldo nocturno ahora se comprime y se verifica al terminar.
+que_cambia:
+  - El respaldo se guarda comprimido.
+  - Al terminar se restaura en una base temporal para comprobarlo.
+donde: Servidor de la tienda, carpeta de respaldos.
+casos:
+  - id: D-RES-01
+    familia: D
+    titulo: El respaldo comprimido se restaura completo
+    rol: Técnico
+    cuenta: ninguna
+    modo: prod
+    pasos:
+      - texto: Corre el respaldo a mano.
+      - texto: Restaura el archivo generado en una base temporal.
+    esperado: La base temporal tiene el mismo número de pedidos que la original.
+    severidad: critica

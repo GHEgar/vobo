@@ -1,0 +1,7 @@
+*
+!frontend/
+!nginx/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.env*
