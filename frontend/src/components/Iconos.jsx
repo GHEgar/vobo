@@ -57,3 +57,22 @@ export const IconoCampana = ({ className = '' }) => (
         <path d="M9.5 19a2.5 2.5 0 0 0 5 0" fill="none" stroke="var(--color-primario)" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
 );
+
+export const IconoBuscar = ({ className = '' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={className}>
+        <circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M15 15l5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+);
+
+export const IconoChevron = ({ className = '' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 8" aria-hidden="true" focusable="false" className={className}>
+        <path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const IconoMarca = ({ className = '' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false" className={className}>
+        <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);

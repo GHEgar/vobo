@@ -5,12 +5,12 @@ import { conRespuesta, estadoDelCaso, normalizarPasos, pasoInicial, siguienteSin
 
 const PAUSA_MS = 1000;
 
-export const useCasoGuiado = ({ caso, ronda, resultado, siguiente }) => {
+export const useCasoGuiado = ({ caso, ronda, resultado, siguiente, pasoPedido = null }) => {
     const navigate = useNavigate();
     const guardar = useGuardarResultado();
     const total = caso.pasos.length;
     const [pasos, setPasos] = useState(() => normalizarPasos(resultado?.pasos_marcados));
-    const [actual, setActual] = useState(() => pasoInicial(pasos, total));
+    const [actual, setActual] = useState(() => pasoPedido ?? pasoInicial(pasos, total));
     const [modo, setModo] = useState('botones');
     const [terminado, setTerminado] = useState(false);
 

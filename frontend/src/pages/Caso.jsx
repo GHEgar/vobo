@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { Spinner } from '@/components/Spinner';
 import { EmptyState, ErrorState } from '@/components/Estados';
 import { Button } from '@/components/Button';
@@ -35,6 +35,11 @@ const siguientePendiente = (datos, casoId) => {
     return despues.find((c) => c.id !== casoId && estadoDe(datos.estados, c.id) === 'pendiente') ?? null;
 };
 
+const pasoDeUrl = (valor, total) => {
+    const numero = Number(valor);
+    return Number.isInteger(numero) && numero >= 1 && numero <= total ? numero - 1 : null;
+};
+
 const SIN_CUENTA = new Set(['', 'ninguna', '—']);
 
 const Cabecera = ({ caso, contador }) => (
@@ -60,11 +65,11 @@ const Preparacion = ({ caso }) => (
     </div>
 );
 
-const CasoGuia = ({ caso, datos, ronda, pedidoFuera }) => {
+const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
     const { usuario, puede } = useSesion();
     const resultado = datos.estados.get(caso.id);
     const siguiente = siguientePendiente(datos, caso.id);
-    const guia = useCasoGuiado({ caso, ronda, resultado, siguiente });
+    const guia = useCasoGuiado({ caso, ronda, resultado, siguiente, pasoPedido });
     const editable = puede(PERMISOS.ejecutarCasos) && ronda?.abierta;
     const { setModo } = guia;
 
@@ -158,6 +163,7 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera }) => {
 
 const Caso = () => {
     const { casoId } = useParams();
+    const [params] = useSearchParams();
     const { ronda, datos, cargando, error, reintentar } = useProgreso();
     const [verPreparacion, setVerPreparacion] = useState(false);
     const [pedidoFuera, setPedidoFuera] = useState(0);
@@ -167,6 +173,7 @@ const Caso = () => {
     const caso = datos.indice.casos.get(casoId);
     if (!caso) return <EmptyState titulo="Caso no encontrado" />;
     const seccion = datos.indice.secciones.get(caso.seccionId);
+    const pasoPedido = pasoDeUrl(params.get('paso'), caso.pasos.length);
 
     return (
         <>
@@ -181,7 +188,7 @@ const Caso = () => {
             <Modal abierto={verPreparacion} titulo="Preparación" onCerrar={() => setVerPreparacion(false)}>
                 <Preparacion caso={caso} />
             </Modal>
-            {ronda ? <CasoGuia key={`${ronda.id}-${caso.id}`} caso={caso} datos={datos} ronda={ronda} pedidoFuera={pedidoFuera} /> : <EmptyState titulo="No hay una ronda abierta" />}
+            {ronda ? <CasoGuia key={`${ronda.id}-${caso.id}-${pasoPedido ?? ''}`} caso={caso} datos={datos} ronda={ronda} pedidoFuera={pedidoFuera} pasoPedido={pasoPedido} /> : <EmptyState titulo="No hay una ronda abierta" />}
         </>
     );
 };

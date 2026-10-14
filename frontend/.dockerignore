@@ -4,6 +4,7 @@
 !index.html
 !package.json
 !package-lock.json
+!vendor/
 !vite.config.js
 !eslint.config.js
 !jsconfig.json

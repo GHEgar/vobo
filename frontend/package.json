@@ -11,6 +11,10 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@ghegar/abanico": "file:vendor/ghegar-abanico-0.2.0.tgz",
+        "@ghegar/lanzadera": "file:vendor/ghegar-lanzadera-0.1.0.tgz",
+        "@ghegar/muestrario": "file:vendor/ghegar-muestrario-0.2.0.tgz",
+        "@ghegar/plomada": "file:vendor/ghegar-plomada-0.2.0.tgz",
         "@tanstack/react-query": "^5.90.0",
         "react": "19.2.8",
         "react-dom": "19.2.8",

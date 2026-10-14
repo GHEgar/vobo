@@ -4,6 +4,7 @@ import { useSesion } from '@/hooks/useSesion';
 import { MenuUsuario } from '@/components/MenuUsuario';
 import { Campana } from '@/components/avisos/Campana';
 import { SelectorRonda } from '@/components/SelectorRonda';
+import { Buscador } from '@/components/buscador/Buscador';
 
 const ENLACES = [
     { to: '/', texto: 'Inicio', pagina: null },
@@ -40,7 +41,7 @@ export const MainLayout = () => {
     return (
         <div className="min-h-dvh">
             <header className="sticky top-0 z-30 mx-auto max-w-6xl px-4 pt-3 md:px-6 md:pt-4">
-                <div className="rounded-2xl bg-white shadow-[0px_3px_12px_var(--color-sombra-suave)]">
+                <div className="relative rounded-2xl bg-white shadow-[0px_3px_12px_var(--color-sombra-suave)]">
                     <div className={`flex items-center justify-between gap-3 px-4 py-3 md:gap-6 md:px-7 ${enlaces.length > 1 ? 'lg:grid lg:grid-cols-[1fr_auto_1fr]' : ''}`}>
                         <NavLink to="/" className="flex min-w-0 shrink-0 flex-col leading-none lg:justify-self-start" aria-label={nombre ? `Validaciones · ${nombre}, ir a inicio` : 'Validaciones, ir a inicio'}>
                             <span className="tipo-negrita text-lg text-primario sm:text-xl md:text-2xl">Validaciones</span>
@@ -48,6 +49,7 @@ export const MainLayout = () => {
                         </NavLink>
                         {enlaces.length > 1 && <MenuPaginas enlaces={enlaces} className="hidden lg:flex lg:justify-self-center" />}
                         <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:justify-self-end">
+                            <Buscador />
                             <Campana />
                             <MenuUsuario usuario={usuario} onSalir={salir} />
                         </div>

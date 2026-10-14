@@ -6,6 +6,7 @@ import {
     instanciaSchema,
     noLeidosSchema,
     personasAvisoSchema,
+    resultadosBusquedaSchema,
     sesionSchema,
 } from '@/services/esquemas';
 
@@ -17,6 +18,11 @@ export const entrarLocal = (clave) => solicitar('/auth/local', { method: 'POST',
 export const salir = () => solicitar('/auth/logout', { method: 'POST' });
 
 export const fetchContenido = async () => contenidoSchema.parse(await solicitar('/contenido'));
+
+export const buscar = async (q, rondaId, signal) => resultadosBusquedaSchema.parse(await solicitar(
+    `/buscar${consulta({ q, ronda: rondaId })}`,
+    { signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]) },
+));
 
 export const fetchRondas = () => solicitar('/rondas');
 export const crearRonda = (datos) => solicitar('/rondas', { method: 'POST', json: datos });

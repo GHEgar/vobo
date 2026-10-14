@@ -10,6 +10,7 @@ from app.api.routes import (
     aprobaciones,
     auth,
     avisos,
+    buscar,
     casos,
     comentarios,
     contenido,
@@ -56,6 +57,7 @@ def create_app() -> FastAPI:
         secciones,
         cuentas,
         avisos,
+        buscar,
     ):
         aplicacion.include_router(modulo.router)
 

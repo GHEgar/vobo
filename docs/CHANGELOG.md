@@ -13,6 +13,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   manda avisos libres a varias personas; campana con contador de no leídos y página `/avisos`.
 - Entrada directa al proveedor OIDC sin pantalla intermedia, con regreso a la página pedida
   (`/api/auth/login?siguiente=`), protección contra bucles y aviso de sesión cerrada.
+- Buscador en la cabecera (`/` o Ctrl+K) sobre secciones, casos, pasos, herramientas y
+  procedimientos visibles para cada persona, sin acentos ni mayúsculas; `GET /api/buscar` y
+  `/caso/:id?paso=n` para abrir un caso en un paso.
+- Desplegable propio para elegir la ronda, reutilizable como `Desplegable`.
+- Componentes de telar vendorizados en `frontend/vendor/`: `muestrario`, `abanico`, `plomada` y
+  `lanzadera`.
 
 ### Corregido
 

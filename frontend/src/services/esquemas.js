@@ -79,3 +79,11 @@ export const avisosSchema = z.array(avisoSchema);
 export const noLeidosSchema = z.object({ total: z.number() });
 
 export const personasAvisoSchema = z.array(z.object({ email: z.string(), nombre: z.string() }));
+
+export const resultadosBusquedaSchema = z.array(z.object({
+    tipo: z.enum(['seccion', 'caso', 'paso', 'herramienta', 'procedimiento']),
+    id: z.string(),
+    titulo: z.string(),
+    contexto: z.string(),
+    ruta: z.string(),
+}));
