@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router';
 import { useInstancia } from '@/hooks/useInstancia';
 import { useSesion } from '@/hooks/useSesion';
 import { MenuUsuario } from '@/components/MenuUsuario';
+import { Campana } from '@/components/avisos/Campana';
 import { SelectorRonda } from '@/components/SelectorRonda';
 
 const ENLACES = [
@@ -47,6 +48,7 @@ export const MainLayout = () => {
                         </NavLink>
                         {enlaces.length > 1 && <MenuPaginas enlaces={enlaces} className="hidden lg:flex lg:justify-self-center" />}
                         <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:justify-self-end">
+                            <Campana />
                             <MenuUsuario usuario={usuario} onSalir={salir} />
                         </div>
                     </div>

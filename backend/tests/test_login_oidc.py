@@ -103,3 +103,31 @@ def test_logout_revoca_el_refresh_token(cliente_de, idp) -> None:
     assert idp.llamadas(f"{INTERNA}/auth/revoke") == 1
     assert idp.formularios[-1]["token"] == "refresco-1"
     assert cliente.get("/api/auth/me").status_code == 401
+
+
+def _transaccion_con(cliente, siguiente: str):
+    login = cliente.get("/api/auth/login", params={"siguiente": siguiente}, follow_redirects=False)
+    estado = parse_qs(urlsplit(login.headers["location"]).query)["state"][0]
+    return cliente.get(f"/api/auth/callback?code=codigo-1&state={estado}", follow_redirects=False)
+
+
+def test_siguiente_valido_llega_al_redirect(cliente_de, idp) -> None:
+    callback = _transaccion_con(cliente_de(None), "/caso/A-GEN-01?ronda=2")
+    assert callback.status_code == 302
+    assert callback.headers["location"] == "http://testserver/caso/A-GEN-01?ronda=2"
+
+
+def test_siguiente_invalido_se_descarta(cliente_de, idp) -> None:
+    invalidos = [
+        "//evil.com",
+        "https://evil.com",
+        "/api/x",
+        "/\\evil",
+        "caso/1",
+        "/caso\r\nSet-Cookie: x=1",
+        "/" + "a" * 500,
+    ]
+    for siguiente in invalidos:
+        callback = _transaccion_con(cliente_de(None), siguiente)
+        assert callback.status_code == 302
+        assert callback.headers["location"] == "http://testserver/"

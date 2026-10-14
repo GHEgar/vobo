@@ -16,6 +16,7 @@ PATH_TRANSACCION = "/api/auth"
 CABECERA_CSRF = "X-CSRF-Token"
 METODOS_SEGUROS = frozenset({"GET", "HEAD", "OPTIONS"})
 VIDA_TRANSACCION = 600
+LARGO_SIGUIENTE = 500
 
 
 def duracion_sesion() -> timedelta:
@@ -95,3 +96,18 @@ def verificar_csrf(request: Request, sesion_id: str) -> None:
     enviado = request.headers.get(CABECERA_CSRF, "")
     if not hmac.compare_digest(enviado, csrf_de(sesion_id)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Token CSRF inválido")
+
+
+def siguiente_seguro(valor: str | None) -> str | None:
+    if not valor or len(valor) > LARGO_SIGUIENTE:
+        return None
+    if not valor.startswith("/") or valor.startswith(("//", "/\\")):
+        return None
+    if any(caracter in valor for caracter in "\r\n\t\\"):
+        return None
+    partes = urlsplit(valor)
+    if partes.scheme or partes.netloc:
+        return None
+    if partes.path == "/api" or partes.path.startswith("/api/"):
+        return None
+    return valor

@@ -13,6 +13,7 @@ import Rondas from '@/pages/Rondas';
 import Herramientas from '@/pages/Herramientas';
 import Aprobaciones from '@/pages/Aprobaciones';
 import Acta from '@/pages/Acta';
+import Avisos from '@/pages/Avisos';
 import Entrar from '@/pages/Entrar';
 import NoEncontrado from '@/pages/NoEncontrado';
 
@@ -36,6 +37,7 @@ const AppRoutes = () => {
                     <Route index element={<Inicio />} />
                     <Route path="seccion/:seccionId" element={<Seccion />} />
                     <Route path="caso/:casoId" element={<Caso />} />
+                    <Route path="avisos" element={<Avisos />} />
                     <Route
                         path="tablero"
                         element={<ConPagina pagina="tablero"><Tablero /></ConPagina>}

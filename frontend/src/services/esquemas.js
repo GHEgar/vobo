@@ -60,3 +60,22 @@ export const instanciaSchema = z.object({
     descripcion: z.string().default(''),
     proyectos: z.array(z.object({ clave: z.string(), nombre: z.string() })).default([]),
 });
+
+export const avisoSchema = z.object({
+    id: z.number(),
+    usuario_email: z.string(),
+    titulo: z.string(),
+    mensaje: z.string(),
+    falla_id: z.number().nullable(),
+    caso_id: z.string().nullable(),
+    autor_email: z.string(),
+    autor_nombre: z.string(),
+    creado: z.string(),
+    leido: z.string().nullable(),
+});
+
+export const avisosSchema = z.array(avisoSchema);
+
+export const noLeidosSchema = z.object({ total: z.number() });
+
+export const personasAvisoSchema = z.array(z.object({ email: z.string(), nombre: z.string() }));

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -39,7 +39,7 @@ def modo() -> ModoResponse:
 
 
 @router.get("/login", dependencies=[Depends(_solo_oidc)])
-async def login() -> RedirectResponse:
+async def login(siguiente: str | None = Query(default=None)) -> RedirectResponse:
     try:
         solicitud = await oidc.solicitud_de_autorizacion()
     except oidc.ErrorOIDC:
@@ -48,9 +48,11 @@ async def login() -> RedirectResponse:
             detail="No se pudo iniciar sesión; intenta de nuevo en un momento",
         ) from None
     respuesta = RedirectResponse(url=solicitud.url, status_code=status.HTTP_302_FOUND)
-    security.guardar_transaccion(
-        respuesta, {"estado": solicitud.state, "verificador": solicitud.code_verifier}
-    )
+    transaccion = {"estado": solicitud.state, "verificador": solicitud.code_verifier}
+    destino = security.siguiente_seguro(siguiente)
+    if destino:
+        transaccion["siguiente"] = destino
+    security.guardar_transaccion(respuesta, transaccion)
     return respuesta
 
 
@@ -77,7 +79,10 @@ async def callback(
     claims = await oidc.validar_access_token(tokens["access_token"])
     usuario = sesiones.resolver_usuario(db, claims)
     sesion = sesiones.crear(db, usuario, tokens)
-    respuesta = RedirectResponse(url=f"{settings.frontend_url}/", status_code=status.HTTP_302_FOUND)
+    destino = security.siguiente_seguro(transaccion.get("siguiente")) or "/"
+    respuesta = RedirectResponse(
+        url=f"{settings.frontend_url}{destino}", status_code=status.HTTP_302_FOUND
+    )
     security.borrar_transaccion(respuesta)
     respuesta.delete_cookie(COOKIE_REINTENTO, path=security.COOKIE_PATH)
     security.emitir_cookie(respuesta, sesion.id)

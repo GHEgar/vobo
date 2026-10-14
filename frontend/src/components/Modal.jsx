@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useEffectEvent, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { IconoCerrar } from '@/components/Iconos';
 
@@ -7,6 +7,7 @@ const ENFOCABLES = 'a[href], button:not([disabled]), input:not([disabled]), sele
 export const Modal = ({ abierto, titulo, onCerrar, children, ancho = 'max-w-[812px]' }) => {
     const tituloId = useId();
     const dialogoRef = useRef(null);
+    const cerrar = useEffectEvent(() => onCerrar());
 
     useEffect(() => {
         if (!abierto) return undefined;
@@ -16,7 +17,7 @@ export const Modal = ({ abierto, titulo, onCerrar, children, ancho = 'max-w-[812
         const teclas = (e) => {
             if (e.key === 'Escape') {
                 e.preventDefault();
-                onCerrar();
+                cerrar();
                 return;
             }
             const enfocables = dialogo?.querySelectorAll(ENFOCABLES);
@@ -36,7 +37,7 @@ export const Modal = ({ abierto, titulo, onCerrar, children, ancho = 'max-w-[812
             document.removeEventListener('keydown', teclas);
             anterior?.focus?.();
         };
-    }, [abierto, onCerrar]);
+    }, [abierto]);
 
     if (!abierto) return null;
 

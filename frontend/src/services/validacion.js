@@ -1,5 +1,13 @@
 import { consulta, solicitar } from '@/services/api';
-import { contenidoSchema, instanciaSchema, sesionSchema } from '@/services/esquemas';
+import {
+    avisoSchema,
+    avisosSchema,
+    contenidoSchema,
+    instanciaSchema,
+    noLeidosSchema,
+    personasAvisoSchema,
+    sesionSchema,
+} from '@/services/esquemas';
 
 export const fetchInstancia = async () => instanciaSchema.parse(await solicitar('/instancia'));
 export const fetchModo = () => solicitar('/auth/modo');
@@ -48,3 +56,10 @@ export const fetchComentariosCaso = (casoId, rondaId) => solicitar(
 export const fetchCuentasPrueba = (rondaId) => solicitar(`/cuentas-prueba${consulta({ ronda: rondaId })}`);
 export const fetchAprobaciones = (rondaId) => solicitar(`/aprobaciones${consulta({ ronda: rondaId })}`);
 export const registrarAprobaciones = (datos) => solicitar('/aprobaciones', { method: 'POST', json: datos });
+
+export const fetchAvisos = async () => avisosSchema.parse(await solicitar('/avisos'));
+export const fetchAvisosNoLeidos = async () => noLeidosSchema.parse(await solicitar('/avisos/no-leidos'));
+export const fetchPersonasAviso = async () => personasAvisoSchema.parse(await solicitar('/avisos/personas'));
+export const marcarAvisoLeido = async (id) => avisoSchema.parse(await solicitar(`/avisos/${id}/leido`, { method: 'POST' }));
+export const marcarAvisosLeidos = async () => noLeidosSchema.parse(await solicitar('/avisos/leidos', { method: 'POST' }));
+export const crearAviso = async (datos) => avisosSchema.parse(await solicitar('/avisos', { method: 'POST', json: datos }));

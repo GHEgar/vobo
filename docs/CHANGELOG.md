@@ -5,6 +5,19 @@ Todos los cambios notables de este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
+## [No publicado]
+
+### Agregado
+
+- Buzón de avisos: coordinación avisa a quien reportó una falla (mensaje prellenado según su estado) o
+  manda avisos libres a varias personas; campana con contador de no leídos y página `/avisos`.
+- Entrada directa al proveedor OIDC sin pantalla intermedia, con regreso a la página pedida
+  (`/api/auth/login?siguiente=`), protección contra bucles y aviso de sesión cerrada.
+
+### Corregido
+
+- El foco del modal saltaba al botón de cerrar en cada render del padre.
+
 ## [0.1.0] - 2026-10-14
 
 ### Agregado

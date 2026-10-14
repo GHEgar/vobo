@@ -3,11 +3,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { SesionContext } from '@/contexts/SesionContext';
 import { fijarCsrf } from '@/services/api';
 import { fetchSesion, salir as salirApi } from '@/services/validacion';
+import { limpiarMarcasEntrada, marcarSesionCerrada } from '@/utils/entrada';
 
 const leerSesion = async () => {
     try {
         const sesion = await fetchSesion();
         fijarCsrf(sesion.csrf_token);
+        limpiarMarcasEntrada();
         return sesion;
     } catch (error) {
         if (error.estado === 401) return null;
@@ -40,6 +42,7 @@ export const SesionProvider = ({ children }) => {
                 await salirApi().catch(() => null);
                 fijarCsrf('');
                 queryClient.clear();
+                marcarSesionCerrada();
                 window.location.assign('/');
             },
         };

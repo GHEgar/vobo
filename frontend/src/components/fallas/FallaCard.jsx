@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { AvisarFalla } from '@/components/avisos/AvisarFalla';
 import { MediaImagen } from '@/components/MediaImagen';
 import { Modal } from '@/components/Modal';
 import { SelectField, TextField } from '@/components/Field';
@@ -79,6 +80,7 @@ export const FallaCard = ({ falla, editable }) => {
                 </div>
                 <Button label="Guardar nota" variant="outline" disabled={nota === falla.nota_resolucion} loading={actualizar.isPending} onClick={() => cambiar({ nota_resolucion: nota })} />
             </div>}
+            {editable && <div className="mt-4"><AvisarFalla falla={falla} /></div>}
             {actualizar.error && <p className="mt-2 tipo-media text-xs text-error-fuerte">{actualizar.error.message}</p>}
             <Modal abierto={Boolean(ampliada)} titulo={`Falla #${falla.id}`} onCerrar={() => setAmpliada(null)} ancho="max-w-5xl">
                 {ampliada && <img src={ampliada.url} alt={`Captura de la falla ${falla.id}`} className="max-h-[75dvh] w-full rounded-xl object-contain" />}

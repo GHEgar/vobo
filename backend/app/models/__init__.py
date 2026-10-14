@@ -1,5 +1,6 @@
 from app.models.acceso import Acceso
 from app.models.aprobacion import Aprobacion
+from app.models.aviso import Aviso
 from app.models.decision import Decision
 from app.models.falla import Evidencia, Falla
 from app.models.resultado import Resultado
@@ -10,6 +11,7 @@ __all__ = [
     "Acceso",
     "Aprobacion",
     "Asignacion",
+    "Aviso",
     "Decision",
     "Evidencia",
     "Falla",

@@ -44,3 +44,16 @@ export const IconoSubir = ({ className = '' }) => (
         </g>
     </svg>
 );
+
+export const IconoCampana = ({ className = '' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={className}>
+        <path
+            d="M12 3a6 6 0 0 0-6 6v3.6l-1.6 2.7A1 1 0 0 0 5.3 17h13.4a1 1 0 0 0 .9-1.7L18 12.6V9a6 6 0 0 0-6-6Z"
+            fill="none"
+            stroke="var(--color-primario)"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+        />
+        <path d="M9.5 19a2.5 2.5 0 0 0 5 0" fill="none" stroke="var(--color-primario)" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+);
