@@ -12,14 +12,16 @@ import { SelectorRonda } from '@/components/SelectorRonda';
 import { Button } from '@/components/Button';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { Veredicto } from '@/components/tablero/Veredicto';
+import { EnLinea } from '@/components/tablero/EnLinea';
 import { useRonda } from '@/hooks/useRonda';
 import { useSesion } from '@/hooks/useSesion';
 import { useTablero } from '@/hooks/useValidacion';
 import { SEVERIDADES } from '@/utils/etiquetas';
+import { PERMISOS } from '@/utils/permisos';
 
 const Tablero = () => {
     const { ronda, cargando: cargandoRonda } = useRonda();
-    const { ve } = useSesion();
+    const { ve, puede } = useSesion();
     const [audiencia, setAudiencia] = useLocalStorageState('validacion.tablero.audiencia', 'todas');
     const { data, isPending, error, refetch } = useTablero(ronda?.id, audiencia);
     const [vista, setVista] = useLocalStorageState('validacion.tablero.vista', 'familia');
@@ -60,6 +62,7 @@ const Tablero = () => {
                     </div>
                 </Tarjeta>
             </div>
+            {(puede(PERMISOS.verTablero) || puede(PERMISOS.gestionarFallas)) && <EnLinea />}
             <Tarjeta>
                 <Titulo
                     descripcion={vista === 'proyecto' ? 'Casos marcados por persona y proyecto; «—» es un proyecto que no tiene asignado.' : 'Casos marcados por persona y familia.'}

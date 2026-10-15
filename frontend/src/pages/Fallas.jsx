@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { SelectField } from '@/components/Field';
 import { Spinner } from '@/components/Spinner';
 import { EmptyState, ErrorState } from '@/components/Estados';
@@ -10,12 +10,17 @@ import { useRonda } from '@/hooks/useRonda';
 import { useSesion } from '@/hooks/useSesion';
 import { PERMISOS } from '@/utils/permisos';
 import { useContenido, useFallas } from '@/hooks/useValidacion';
+import { consulta as aConsulta } from '@/services/api';
+import { urlInformeFallas } from '@/services/validacion';
+import { zonaHoraria } from '@/utils/informeFallas';
 import { ESTADOS_FALLA, SEVERIDADES, opciones } from '@/utils/etiquetas';
 
 const TIPOS = [
     { valor: 'falla', texto: 'Fallas' },
     { valor: 'no_pude', texto: 'No pude probarlo' },
 ];
+
+const ENLACE = 'inline-flex h-[30px] items-center rounded-full border border-primario px-4 tipo-negrita text-xs text-primario hover:bg-primario-suave';
 
 const Fallas = () => {
     const { puede } = useSesion();
@@ -40,7 +45,13 @@ const Fallas = () => {
     return (
         <>
             <Tarjeta>
-                <h1 className="tipo-negrita text-lg text-texto">Fallas reportadas</h1>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h1 className="tipo-negrita text-lg text-texto">Fallas reportadas</h1>
+                    <div className="flex flex-wrap gap-2">
+                        <a href={urlInformeFallas({ ...consulta, tz: zonaHoraria() })} download className={ENLACE}>Descargar CSV</a>
+                        <Link to={`/informe-fallas${aConsulta(consulta)}`} className={ENLACE}>Informe imprimible</Link>
+                    </div>
+                </div>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                     <SelectField id="f-ronda" label="Ronda" value={consulta.ronda} onChange={fijar('ronda')} placeholder="Todas" options={rondas.map((r) => ({ valor: r.id, texto: r.nombre }))} />
                     <SelectField id="f-tipo" label="Tipo" value={filtros.tipo} onChange={fijar('tipo')} placeholder="Todos" options={TIPOS} />

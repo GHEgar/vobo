@@ -19,6 +19,7 @@ from app.api.routes import (
     fallas,
     herramientas,
     instancia,
+    presencia,
     rondas,
     secciones,
     tablero,
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
         cuentas,
         avisos,
         buscar,
+        presencia,
     ):
         aplicacion.include_router(modulo.router)
 

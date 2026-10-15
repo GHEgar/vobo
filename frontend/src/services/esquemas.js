@@ -87,3 +87,20 @@ export const resultadosBusquedaSchema = z.array(z.object({
     contexto: z.string(),
     ruta: z.string(),
 }));
+
+export const presenciasSchema = z.array(z.object({
+    email: z.string(),
+    nombre: z.string(),
+    ruta: z.string(),
+    caso_id: z.string().nullable(),
+    caso_titulo: z.string(),
+    paso: z.number().nullable(),
+    pasos_total: z.number().nullable(),
+    seccion_id: z.string().nullable(),
+    seccion_titulo: z.string(),
+    accion: z.string(),
+    ronda_id: z.number().nullable(),
+    estado: z.enum(['activo', 'inactivo']),
+    hace_segundos: z.number(),
+    yo: z.boolean(),
+}));

@@ -53,3 +53,10 @@ export const describirNavegador = (ua = navigator.userAgent) => {
     const nombre = navegador ? `${navegador[1]} ${ua.match(navegador[0])[1]}` : 'Navegador desconocido';
     return sistema ? `${nombre} en ${sistema[1]}` : nombre;
 };
+
+export const iniciales = (nombre = '') => nombre
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0].toUpperCase())
+    .join('') || '?';

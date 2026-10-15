@@ -1,34 +1,71 @@
 from typing import Literal
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from app.api.deps import Actor, lectura_o_permiso, require_permission
 from app.core.database import get_db
 from app.core.permisos import EJECUTAR_CASOS, GESTIONAR_FALLAS
+from app.core.time import utcnow
 from app.schemas.falla import EstadoFalla, FallaResponse, FallaUpdate, Reproducible, TipoFalla
-from app.services import contenido, evidencias, fallas, rondas
+from app.services import contenido, evidencias, fallas, informe_fallas, rondas
 
 router = APIRouter(prefix="/api/fallas", tags=["fallas"])
 
 SeveridadFiltro = Literal["critica", "alta", "media", "baja"]
 
 
-@router.get("", response_model=list[FallaResponse])
-def listar_fallas(
+def filtro_fallas(
     ronda: int | None = Query(default=None),
     sistema: str | None = Query(default=None),
     severidad: SeveridadFiltro | None = Query(default=None),
     estado: EstadoFalla | None = Query(default=None),
     tipo: TipoFalla | None = Query(default=None),
+) -> fallas.FiltroFallas:
+    return fallas.FiltroFallas(
+        ronda=ronda, sistema=sistema, severidad=severidad, estado=estado, tipo=tipo
+    )
+
+
+@router.get("", response_model=list[FallaResponse])
+def listar_fallas(
+    filtro: fallas.FiltroFallas = Depends(filtro_fallas),
     db: Session = Depends(get_db),
     _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
 ) -> list[FallaResponse]:
     actual = contenido.obtener()
-    filtro = fallas.FiltroFallas(
-        ronda=ronda, sistema=sistema, severidad=severidad, estado=estado, tipo=tipo
-    )
     return [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
+
+
+@router.get("/informe.csv")
+def informe_csv(
+    filtro: fallas.FiltroFallas = Depends(filtro_fallas),
+    tz: str | None = Query(default=None, max_length=64),
+    db: Session = Depends(get_db),
+    _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
+) -> Response:
+    actual = contenido.obtener()
+    zona = informe_fallas.zona(tz)
+    serializadas = [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
+    nombre = informe_fallas.nombre_archivo(filtro.ronda, zona, utcnow())
+    return Response(
+        content=informe_fallas.generar(db, actual, serializadas, zona).encode("utf-8"),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f'attachment; filename="{nombre}"',
+            "Cache-Control": "no-store",
+        },
+    )
 
 
 @router.post("", response_model=FallaResponse, status_code=status.HTTP_201_CREATED)

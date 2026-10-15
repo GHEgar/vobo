@@ -6,6 +6,7 @@ import {
     instanciaSchema,
     noLeidosSchema,
     personasAvisoSchema,
+    presenciasSchema,
     resultadosBusquedaSchema,
     sesionSchema,
 } from '@/services/esquemas';
@@ -43,6 +44,7 @@ export const guardarResultado = ({ casoId, ...datos }) => solicitar(
 
 export const reportarFalla = (form) => solicitar('/fallas', { method: 'POST', form });
 export const fetchFallas = (filtros) => solicitar(`/fallas${consulta(filtros)}`);
+export const urlInformeFallas = (filtros) => `/api/fallas/informe.csv${consulta(filtros)}`;
 export const actualizarFalla = ({ id, ...cambios }) => solicitar(`/fallas/${id}`, { method: 'PATCH', json: cambios });
 
 export const fetchTablero = (rondaId, audiencia = 'todas') => solicitar(`/tablero${consulta({ ronda: rondaId, audiencia })}`);
@@ -69,3 +71,6 @@ export const fetchPersonasAviso = async () => personasAvisoSchema.parse(await so
 export const marcarAvisoLeido = async (id) => avisoSchema.parse(await solicitar(`/avisos/${id}/leido`, { method: 'POST' }));
 export const marcarAvisosLeidos = async () => noLeidosSchema.parse(await solicitar('/avisos/leidos', { method: 'POST' }));
 export const crearAviso = async (datos) => avisosSchema.parse(await solicitar('/avisos', { method: 'POST', json: datos }));
+
+export const registrarPresencia = (datos) => solicitar('/presencia', { method: 'POST', json: datos });
+export const fetchPresencia = async () => presenciasSchema.parse(await solicitar('/presencia'));

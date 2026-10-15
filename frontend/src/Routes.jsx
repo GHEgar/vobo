@@ -13,6 +13,7 @@ import Rondas from '@/pages/Rondas';
 import Herramientas from '@/pages/Herramientas';
 import Aprobaciones from '@/pages/Aprobaciones';
 import Acta from '@/pages/Acta';
+import InformeFallas from '@/pages/InformeFallas';
 import Avisos from '@/pages/Avisos';
 import Entrar from '@/pages/Entrar';
 import NoEncontrado from '@/pages/NoEncontrado';
@@ -33,6 +34,7 @@ const AppRoutes = () => {
         <RondaProvider>
             <Routes>
                 <Route path="acta" element={<ConPagina pagina="aprobaciones"><Acta /></ConPagina>} />
+                <Route path="informe-fallas" element={<ConPagina pagina="fallas"><InformeFallas /></ConPagina>} />
                 <Route element={<MainLayout />}>
                     <Route index element={<Inicio />} />
                     <Route path="seccion/:seccionId" element={<Seccion />} />

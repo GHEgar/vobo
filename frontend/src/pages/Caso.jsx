@@ -14,6 +14,7 @@ import { CuentasPrueba } from '@/components/inicio/CuentasPrueba';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 import { PasoActual } from '@/components/caso/PasoActual';
 import { useCasoGuiado } from '@/hooks/useCasoGuiado';
+import { useInformarPresencia } from '@/hooks/usePresencia';
 import { useProgreso } from '@/hooks/useMisCasos';
 import { useSesion } from '@/hooks/useSesion';
 import { PERMISOS } from '@/utils/permisos';
@@ -40,6 +41,8 @@ const pasoDeUrl = (valor, total) => {
     const numero = Number(valor);
     return Number.isInteger(numero) && numero >= 1 && numero <= total ? numero - 1 : null;
 };
+
+const ACCIONES = { falla: 'reportando', otro: 'reportando', comentario: 'comentando' };
 
 const SIN_CUENTA = new Set(['', 'ninguna', '—']);
 
@@ -73,6 +76,11 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
     const guia = useCasoGuiado({ caso, ronda, resultado, siguiente, pasoPedido });
     const editable = puede(PERMISOS.ejecutarCasos) && ronda?.abierta;
     const { setModo } = guia;
+    useInformarPresencia({
+        casoId: caso.id,
+        paso: guia.terminado ? null : guia.actual + 1,
+        accion: ACCIONES[guia.modo] ?? 'viendo',
+    });
 
     useEffect(() => {
         if (pedidoFuera && editable) setModo('otro');

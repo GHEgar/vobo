@@ -78,6 +78,12 @@ export const useAsignaciones = (rondaId) => useQuery({
     enabled: Boolean(rondaId),
 });
 
+export const usePresentes = () => useQuery({
+    queryKey: ['presencia'],
+    queryFn: api.fetchPresencia,
+    refetchInterval: 30 * 1000,
+});
+
 const useMutacion = (mutationFn, claves) => {
     const queryClient = useQueryClient();
     return useMutation({

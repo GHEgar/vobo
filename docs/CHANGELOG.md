@@ -7,6 +7,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Presencia en línea para coordinación: cada sesión informa dónde está (página, caso, paso y si está
+  reportando una falla o comentando) cada 30 s mientras la pestaña está visible; panel «En línea» en
+  el tablero con estado activo/inactivo y enlace al caso. `POST` y `GET /api/presencia`.
+- Informe de fallas con los filtros vigentes: descarga CSV para hojas de cálculo
+  (`GET /api/fallas/informe.csv`, UTF-8 con BOM, fechas en la zona horaria de quien descarga y
+  celdas protegidas contra fórmulas) e informe imprimible en `/informe-fallas` con resumen por
+  severidad, estado y sección, detalle de cada falla y miniaturas de sus capturas.
+
 ## [0.2.0] - 2026-10-15
 
 ### Agregado

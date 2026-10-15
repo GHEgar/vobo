@@ -2,13 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, Bell, User } from 'tesela/react';
 import { useAvisosNoLeidos } from '@/hooks/useAvisos';
-
-const iniciales = (nombre = '') => nombre
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0].toUpperCase())
-    .join('') || '?';
+import { iniciales } from '@/utils/formato';
 
 const contador = (total) => (total > 99 ? '99+' : String(total));
 
