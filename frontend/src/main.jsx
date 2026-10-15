@@ -6,7 +6,7 @@ import { RootErrorBoundary } from '@/components/RootErrorBoundary';
 import { SesionProvider } from '@/providers/SesionProvider';
 import { MetaInstancia } from '@/components/MetaInstancia';
 import AppRoutes from '@/Routes';
-import '@npmegar/rotulo';
+import 'rotulo';
 import './index.css';
 
 const queryClient = new QueryClient({

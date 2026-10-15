@@ -25,7 +25,7 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Cambiado
 
-- La fuente por defecto pasa a ser rótulo (`@npmegar/rotulo`) en todo el frontend; un `tema.css` puede
+- La fuente por defecto pasa a ser rótulo (`rotulo` en npm) en todo el frontend; un `tema.css` puede
   cambiarla con las variables `--tipo-*`.
 
 - El lint del frontend usa `@npmegar/eslint-config` 0.4.0 desde npm (presets `base`, `react` y
