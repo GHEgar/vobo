@@ -58,11 +58,11 @@
     --color-sombra-aviso: #E078004D;
     --color-sombra-foco: #2859C440;
 
-    --tipo-negrita: system-ui, sans-serif;
+    --tipo-negrita: 'Rotulo', system-ui, sans-serif;
     --tipo-negrita-peso: 700;
-    --tipo-media: system-ui, sans-serif;
+    --tipo-media: 'Rotulo', system-ui, sans-serif;
     --tipo-media-peso: 500;
-    --tipo-regular: system-ui, sans-serif;
+    --tipo-regular: 'Rotulo', system-ui, sans-serif;
     --tipo-regular-peso: 400;
 }
 

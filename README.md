@@ -49,8 +49,9 @@ it is skipped and listed under `errores` in `GET /api/contenido`.
 
 ## Theme
 
-Colors and fonts are CSS variables (`--color-*`, `--tipo-*`) with a neutral default. The theme
-folder holds a `tema.css` served at `/tema/` whose `:root` overrides them:
+Colors and fonts are CSS variables (`--color-*`, `--tipo-*`). Colors default to a neutral palette
+and fonts to [Rotulo](https://github.com/GHEgar/rotulo) (`@npmegar/rotulo`). The theme folder holds
+a `tema.css` served at `/tema/` whose `:root` overrides them:
 
 ```css
 @font-face {
