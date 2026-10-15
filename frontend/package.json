@@ -19,7 +19,7 @@
         "react": "19.2.8",
         "react-dom": "19.2.8",
         "react-router": "^8.4.0",
-        "tesela": "file:vendor/tesela-0.2.0.tgz",
+        "tesela": "^0.3.0",
         "zod": "^4.1.0"
     },
     "devDependencies": {

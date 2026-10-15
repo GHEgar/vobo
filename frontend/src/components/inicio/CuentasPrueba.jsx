@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'tesela/react';
 import { BotonCopiar } from '@/components/BotonCopiar';
 import { Button } from '@/components/Button';
 import { Modal } from '@/components/Modal';
@@ -26,8 +27,9 @@ const FilaCuenta = ({ cuenta, resaltada }) => {
                     type="button"
                     onClick={() => setVisible(!visible)}
                     aria-pressed={visible}
-                    className="bg-transparent p-0 tipo-negrita text-xs text-texto-tenue underline underline-offset-4 hover:text-primario"
+                    className="inline-flex items-center gap-1 bg-transparent p-0 tipo-negrita text-xs text-texto-tenue underline underline-offset-4 hover:text-primario"
                 >
+                    {visible ? <EyeOff size={14} stroke={2} /> : <Eye size={14} stroke={2} />}
                     {visible ? 'Ocultar' : 'Mostrar'}
                 </button>
                 <BotonCopiar texto={cuenta.password} etiqueta="Copiar contraseña" descripcion={`Copiar la contraseña de ${cuenta.email}`} />

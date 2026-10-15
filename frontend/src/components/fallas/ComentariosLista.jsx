@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { Check, Copy } from 'tesela/react';
 import { Chip } from '@/components/Chip';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
@@ -20,8 +21,9 @@ const CopiarTaiga = ({ comentario }) => {
         <button
             type="button"
             onClick={async () => setCopiado(await copiarTexto(paraTaiga(comentario)))}
-            className="ml-auto shrink-0 bg-transparent p-0 tipo-negrita text-xs text-primario underline underline-offset-4 hover:text-primario-hover"
+            className="ml-auto inline-flex shrink-0 items-center gap-1 bg-transparent p-0 tipo-negrita text-xs text-primario underline underline-offset-4 hover:text-primario-hover"
         >
+            {copiado ? <Check size={14} stroke={2} /> : <Copy size={14} stroke={2} />}
             {copiado ? 'Copiado' : 'Copiar para Taiga'}
         </button>
     );
