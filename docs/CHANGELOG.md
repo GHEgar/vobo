@@ -28,6 +28,9 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Corregido
 
+- Varias peticiones con el token vencido renovaban la sesión a la vez: el proveedor rechazaba el
+  refresh token ya rotado, la sesión se cerraba y la persona tenía que volver a entrar (500 con
+  `StaleDataError`). Ahora solo una renueva y las demás esperan su resultado.
 - El foco del modal saltaba al botón de cerrar en cada render del padre.
 
 ## [0.1.0] - 2026-10-14

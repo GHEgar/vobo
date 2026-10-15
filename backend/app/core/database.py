@@ -39,6 +39,7 @@ COLUMNAS_AGREGADAS = {
     "resultados": {"comentario": "TEXT"},
     "usuarios": {"permisos": "JSON"},
     "fallas": {"seccion_id": "VARCHAR(120)", "tipo": "VARCHAR(10) NOT NULL DEFAULT 'falla'"},
+    "sesiones": {"renovando_hasta": "DATETIME"},
 }
 
 
