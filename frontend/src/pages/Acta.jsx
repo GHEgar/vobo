@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import { CornerDownRight } from 'tesela/react';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
 import { useInstancia } from '@/hooks/useInstancia';
@@ -81,7 +82,7 @@ const Acta = () => {
                                     </tr>,
                                     ...nested.map((c) => (
                                         <tr key={`${h.id}-${c.caso_id}`} className="align-top text-[12px] text-texto-tenue">
-                                            <td className="py-1 pr-3 pl-4" colSpan={3}>↳ {c.titulo} <span className="text-texto-apagado">({c.caso_id})</span></td>
+                                            <td className="py-1 pr-3 pl-4" colSpan={3}><CornerDownRight size={12} stroke={2} className="mr-1 inline-block align-[-1px]" />{c.titulo} <span className="text-texto-apagado">({c.caso_id})</span></td>
                                             <td className="py-1">{APROBACIONES[c.aprobacion.estado].texto}</td>
                                         </tr>
                                     )),
