@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.2.0] - 2026-10-15
+
 ### Agregado
 
 - Buzón de avisos: coordinación avisa a quien reportó una falla (mensaje prellenado según su estado) o
