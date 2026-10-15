@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useMenu } from '@ghegar/abanico';
-import { IconoChevron, IconoMarca } from '@/components/Iconos';
+import { Check, ChevronDown } from 'tesela/react';
 
 const BOTON = 'flex h-[38px] w-full cursor-pointer items-center gap-2 rounded-full border border-transparent bg-fondo pr-10 text-left tipo-media text-[13px] text-primario hover:border-primario hover:bg-white hover:shadow-[0px_2px_24px_var(--color-sombra-campo)] focus:outline-none focus-visible:bg-white focus-visible:ring-1 focus-visible:ring-primario aria-expanded:bg-white aria-expanded:ring-1 aria-expanded:ring-primario';
 
@@ -48,7 +48,7 @@ export const Desplegable = ({ opciones, value, onChange, 'aria-label': etiqueta,
                 <span className="min-w-0 truncate">{elegida?.texto ?? ''}</span>
                 {elegida?.extra && <span className="flex shrink-0 *:min-h-[22px] *:px-2.5 *:py-0">{elegida.extra}</span>}
             </button>
-            <IconoChevron className="pointer-events-none absolute top-1/2 right-4 h-2 w-3 -translate-y-1/2 text-primario" />
+            <ChevronDown size={16} stroke={2} className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-primario" />
             {menu.open && createPortal(
                 <div
                     {...lista}
@@ -64,7 +64,7 @@ export const Desplegable = ({ opciones, value, onChange, 'aria-label': etiqueta,
                                 className={`flex cursor-pointer items-center gap-2 rounded-xl py-2 pr-3 pl-2 text-sm outline-none data-[active]:bg-primario-claro ${marcada ? 'tipo-negrita text-primario' : 'tipo-media text-texto-tenue'}`}
                             >
                                 <span className="flex w-4 shrink-0 justify-center">
-                                    {marcada && <IconoMarca className="h-4 w-4" />}
+                                    {marcada && <Check size={16} stroke={2} />}
                                 </span>
                                 <span className="min-w-0 flex-1 truncate">{opcion.texto}</span>
                                 {opcion.extra}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
+import { ChevronLeft } from 'tesela/react';
 import { Spinner } from '@/components/Spinner';
 import { EmptyState, ErrorState } from '@/components/Estados';
 import { Button } from '@/components/Button';
@@ -178,7 +179,7 @@ const Caso = () => {
     return (
         <>
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <Link to={`/seccion/${seccion.id}`} className="w-fit tipo-negrita text-sm text-primario hover:underline">‹ {seccion.titulo}</Link>
+                <Link to={`/seccion/${seccion.id}`} className="inline-flex w-fit items-center gap-1 tipo-negrita text-sm text-primario hover:underline"><ChevronLeft size={16} stroke={2} />{seccion.titulo}</Link>
                 <div className="flex flex-wrap items-center gap-2">
                     {ronda && <Button label="Algo fuera de los pasos" small variant="ghost" onClick={() => setPedidoFuera((n) => n + 1)} />}
                     <CuentasPrueba etiqueta="Cuentas de prueba" resaltar={caso.cuenta} />

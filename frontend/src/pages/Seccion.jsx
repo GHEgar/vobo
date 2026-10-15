@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { ChevronLeft } from 'tesela/react';
 import { Chip } from '@/components/Chip';
 import { Galeria } from '@/components/Galeria';
 import { Spinner } from '@/components/Spinner';
@@ -79,7 +80,7 @@ const Seccion = () => {
     return (
         <>
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <Link to="/" className="w-fit tipo-negrita text-sm text-primario hover:underline">‹ Inicio</Link>
+                <Link to="/" className="inline-flex w-fit items-center gap-1 tipo-negrita text-sm text-primario hover:underline"><ChevronLeft size={16} stroke={2} />Inicio</Link>
                 <div className="flex flex-wrap items-center gap-2">
                     <BotonInfo texto="Qué cambia" pulso={pulso} onClick={abrirInfo} />
                     {seccion.media.length > 0 && <BotonInfo texto={`Cómo se ve (${seccion.media.length})`} onClick={() => setModal('media')} />}

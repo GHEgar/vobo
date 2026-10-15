@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronRight } from 'tesela/react';
 import { Checkbox } from '@/components/Checkbox';
 import { Chip } from '@/components/Chip';
 import { Tooltip } from '@/components/Tooltip';
@@ -68,7 +69,7 @@ export const PersonaAsignacion = ({ email, usuario, elegidas, secciones, abierto
                     aria-controls={panelId}
                     className="flex min-w-0 items-center gap-3 bg-transparent p-0 text-left"
                 >
-                    <span aria-hidden="true" className={`inline-block tipo-negrita text-primario transition-transform ${desplegado ? 'rotate-90' : ''}`}>›</span>
+                    <ChevronRight size={16} stroke={2} className={`shrink-0 text-primario transition-transform ${desplegado ? 'rotate-90' : ''}`} />
                     <span className="flex min-w-0 flex-col">
                         <span className="truncate tipo-negrita text-sm text-texto">{usuario?.nombre ?? email}</span>
                         {usuario && <span className="truncate tipo-media text-[11px] text-texto-apagado">{email}</span>}

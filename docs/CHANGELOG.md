@@ -25,6 +25,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - El lint del frontend usa `@npmegar/eslint-config` 0.4.0 desde npm (presets `base`, `react` y
   `react-app`) en lugar de una config propia.
 - Imagen base del backend a `python:3.14-slim`.
+- Íconos de tesela (vendorizada en `frontend/vendor/`) en lugar de los SVG y caracteres dibujados a
+  mano: información, cerrar, subir, buscar, chevrons, marca, más y campana.
+- Los avisos pasan al menú del avatar, con su contador de no leídos; el avatar muestra un badge con
+  el número de avisos sin leer y la campana sale de la cabecera.
+- El buscador baja a la fila de páginas, pegado a la derecha; en pantallas chicas queda fijo como
+  ícono fuera del área con scroll y despliega el campo sobre la fila.
 
 ### Corregido
 

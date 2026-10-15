@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { Plus } from 'tesela/react';
 
 export const BotonMas = ({ etiqueta, ayuda, onClick }) => {
     const id = useId();
@@ -11,9 +12,7 @@ export const BotonMas = ({ etiqueta, ayuda, onClick }) => {
                 onClick={onClick}
                 className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-full border border-gris bg-transparent p-0 text-texto-tenue hover:border-primario hover:text-primario focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario focus-visible:ring-offset-2"
             >
-                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4">
-                    <path d="M8 2.5v11M2.5 8h11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
+                <Plus size={18} stroke={2} />
             </button>
             {ayuda && (
                 <span

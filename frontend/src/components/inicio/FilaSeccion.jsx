@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { ChevronRight } from 'tesela/react';
 import { Chip } from '@/components/Chip';
 import { ESTADOS_RESULTADO } from '@/utils/etiquetas';
 import { estadoDe } from '@/utils/progreso';
@@ -19,7 +20,7 @@ export const FilaSeccion = ({ seccion, estados, abiertoInicial = false, destacad
                     aria-label={abierto ? `Ocultar casos de ${seccion.titulo}` : `Ver casos de ${seccion.titulo}`}
                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-transparent tipo-negrita text-primario hover:bg-primario-claro"
                 >
-                    <span aria-hidden="true" className={`inline-block transition-transform ${abierto ? 'rotate-90' : ''}`}>›</span>
+                    <ChevronRight size={16} stroke={2} className={`transition-transform ${abierto ? 'rotate-90' : ''}`} />
                 </button>
                 <Link to={`/seccion/${seccion.id}`} className="flex min-w-0 grow flex-wrap items-center justify-between gap-2 hover:underline">
                     <span className="tipo-negrita text-sm text-texto">{seccion.titulo}</span>

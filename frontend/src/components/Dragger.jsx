@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react';
+import { Close } from 'tesela/react';
 import { IconoSubir } from '@/components/Iconos';
 import { Label } from '@/components/Label';
 
@@ -72,9 +73,9 @@ export const Dragger = ({ label, tooltip, archivos, onChange, maxMB = 5, maxArch
                                 type="button"
                                 aria-label={`Quitar ${v.archivo.name}`}
                                 onClick={() => onChange(archivos.filter((_, j) => j !== i))}
-                                className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white tipo-negrita text-xs text-error shadow"
+                                className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-error shadow"
                             >
-                                ✕
+                                <Close size={12} stroke={2.5} />
                             </button>
                         </li>
                     ))}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Check } from 'tesela/react';
 import { Button } from '@/components/Button';
 import { BotonMas } from '@/components/BotonMas';
 import { Titulo } from '@/components/Tarjeta';
@@ -15,7 +16,7 @@ const agrupar = (asignaciones) => asignaciones.reduce((mapa, a) => {
 const EstadoGuardado = ({ guardar }) => {
     if (guardar.isPending) return <span role="status" className="tipo-media text-xs text-texto-apagado">Guardando…</span>;
     if (guardar.isError) return <span role="alert" className="tipo-media text-xs text-error-fuerte">No se guardó: {guardar.error.message}</span>;
-    if (guardar.isSuccess) return <span role="status" className="tipo-media text-xs text-pasa">Cambios guardados ✓</span>;
+    if (guardar.isSuccess) return <span role="status" className="inline-flex items-center gap-1 tipo-media text-xs text-pasa">Cambios guardados<Check size={14} stroke={2} /></span>;
     return null;
 };
 
