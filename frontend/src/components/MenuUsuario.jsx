@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { Bell } from 'tesela/react';
+import { ArrowRight, Bell, User } from 'tesela/react';
 import { useAvisosNoLeidos } from '@/hooks/useAvisos';
 
 const iniciales = (nombre = '') => nombre
@@ -60,9 +60,12 @@ export const MenuUsuario = ({ usuario, onSalir }) => {
             </button>
             {abierto && (
                 <div id={menuId} role="menu" className="absolute right-0 z-40 mt-2 w-[240px] rounded-2xl bg-white p-2 shadow-[0px_3px_24px_var(--color-sombra-menu)]">
-                    <div className="px-3 py-2">
-                        <p className="tipo-negrita text-sm text-texto">{usuario.nombre}</p>
-                        {usuario.email && <p className="truncate tipo-media text-xs text-texto-apagado">{usuario.email}</p>}
+                    <div className="flex items-start gap-2 px-3 py-2">
+                        <User size={18} stroke={1.75} className="mt-px shrink-0 text-primario" />
+                        <div className="min-w-0">
+                            <p className="tipo-negrita text-sm text-texto">{usuario.nombre}</p>
+                            {usuario.email && <p className="truncate tipo-media text-xs text-texto-apagado">{usuario.email}</p>}
+                        </div>
                     </div>
                     <Link
                         to="/avisos"
@@ -83,8 +86,9 @@ export const MenuUsuario = ({ usuario, onSalir }) => {
                         type="button"
                         role="menuitem"
                         onClick={onSalir}
-                        className="mt-1 w-full rounded-xl px-3 py-2 text-left tipo-negrita text-sm text-texto-tenue hover:bg-fondo"
+                        className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left tipo-negrita text-sm text-texto-tenue hover:bg-fondo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario"
                     >
+                        <ArrowRight size={18} stroke={1.75} className="shrink-0 text-primario" />
                         Salir
                     </button>
                 </div>

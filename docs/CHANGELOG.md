@@ -13,10 +13,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   manda avisos libres a varias personas; campana con contador de no leídos y página `/avisos`.
 - Entrada directa al proveedor OIDC sin pantalla intermedia, con regreso a la página pedida
   (`/api/auth/login?siguiente=`), protección contra bucles y aviso de sesión cerrada.
-- Buscador en la cabecera (`/` o Ctrl+K) sobre secciones, casos, pasos, herramientas y
+- Buscador en la cabecera (ñ o Ctrl+K) sobre secciones, casos, pasos, herramientas y
   procedimientos visibles para cada persona, sin acentos ni mayúsculas; `GET /api/buscar` y
   `/caso/:id?paso=n` para abrir un caso en un paso.
 - Desplegable propio para elegir la ronda, reutilizable como `Desplegable`.
+- Inicio y las secciones recuerdan la posición del scroll al regresar de un caso o sección (atrás
+  del navegador o enlace), junto con la pestaña de proyecto y las secciones desplegadas en Inicio,
+  durante la sesión de la pestaña.
 - Componentes de telar vendorizados en `frontend/vendor/`: `muestrario`, `abanico`, `plomada` y
   `lanzadera`.
 
@@ -29,8 +32,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   mano: información, cerrar, subir, buscar, chevrons, marca, más y campana.
 - Los avisos pasan al menú del avatar, con su contador de no leídos; el avatar muestra un badge con
   el número de avisos sin leer y la campana sale de la cabecera.
-- El buscador baja a la fila de páginas, pegado a la derecha; en pantallas chicas queda fijo como
-  ícono fuera del área con scroll y despliega el campo sobre la fila.
+- Cabecera en una sola fila desde `lg`: logo, páginas pegadas al logo y, a la derecha, el buscador
+  junto al avatar. Desde `xl` el buscador es un campo; entre `lg` y `xl`, y en pantallas chicas, es
+  un ícono que despliega el campo bajo la cabecera. En pantallas chicas las páginas van en una
+  segunda fila con scroll horizontal.
+- El atajo del buscador pasa de `/` a ñ (fuera de campos de texto); Ctrl/Cmd+K se conserva y el
+  campo muestra la pista «Buscar (ñ)».
+- El menú del avatar muestra íconos junto a los datos de la persona y en «Salir».
+- Al cambiar de página por un enlace el scroll empieza arriba.
 
 ### Corregido
 

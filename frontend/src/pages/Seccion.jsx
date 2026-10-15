@@ -10,6 +10,7 @@ import { Tarjeta } from '@/components/Tarjeta';
 import { Tooltip } from '@/components/Tooltip';
 import { useProgreso } from '@/hooks/useMisCasos';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useRecordarScroll } from '@/hooks/useRecordarScroll';
 import { useSesion } from '@/hooks/useSesion';
 import { useHerramientas } from '@/hooks/useValidacion';
 import { DECISIONES, ESTADOS_RESULTADO, HOY } from '@/utils/etiquetas';
@@ -64,6 +65,7 @@ const Seccion = () => {
     const { usuario } = useSesion();
     const [vistas, setVistas] = useLocalStorageState(`validacion.secciones-vistas.${usuario.email}`, []);
     const [modal, setModal] = useState(null);
+    useRecordarScroll(`seccion:${seccionId}`, !cargando && !error);
 
     if (cargando) return <Spinner pantalla />;
     if (error) return <ErrorState mensaje={error.message} onReintentar={reintentar} />;

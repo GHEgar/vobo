@@ -1,12 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router';
 import { ChevronRight } from 'tesela/react';
 import { Chip } from '@/components/Chip';
+import { useSessionStorageState } from '@/hooks/useLocalStorageState';
 import { ESTADOS_RESULTADO } from '@/utils/etiquetas';
 import { estadoDe } from '@/utils/progreso';
 
 export const FilaSeccion = ({ seccion, estados, abiertoInicial = false, destacado }) => {
-    const [abierto, setAbierto] = useState(abiertoInicial);
+    const [abierto, setAbierto] = useSessionStorageState(`validacion.inicio.abierta.${seccion.id}`, abiertoInicial);
     const panelId = `casos-${seccion.id}`;
 
     return (

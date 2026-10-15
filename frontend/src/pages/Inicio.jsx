@@ -13,6 +13,7 @@ import { useSearchParams } from 'react-router';
 import { useProyectos } from '@/hooks/useInstancia';
 import { useProgreso } from '@/hooks/useMisCasos';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useRecordarScroll } from '@/hooks/useRecordarScroll';
 import { useSesion } from '@/hooks/useSesion';
 import { formatearPorcentaje } from '@/utils/formato';
 import { casoParaContinuar } from '@/utils/progreso';
@@ -51,6 +52,7 @@ const Inicio = () => {
     const [verAvance, setVerAvance] = useState(false);
     const { ronda, datos, cargando, error, reintentar } = useProgreso();
     const listaProyectos = useProyectos();
+    useRecordarScroll(`inicio:${params.get('proyecto') ?? pestanaGuardada ?? ''}`, Boolean(ronda) && !cargando && !error);
 
     if (!ronda && !cargando) return <SinRonda />;
     if (cargando) return <Spinner pantalla />;

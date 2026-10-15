@@ -10,9 +10,9 @@ import { useAtajoBuscar } from '@/components/buscador/useAtajoBuscar';
 
 const MINIMO = 2;
 
-const CAMPO_DESPLEGADO = 'absolute top-0 right-4 left-4 z-40 md:right-7 md:left-7';
+const CAMPO_DESPLEGADO = 'absolute inset-x-3 top-full z-40 mt-2 lg:left-auto lg:w-[420px]';
 
-const CAMPO_EN_LINEA = 'lg:relative lg:inset-auto lg:block lg:w-[260px]';
+const CAMPO_EN_LINEA = 'xl:relative xl:inset-auto xl:mt-0 xl:block xl:w-[220px]';
 
 const GRUPOS = {
     caso: 'Casos',
@@ -66,9 +66,9 @@ export const Buscador = () => {
             <button
                 type="button"
                 aria-label="Buscar"
-                aria-keyshortcuts="/ Control+K Meta+K"
+                aria-keyshortcuts="ñ Control+K Meta+K"
                 onClick={enfocar}
-                className={`${desplegado ? 'hidden' : 'flex'} h-[36px] w-[36px] items-center justify-center rounded-full bg-primario-claro text-primario hover:ring-2 hover:ring-primario-anillo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario lg:hidden`}
+                className={`${desplegado ? 'hidden' : 'flex'} h-[36px] w-[36px] items-center justify-center rounded-full bg-primario-claro text-primario hover:ring-2 hover:ring-primario-anillo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario xl:hidden`}
             >
                 <Search size={20} stroke={1.75} />
             </button>
@@ -81,13 +81,13 @@ export const Buscador = () => {
                     {...entrada}
                     type="search"
                     aria-label="Buscar casos, pasos y secciones"
-                    aria-keyshortcuts="/ Control+K Meta+K"
-                    placeholder="Buscar ( / )"
+                    aria-keyshortcuts="ñ Control+K Meta+K"
+                    placeholder="Buscar (ñ)"
                     onBlur={(e) => {
                         entrada.onBlur(e);
                         setDesplegado(false);
                     }}
-                    className="block h-[36px] w-full rounded-full border border-transparent bg-fondo pr-4 pl-9 tipo-media text-[13px] text-primario shadow-[0px_3px_12px_var(--color-sombra-suave)] placeholder-texto-placeholder placeholder:tipo-regular hover:border-primario hover:bg-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-primario lg:shadow-none [&::-webkit-search-cancel-button]:hidden"
+                    className="block h-[36px] w-full rounded-full border border-transparent bg-fondo pr-4 pl-9 tipo-media text-[13px] text-primario shadow-[0px_3px_12px_var(--color-sombra-suave)] placeholder-texto-placeholder placeholder:tipo-regular hover:border-primario hover:bg-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-primario xl:shadow-none [&::-webkit-search-cancel-button]:hidden"
                 />
             </div>
             {combo.open && <ListaResultados combo={combo} />}

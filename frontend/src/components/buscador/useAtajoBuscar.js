@@ -8,9 +8,9 @@ export const useAtajoBuscar = (enfocar) => {
     useEffect(() => {
         const tecla = (e) => {
             const combinacion = (e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === 'k';
-            const barra = e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey
+            const enie = (e.key === 'ñ' || e.key === 'Ñ') && !e.ctrlKey && !e.metaKey && !e.altKey
                 && !(e.target instanceof Element && e.target.closest(EDITABLES));
-            if (!combinacion && !barra) return;
+            if (!combinacion && !enie) return;
             e.preventDefault();
             alPulsar();
         };
