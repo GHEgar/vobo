@@ -7,22 +7,29 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import (
     accesos,
+    admin,
     aprobaciones,
     auth,
+    auth_cuentas,
     avisos,
     buscar,
     casos,
     comentarios,
+    configuracion,
     contenido,
     cuentas,
+    editor,
+    editor_contenido,
     evidencias,
     fallas,
     herramientas,
     instancia,
     presencia,
+    proyectos,
     rondas,
     secciones,
     tablero,
+    version,
 )
 from app.core.config import settings
 from app.inicializar import preparar_base
@@ -36,7 +43,7 @@ async def ciclo_de_vida(_app: FastAPI) -> AsyncIterator[None]:
 
 def create_app() -> FastAPI:
     aplicacion = FastAPI(
-        title="Validaciones",
+        title="VoBo",
         lifespan=ciclo_de_vida,
         docs_url="/api/docs" if settings.app_env == "dev" else None,
         redoc_url=None,
@@ -44,7 +51,13 @@ def create_app() -> FastAPI:
     )
     for modulo in (
         auth,
+        auth_cuentas,
+        admin,
+        configuracion,
+        editor,
+        editor_contenido,
         instancia,
+        proyectos,
         contenido,
         rondas,
         casos,
@@ -60,6 +73,7 @@ def create_app() -> FastAPI:
         avisos,
         buscar,
         presencia,
+        version,
     ):
         aplicacion.include_router(modulo.router)
 
@@ -68,7 +82,11 @@ def create_app() -> FastAPI:
         return {"estado": "ok"}
 
     if settings.app_env == "dev":
-        media = Path(settings.contenido_dir) / "media"
+        media = (
+            Path(settings.media_dir)
+            if settings.contenido_en_base
+            else Path(settings.contenido_dir) / "media"
+        )
         aplicacion.mount("/media", StaticFiles(directory=media, check_dir=False), name="media")
     return aplicacion
 

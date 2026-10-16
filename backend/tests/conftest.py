@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from tests.idp_falso import IdpFalso
 
-_TMP = Path(tempfile.mkdtemp(prefix="validaciones-tests-"))
+_TMP = Path(tempfile.mkdtemp(prefix="vobo-tests-"))
 RAIZ_REPO = Path(__file__).resolve().parents[2]
 CONTENIDO = RAIZ_REPO / "ejemplo" / "contenido"
 TOKEN_LECTURA = "token-de-prueba-solo-lectura"
@@ -30,10 +30,19 @@ os.environ.update(
 
 @pytest.fixture(autouse=True)
 def base_limpia() -> Iterator[None]:
-    from app.core.database import Base, engine
+    from alembic import command
+
+    from app.core import migraciones
+    from app.core.database import Base, SessionLocal, engine
+    from app.services import proyectos, roles
 
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as conexion:
+        command.stamp(migraciones.configuracion(conexion), "head")
+    with SessionLocal() as db:
+        roles.sembrar_sistema(db)
+        proyectos.asegurar_por_omision(db)
     yield
 
 
@@ -95,3 +104,16 @@ def idp(monkeypatch: pytest.MonkeyPatch) -> Iterator[IdpFalso]:
     oidc.olvidar_caches()
     yield falso
     oidc.olvidar_caches()
+
+
+@pytest.fixture
+def en_base(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterator[Path]:
+    from app.core.config import settings
+    from app.services import contenido_base
+
+    media = tmp_path / "media-base"
+    monkeypatch.setattr(settings, "contenido_fuente", "base")
+    monkeypatch.setattr(settings, "media_dir", str(media))
+    contenido_base.cache.olvidar()
+    yield media
+    contenido_base.cache.olvidar()
