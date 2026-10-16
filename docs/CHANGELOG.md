@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.3.2] - 2026-10-16
+
 ### Agregado
 
 - Comentarios en el informe de fallas: `GET /api/fallas/informe.csv?comentarios=1` agrega la columna
