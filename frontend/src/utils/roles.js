@@ -1,6 +1,7 @@
 import { PERMISOS } from '@/utils/permisos';
 
 export const rolesDe = (permisos = []) => {
+    if (permisos.includes(PERMISOS.administrar)) return ['administración'];
     if (permisos.includes(PERMISOS.gestionarFallas)) return ['coordinación'];
     if (permisos.includes(PERMISOS.ejecutarCasos)) return ['validador'];
     return [];

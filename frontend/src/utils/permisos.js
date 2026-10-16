@@ -3,4 +3,6 @@ export const PERMISOS = {
     verTablero: 'validacion.tablero.ver',
     gestionarFallas: 'validacion.fallas.gestionar',
     aprobar: 'validacion.herramientas.aprobar',
+    administrar: 'validacion.admin',
+    editarContenido: 'validacion.contenido.editar',
 };

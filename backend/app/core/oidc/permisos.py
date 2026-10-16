@@ -39,8 +39,19 @@ async def _por_url(token: str, url: str) -> set[str]:
     return _como_conjunto(datos.get("permissions", []))
 
 
-async def permisos_de(token: str) -> set[str]:
+async def permisos_y_grupos(token: str) -> tuple[set[str], set[str]]:
     claims = await validar_access_token(token)
+    grupos = (
+        _como_conjunto(claims.get(settings.oidc_roles_claim, []))
+        if settings.oidc_roles_claim
+        else set()
+    )
     if settings.oidc_permisos_url:
-        return await _por_url(token, descubrimiento.interna(settings.oidc_permisos_url))
-    return _como_conjunto(claims.get(settings.oidc_permisos_claim, []))
+        url = descubrimiento.interna(settings.oidc_permisos_url)
+        return await _por_url(token, url), grupos
+    return _como_conjunto(claims.get(settings.oidc_permisos_claim, [])), grupos
+
+
+async def permisos_de(token: str) -> set[str]:
+    permisos, _grupos = await permisos_y_grupos(token)
+    return permisos

@@ -9,7 +9,7 @@ from app.core.oidc.flujo import (
     url_de_salida,
     vencimiento,
 )
-from app.core.oidc.permisos import permisos_de
+from app.core.oidc.permisos import permisos_de, permisos_y_grupos
 from app.core.oidc.tokens import validar_access_token
 
 
@@ -24,6 +24,7 @@ __all__ = [
     "canjear_codigo",
     "olvidar_caches",
     "permisos_de",
+    "permisos_y_grupos",
     "refrescar",
     "revocar",
     "solicitud_de_autorizacion",

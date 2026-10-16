@@ -1,7 +1,13 @@
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from app.core.permisos import APROBAR, GESTIONAR_FALLAS, VER_TABLERO
+from app.core.permisos import (
+    ADMINISTRAR,
+    APROBAR,
+    EDITAR_CONTENIDO,
+    GESTIONAR_FALLAS,
+    VER_TABLERO,
+)
 from app.models.acceso import Acceso
 from app.schemas.acceso import AccesoItem
 
@@ -13,6 +19,8 @@ PERMISO_DE_PAGINA = {
     "aprobaciones": (APROBAR, GESTIONAR_FALLAS),
     "rondas": (GESTIONAR_FALLAS,),
     "tecnico": (GESTIONAR_FALLAS,),
+    "admin": (ADMINISTRAR,),
+    "editor": (EDITAR_CONTENIDO,),
 }
 
 
