@@ -132,8 +132,6 @@ def test_revocar_envia_el_token_e_ignora_errores(idp, monkeypatch) -> None:
 
 
 def test_sin_endpoint_de_revocacion_no_llama(idp) -> None:
-    idp.descubrimiento = {
-        k: v for k, v in idp.descubrimiento.items() if k != "revocation_endpoint"
-    }
+    idp.descubrimiento = {k: v for k, v in idp.descubrimiento.items() if k != "revocation_endpoint"}
     _correr(oidc.revocar("refresco-1"))
     assert idp.llamadas(f"{INTERNA}/auth/revoke") == 0

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.core.permisos import APROBAR, EJECUTAR_CASOS, TODOS
+from app.core.permisos import ADMINISTRAR, APROBAR, EJECUTAR_CASOS, TODOS
 
 
 @dataclass(frozen=True)
@@ -33,6 +33,13 @@ USUARIOS_LOCALES = (
         "aprobacion@local.test",
         "Validación - aprobación",
         frozenset({APROBAR}),
+    ),
+    UsuarioDePrueba(
+        "administracion",
+        "Adela Administradora",
+        "administracion@local.test",
+        "Validación - administración",
+        frozenset({ADMINISTRAR}),
     ),
     UsuarioDePrueba(
         "sin-rol",

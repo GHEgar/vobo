@@ -30,6 +30,7 @@ class Sesion(Base):
     access_expira = Column(DateTime(timezone=True), nullable=False)
     permisos_locales = Column(JSON, nullable=True)
     renovando_hasta = Column(DateTime(timezone=True), nullable=True)
+    origen = Column(String(10), nullable=False, default="oidc", server_default="oidc")
     created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
 
     usuario = relationship("Usuario", back_populates="sesiones")

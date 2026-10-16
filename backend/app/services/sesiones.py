@@ -11,6 +11,7 @@ from app.core import oidc
 from app.core.config import settings
 from app.core.security import duracion_sesion
 from app.core.time import como_utc, utcnow
+from app.models.cuenta import Cuenta
 from app.models.usuario import Sesion, Usuario
 from app.services.usuarios_locales import UsuarioDePrueba
 
@@ -58,7 +59,11 @@ def resolver_usuario_local(db: Session, prueba: UsuarioDePrueba) -> Usuario:
 
 
 def crear(
-    db: Session, usuario: Usuario, tokens: dict, permisos_locales: list[str] | None = None
+    db: Session,
+    usuario: Usuario,
+    tokens: dict,
+    permisos_locales: list[str] | None = None,
+    origen: str = "oidc",
 ) -> Sesion:
     db.execute(delete(Sesion).where(Sesion.created_at < utcnow() - duracion_sesion()))
     sesion = Sesion(
@@ -68,6 +73,7 @@ def crear(
         refresh_token=tokens.get("refresh_token"),
         access_expira=oidc.vencimiento(tokens.get("expires_in")),
         permisos_locales=permisos_locales,
+        origen=origen,
     )
     db.add(sesion)
     db.commit()
@@ -88,11 +94,20 @@ async def vigente(db: Session, sesion_id: str | None) -> Sesion:
     if _vencida(sesion.created_at, utcnow() - duracion_sesion()):
         cerrar(db, sesion)
         raise _no_autenticado("Sesión expirada")
+    if sesion.origen == "cuenta":
+        cuenta = db.get(Cuenta, sesion.usuario_id)
+        if not settings.auth_cuentas or cuenta is None or not cuenta.activa:
+            cerrar(db, sesion)
+            raise _no_autenticado("Sesión inválida")
+        return sesion
     if sesion.permisos_locales is not None:
         if not settings.auth_local:
             cerrar(db, sesion)
             raise _no_autenticado("Sesión inválida")
         return sesion
+    if settings.auth_modo == "cuentas":
+        cerrar(db, sesion)
+        raise _no_autenticado("Sesión inválida")
     if _vencida(sesion.access_expira, utcnow()):
         return await _refrescar(db, sesion)
     return sesion

@@ -50,7 +50,7 @@ def test_modo_oidc_explica_lo_que_falta() -> None:
             frontend_url="http://x",
             oidc_issuer_url="idp-sin-esquema",
             oidc_client_id="c",
-            oidc_redirect_uri="https://validaciones.ejemplo/api/auth/callback",
+            oidc_redirect_uri="https://vobo.ejemplo/api/auth/callback",
         )
     mensaje = str(error.value)
     assert "OIDC_AUDIENCE" in mensaje

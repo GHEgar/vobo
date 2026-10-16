@@ -4,6 +4,7 @@ import { SesionContext } from '@/contexts/SesionContext';
 import { fijarCsrf } from '@/services/api';
 import { fetchSesion, salir as salirApi } from '@/services/validacion';
 import { limpiarMarcasEntrada, marcarSesionCerrada } from '@/utils/entrada';
+import { apagarEdicion } from '@/utils/edicion';
 
 const leerSesion = async () => {
     try {
@@ -32,6 +33,7 @@ export const SesionProvider = ({ children }) => {
         const paginas = new Set(usuario?.paginas ?? []);
         return {
             usuario,
+            csrf: data?.csrf_token ?? '',
             cargando: isPending,
             error,
             reintentar: refetch,
@@ -41,6 +43,7 @@ export const SesionProvider = ({ children }) => {
             salir: async () => {
                 await salirApi().catch(() => null);
                 fijarCsrf('');
+                apagarEdicion();
                 queryClient.clear();
                 marcarSesionCerrada();
                 window.location.assign('/');

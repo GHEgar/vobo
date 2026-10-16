@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/Button';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
-import { Tarjeta } from '@/components/Tarjeta';
-import { useInstancia } from '@/hooks/useInstancia';
+import { TarjetaEntrada } from '@/components/cuentas/TarjetaEntrada';
+import { FormularioEntrada } from '@/components/cuentas/FormularioEntrada';
 import { useSesion } from '@/hooks/useSesion';
 import { entrarLocal, fetchModo, fetchUsuariosLocales } from '@/services/validacion';
 import { estadoEntrada, irAlLogin } from '@/utils/entrada';
@@ -36,22 +36,6 @@ const SelectorLocal = () => {
     );
 };
 
-const TarjetaEntrada = ({ titulo, descripcion, children }) => {
-    const { nombre } = useInstancia();
-    return (
-        <main className="flex min-h-dvh items-center justify-center p-4">
-            <Tarjeta className="flex w-full max-w-md flex-col gap-5">
-                <div>
-                    {nombre && <p className="mb-1 tipo-negrita text-xs text-aviso">{nombre}</p>}
-                    <h1 className="tipo-negrita text-xl text-primario">{titulo}</h1>
-                    {descripcion && <p className="mt-2 tipo-media text-sm text-texto-tenue">{descripcion}</p>}
-                </div>
-                {children}
-            </Tarjeta>
-        </main>
-    );
-};
-
 const EntradaOidc = () => {
     const ubicacion = useLocation();
     const [estado] = useState(() => estadoEntrada());
@@ -74,17 +58,47 @@ const EntradaOidc = () => {
             </TarjetaEntrada>
         );
     }
-    return <Spinner pantalla />;
+    return (
+        <TarjetaEntrada descripcion="Te llevamos al inicio de sesión.">
+            <div className="flex justify-center">
+                <Spinner />
+            </div>
+        </TarjetaEntrada>
+    );
+};
+
+const EntradaCuentas = ({ conOrganizacion }) => {
+    const ubicacion = useLocation();
+    const [estado] = useState(() => estadoEntrada());
+    return (
+        <TarjetaEntrada descripcion="Entra con tu correo y tu contraseña.">
+            {conOrganizacion && estado === 'error' && (
+                <p role="alert" className="tipo-media text-xs text-error-fuerte">No se pudo iniciar sesión con tu organización. Intenta de nuevo o entra con tu contraseña.</p>
+            )}
+            <FormularioEntrada />
+            {conOrganizacion && (
+                <>
+                    <div className="flex items-center gap-3" aria-hidden="true">
+                        <span className="h-px flex-1 bg-borde" />
+                        <span className="tipo-media text-xs text-texto-apagado">o</span>
+                        <span className="h-px flex-1 bg-borde" />
+                    </div>
+                    <Button label="Entrar con tu organización" variant="outline" fullWidth onClick={() => irAlLogin(ubicacion)} />
+                </>
+            )}
+        </TarjetaEntrada>
+    );
 };
 
 const Entrar = () => {
     const { data, isPending, error, refetch } = useQuery({ queryKey: ['modo'], queryFn: fetchModo });
 
     if (data?.modo === 'oidc') return <EntradaOidc />;
+    if (data?.modo === 'cuentas' || data?.modo === 'ambos') return <EntradaCuentas conOrganizacion={data.modo === 'ambos'} />;
     if (isPending) return <Spinner pantalla />;
 
     return (
-        <TarjetaEntrada titulo="Iniciar sesión" descripcion={data?.modo === 'local' ? 'Elige un usuario de prueba para entrar.' : undefined}>
+        <TarjetaEntrada descripcion={data?.modo === 'local' ? 'Elige un usuario de prueba para entrar.' : undefined}>
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
             {data?.modo === 'local' && <SelectorLocal />}
         </TarjetaEntrada>

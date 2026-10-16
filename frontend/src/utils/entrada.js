@@ -1,5 +1,5 @@
-const INTENTO = 'validaciones:intento-entrada';
-const CERRADA = 'validaciones:sesion-cerrada';
+const INTENTO = 'vobo:intento-entrada';
+const CERRADA = 'vobo:sesion-cerrada';
 export const ESPERA_REINTENTO_MS = 30 * 1000;
 
 const leer = (clave) => {

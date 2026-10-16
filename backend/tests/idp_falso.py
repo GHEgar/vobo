@@ -52,6 +52,7 @@ class IdpFalso:
     permisos: list[str] = field(default_factory=lambda: ["validacion.casos.ejecutar"])
     estado_permisos: int = 200
     respuesta_token: tuple[int, dict] | None = None
+    claims: dict = field(default_factory=dict)
     peticiones: list[httpx.Request] = field(default_factory=list)
     formularios: list[dict[str, str]] = field(default_factory=list)
 
@@ -90,7 +91,7 @@ class IdpFalso:
         return httpx.Response(
             200,
             json={
-                "access_token": self.token(),
+                "access_token": self.token(**self.claims),
                 "refresh_token": "refresco-1",
                 "expires_in": 900,
                 "token_type": "Bearer",

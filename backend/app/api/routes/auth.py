@@ -6,6 +6,7 @@ from app.api.deps import Actor, get_actor
 from app.core import oidc, security
 from app.core.config import settings
 from app.core.database import get_db
+from app.models.cuenta import Cuenta
 from app.models.usuario import Sesion
 from app.schemas.auth import (
     EntradaLocal,
@@ -29,7 +30,7 @@ def _solo_local() -> None:
 
 
 def _solo_oidc() -> None:
-    if settings.auth_local:
+    if not settings.auth_oidc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No disponible")
 
 
@@ -116,15 +117,22 @@ def entrar_local(
         )
     usuario = sesiones.resolver_usuario_local(db, prueba)
     sesion = sesiones.crear(
-        db, usuario, {"access_token": "local", "expires_in": 86400}, sorted(prueba.permisos)
+        db,
+        usuario,
+        {"access_token": "local", "expires_in": 86400},
+        sorted(prueba.permisos),
+        origen="local",
     )
     security.emitir_cookie(response, sesion.id)
     return ModoResponse(modo="local")
 
 
 @router.get("/me", response_model=SesionResponse)
-def me(response: Response, actor: Actor = Depends(get_actor)) -> SesionResponse:
+def me(
+    response: Response, actor: Actor = Depends(get_actor), db: Session = Depends(get_db)
+) -> SesionResponse:
     response.headers["Cache-Control"] = "no-store"
+    cuenta = db.get(Cuenta, actor.usuario_id) if settings.auth_cuentas else None
     return SesionResponse(
         csrf_token=security.csrf_de(actor.sesion_id or ""),
         usuario=UsuarioSesion(
@@ -132,6 +140,9 @@ def me(response: Response, actor: Actor = Depends(get_actor)) -> SesionResponse:
             nombre=actor.nombre,
             permisos=sorted(actor.permisos),
             paginas=sorted(actor.paginas),
+            origen=actor.origen,
+            tiene_cuenta=bool(cuenta and cuenta.activa),
+            debe_cambiar=bool(cuenta and cuenta.activa and cuenta.debe_cambiar),
         ),
     )
 
