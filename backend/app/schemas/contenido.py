@@ -56,6 +56,7 @@ class Seccion(BaseModel):
     )
     media: list[Media] = Field(default_factory=list)
     casos: list[Caso] = Field(default_factory=list)
+    oculta: bool = Field(default=False, exclude=True)
 
 
 class Procedimiento(BaseModel):

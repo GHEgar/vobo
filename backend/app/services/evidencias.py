@@ -15,7 +15,7 @@ FIRMAS = (
 )
 
 
-def _tipo(contenido: bytes) -> tuple[str, str] | None:
+def tipo_de_imagen(contenido: bytes) -> tuple[str, str] | None:
     if contenido[:4] == b"RIFF" and contenido[8:12] == b"WEBP":
         return "image/webp", "webp"
     for firma, mime, extension in FIRMAS:
@@ -36,7 +36,7 @@ async def leer(archivos: list[UploadFile]) -> list[tuple[bytes, str, str]]:
         contenido = await archivo.read(MAX_BYTES + 1)
         if len(contenido) > MAX_BYTES:
             raise _rechazo(f"{archivo.filename} pesa más de 5 MB")
-        tipo = _tipo(contenido)
+        tipo = tipo_de_imagen(contenido)
         if tipo is None:
             raise _rechazo(f"{archivo.filename} no es una imagen PNG, JPG, GIF o WebP")
         leidos.append((contenido, *tipo))

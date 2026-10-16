@@ -1,5 +1,6 @@
 import logging
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from fastapi import HTTPException, status
 from pydantic import ValidationError
 
 from app.core.config import settings
+from app.models.proyecto import Proyecto
 from app.schemas.contenido import (
     HERRAMIENTA_GENERAL,
     Caso,
@@ -20,6 +22,8 @@ from app.schemas.instancia import Instancia
 from app.services import instancia as instancias
 
 PREFIJO_MEDIA = "/media"
+
+UrlDeMedia = Callable[[str], str | None]
 
 logger = logging.getLogger("validacion.contenido")
 
@@ -67,7 +71,7 @@ def _firma(raiz: Path) -> tuple:
     return archivos, tuple(nombres_media)
 
 
-def _leer(ruta: Path) -> object:
+def leer_yaml(ruta: Path) -> object:
     with ruta.open(encoding="utf-8") as archivo:
         return yaml.safe_load(archivo)
 
@@ -78,7 +82,7 @@ def _url_media(raiz: Path, procedimiento_id: str) -> str | None:
     return None
 
 
-def _normalizar_procedimientos(datos: object) -> list[dict]:
+def normalizar_procedimientos(datos: object) -> list[dict]:
     if datos is None:
         return []
     if isinstance(datos, dict) and "procedimientos" in datos:
@@ -92,14 +96,15 @@ def _normalizar_procedimientos(datos: object) -> list[dict]:
 
 def _seccion_de(ruta: Path) -> Seccion:
     try:
-        return Seccion.model_validate(_leer(ruta))
+        return Seccion.model_validate(leer_yaml(ruta))
     except (ValidationError, yaml.YAMLError, OSError) as error:
         raise ValueError(f"{ruta.name}: {error}") from error
 
 
 def _procedimientos_de(raiz: Path, ruta: Path) -> list[Procedimiento]:
     try:
-        leidos = [Procedimiento.model_validate(d) for d in _normalizar_procedimientos(_leer(ruta))]
+        datos = normalizar_procedimientos(leer_yaml(ruta))
+        leidos = [Procedimiento.model_validate(d) for d in datos]
     except (ValidationError, yaml.YAMLError, OSError, TypeError) as error:
         raise ValueError(f"{ruta.name}: {error}") from error
     for procedimiento in leidos:
@@ -107,8 +112,8 @@ def _procedimientos_de(raiz: Path, ruta: Path) -> list[Procedimiento]:
     return leidos
 
 
-def _registrar_seccion(
-    raiz: Path, seccion: Seccion, casos: dict, herramientas: dict, errores: list[str]
+def registrar_seccion(
+    url_de: UrlDeMedia, seccion: Seccion, casos: dict, herramientas: dict, errores: list[str]
 ) -> None:
     for herramienta in seccion.herramientas:
         if herramienta.id != HERRAMIENTA_GENERAL and herramienta.id not in herramientas:
@@ -116,7 +121,7 @@ def _registrar_seccion(
                 herramienta, seccion.id, seccion.titulo, seccion.sistema
             )
     for item in seccion.media:
-        item.url = _url_media(raiz, item.procedimiento)
+        item.url = url_de(item.procedimiento)
     unicos = []
     for caso in seccion.casos:
         if caso.id in casos:
@@ -127,41 +132,70 @@ def _registrar_seccion(
     seccion.casos = unicos
 
 
+@dataclass
+class Armado:
+    errores: list[str]
+    secciones: list[Seccion] = field(default_factory=list)
+    procedimientos: dict[str, Procedimiento] = field(default_factory=dict)
+    casos: dict[str, CasoUbicado] = field(default_factory=dict)
+    herramientas: dict[str, HerramientaUbicada] = field(default_factory=dict)
+
+    def agregar(self, url_de: UrlDeMedia, seccion: Seccion) -> None:
+        registrar_seccion(url_de, seccion, self.casos, self.herramientas, self.errores)
+        self.secciones.append(seccion)
+
+    def terminar(self, instancia: Instancia) -> Contenido:
+        for error in self.errores:
+            logger.warning("contenido: %s", error)
+        self.secciones.sort(key=lambda s: (s.orden, s.id))
+        respuesta = ContenidoResponse(
+            secciones=self.secciones,
+            procedimientos=list(self.procedimientos.values()),
+            errores=self.errores,
+        )
+        return Contenido(
+            respuesta=respuesta,
+            casos=self.casos,
+            herramientas=self.herramientas,
+            instancia=instancia,
+        )
+
+
 def _construir(raiz: Path) -> Contenido:
-    secciones: list[Seccion] = []
-    procedimientos: dict[str, Procedimiento] = {}
-    casos: dict[str, CasoUbicado] = {}
-    herramientas: dict[str, HerramientaUbicada] = {}
-    errores: list[str] = []
-    instancia = instancias.leer(raiz, errores)
+    armado = Armado(errores=[])
+    instancia = instancias.leer(raiz, armado.errores)
     for ruta in sorted((raiz / "secciones").glob("*.yaml")):
         try:
             seccion = _seccion_de(ruta)
         except ValueError as error:
-            errores.append(str(error))
+            armado.errores.append(str(error))
             continue
-        if any(s.id == seccion.id for s in secciones):
-            errores.append(f"{ruta.name}: la sección {seccion.id} está repetida y se omitió")
+        if seccion.oculta:
             continue
-        _registrar_seccion(raiz, seccion, casos, herramientas, errores)
-        secciones.append(seccion)
+        if any(s.id == seccion.id for s in armado.secciones):
+            armado.errores.append(f"{ruta.name}: la sección {seccion.id} está repetida y se omitió")
+            continue
+        armado.agregar(lambda p: _url_media(raiz, p), seccion)
     for ruta in sorted(raiz.glob("procedimientos*.yaml")):
         try:
-            procedimientos.update({p.id: p for p in _procedimientos_de(raiz, ruta)})
+            armado.procedimientos.update({p.id: p for p in _procedimientos_de(raiz, ruta)})
         except ValueError as error:
-            errores.append(str(error))
-    for error in errores:
-        logger.warning("contenido: %s", error)
-    secciones.sort(key=lambda s: (s.orden, s.id))
-    respuesta = ContenidoResponse(
-        secciones=secciones, procedimientos=list(procedimientos.values()), errores=errores
-    )
-    return Contenido(
-        respuesta=respuesta, casos=casos, herramientas=herramientas, instancia=instancia
-    )
+            armado.errores.append(str(error))
+    return armado.terminar(instancia)
 
 
-def cargar(raiz: Path | None = None) -> Contenido:
+def _vacio() -> Contenido:
+    armado = Armado(errores=[])
+    return armado.terminar(instancias.leer(Path(settings.contenido_dir), armado.errores))
+
+
+def cargar(raiz: Path | None = None, proyecto: Proyecto | None = None) -> Contenido:
+    if raiz is None and settings.contenido_en_base:
+        from app.services import contenido_base
+
+        return contenido_base.cargar(proyecto.id if proyecto is not None else None)
+    if raiz is None and proyecto is not None and not proyecto.por_omision:
+        return _vacio()
     raiz = raiz or Path(settings.contenido_dir)
     clave = str(raiz)
     firma = _firma(raiz)
@@ -174,9 +208,9 @@ def cargar(raiz: Path | None = None) -> Contenido:
         return contenido
 
 
-def obtener() -> Contenido:
+def obtener(proyecto: Proyecto | None = None) -> Contenido:
     try:
-        return cargar()
+        return cargar(proyecto=proyecto)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

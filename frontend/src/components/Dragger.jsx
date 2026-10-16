@@ -1,11 +1,23 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { Close } from 'tesela/react';
 import { IconoSubir } from '@/components/Iconos';
+import { MediaImagen } from '@/components/MediaImagen';
 import { Label } from '@/components/Label';
 
 const TIPOS = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 
-export const Dragger = ({ label, tooltip, archivos, onChange, maxMB = 5, maxArchivos = 5 }) => {
+export const Dragger = ({
+    label,
+    tooltip,
+    archivos,
+    onChange,
+    maxMB = 5,
+    maxArchivos = 5,
+    tipos = TIPOS,
+    titulo = 'Sube tus capturas',
+    ayuda = 'Da clic o arrastra las imágenes dentro de este recuadro (PNG, JPG o WebP, hasta {maxMB} MB)',
+    sustantivo = 'imágenes',
+}) => {
     const id = useId();
     const [error, setError] = useState('');
     const [arrastrando, setArrastrando] = useState(false);
@@ -15,14 +27,14 @@ export const Dragger = ({ label, tooltip, archivos, onChange, maxMB = 5, maxArch
 
     const agregar = (lista) => {
         const nuevos = Array.from(lista);
-        const invalidos = nuevos.filter((a) => !TIPOS.includes(a.type)).map((a) => a.name);
+        const invalidos = nuevos.filter((a) => !tipos.includes(a.type)).map((a) => a.name);
         const pesados = nuevos.filter((a) => a.size > maxMB * 1024 * 1024).map((a) => a.name);
-        const validos = nuevos.filter((a) => TIPOS.includes(a.type) && a.size <= maxMB * 1024 * 1024);
+        const validos = nuevos.filter((a) => tipos.includes(a.type) && a.size <= maxMB * 1024 * 1024);
         const total = [...archivos, ...validos].slice(0, maxArchivos);
         const mensajes = [];
-        if (invalidos.length) mensajes.push(`No son imágenes: ${invalidos.join(', ')}`);
+        if (invalidos.length) mensajes.push(`No son ${sustantivo}: ${invalidos.join(', ')}`);
         if (pesados.length) mensajes.push(`Pesan más de ${maxMB} MB: ${pesados.join(', ')}`);
-        if (archivos.length + validos.length > maxArchivos) mensajes.push(`Máximo ${maxArchivos} imágenes`);
+        if (archivos.length + validos.length > maxArchivos) mensajes.push(`Máximo ${maxArchivos} ${sustantivo}`);
         setError(mensajes.join('. '));
         onChange(total);
     };
@@ -46,16 +58,14 @@ export const Dragger = ({ label, tooltip, archivos, onChange, maxMB = 5, maxArch
             >
                 <IconoSubir className="h-12 w-12 shrink-0" />
                 <span className="tipo-negrita text-lg/6 text-primario">
-                    Sube tus capturas
-                    <span className="block tipo-media text-xs text-texto-tenue">
-                        Da clic o arrastra las imágenes dentro de este recuadro (PNG, JPG o WebP, hasta {maxMB} MB)
-                    </span>
+                    {titulo}
+                    <span className="block tipo-media text-xs text-texto-tenue">{ayuda.replace('{maxMB}', maxMB)}</span>
                 </span>
                 <input
                     id={id}
                     type="file"
-                    accept={TIPOS.join(',')}
-                    multiple
+                    accept={tipos.join(',')}
+                    multiple={maxArchivos > 1}
                     className="hidden"
                     onChange={(e) => {
                         agregar(e.target.files);
@@ -68,7 +78,7 @@ export const Dragger = ({ label, tooltip, archivos, onChange, maxMB = 5, maxArch
                 <ul className="mt-3 flex flex-wrap gap-3">
                     {vistas.map((v, i) => (
                         <li key={v.url} className="relative">
-                            <img src={v.url} alt={v.archivo.name} className="h-20 w-20 rounded-lg object-cover" />
+                            <MediaImagen url={v.url} alt={v.archivo.name} tipo={v.archivo.type} carga="eager" className="h-20 w-20 rounded-lg object-cover" />
                             <button
                                 type="button"
                                 aria-label={`Quitar ${v.archivo.name}`}
