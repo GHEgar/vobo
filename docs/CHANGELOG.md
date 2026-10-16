@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.3.1] - 2026-10-16
+
 ### Cambiado
 
 - tesela 0.7: íconos de archivo según lo que se maneja (CSV, informe, acta en Markdown, paquete
