@@ -1,5 +1,14 @@
-nombre: Validaciones
+producto: Visto Bueno
+nombre: Tienda en línea
 descripcion: Validación del nuevo ciclo de la tienda en línea antes de publicarlo.
+logo:
+  claro: logo.svg
+  oscuro: logo-oscuro.svg
+  alt: Visto Bueno
+color_tema: "#2E6B3F"
+entrada:
+  titulo: Bienvenida al ciclo de otoño
+  mensaje: Si no puedes entrar, escribe a quien coordina la validación.
 proyectos:
   - clave: general
     nombre: General

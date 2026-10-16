@@ -1,0 +1,13 @@
+:root {
+    --color-primario: #2E6B3F;
+    --color-primario-hover: #3A8250;
+    --color-primario-suave: #F3F8F4;
+    --color-primario-claro: #E0EEE4;
+    --color-primario-borde: #9CC4A7;
+    --color-primario-anillo: #B5D2BD;
+    --color-primario-medio: #6A9A77;
+    --color-aviso: #B86E00;
+    --color-sombra-tenue: #12301C0F;
+    --color-sombra-suave: #12301C1A;
+    --color-sombra: #12301C4D;
+}

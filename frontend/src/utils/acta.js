@@ -1,5 +1,6 @@
 import { APROBACIONES, DECISIONES, SUGERENCIAS } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
+import { tituloDocumento } from '@/utils/marca';
 
 export const recomendacionDe = (h) => {
     if (h.decision && h.decision.decision !== 'pendiente') {
@@ -27,11 +28,11 @@ export const pendientesORechazadas = (h) => h.caracteristicas.filter((c) => c.ap
 
 const celda = (texto) => String(texto ?? '').replaceAll('|', '\\|').replaceAll('\n', ' ');
 
-export const actaMarkdown = ({ nombre, ronda, grupos, generada }) => {
+export const actaMarkdown = ({ producto, nombre, ronda, grupos, generada }) => {
     const lineas = [
-        nombre ? `# Acta de aprobación · ${nombre}` : '# Acta de aprobación',
+        `# ${tituloDocumento('Acta de aprobación', nombre)}`,
         '',
-        `Ronda: ${ronda.nombre}${ronda.snapshot ? ` (${ronda.snapshot})` : ''} · Generada: ${generada}`,
+        [producto, `Ronda: ${ronda.nombre}${ronda.snapshot ? ` (${ronda.snapshot})` : ''}`, `Generada: ${generada}`].filter(Boolean).join(' · '),
     ];
     grupos.forEach((g) => {
         lineas.push('', `## ${g.nombre}`, '', '| Herramienta | Recomendación | Motivo | Evidencia | Aprobación |', '|---|---|---|---|---|');

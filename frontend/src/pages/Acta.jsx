@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 import { CornerDownRight } from 'tesela/react';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
+import { EncabezadoImpreso } from '@/components/EncabezadoImpreso';
 import { useInstancia } from '@/hooks/useInstancia';
 import { useRonda } from '@/hooks/useRonda';
 import { useAprobaciones, useHerramientas } from '@/hooks/useValidacion';
@@ -10,6 +11,7 @@ import { actaMarkdown, aprobacionDe, evidenciaDe, pendientesORechazadas, recomen
 import { agruparPorSistema, combinar } from '@/utils/aprobaciones';
 import { APROBACIONES } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
+import { useRuta } from '@/hooks/useProyecto';
 
 const BOTON = 'inline-flex h-[36px] items-center rounded-full px-5 tipo-negrita text-sm';
 
@@ -26,13 +28,15 @@ const Acta = () => {
     const [params] = useSearchParams();
     const { rondas, ronda: actual } = useRonda();
     const ronda = rondas.find((r) => String(r.id) === params.get('ronda')) ?? actual;
-    const { nombre, proyectos } = useInstancia();
+    const { producto, nombre: instancia, proyecto, sistemas } = useInstancia();
+    const nombre = proyecto?.nombre || instancia;
+    const ruta = useRuta();
     const herramientas = useHerramientas(ronda?.id);
     const aprobaciones = useAprobaciones(ronda?.id);
     const [generada] = useState(() => formatearFecha(new Date().toISOString()));
     const grupos = useMemo(
-        () => agruparPorSistema(proyectos, combinar(herramientas.data ?? [], aprobaciones.data)),
-        [proyectos, herramientas.data, aprobaciones.data],
+        () => agruparPorSistema(sistemas, combinar(herramientas.data ?? [], aprobaciones.data)),
+        [sistemas, herramientas.data, aprobaciones.data],
     );
 
     if (!ronda || herramientas.isPending || aprobaciones.isPending) return <Spinner pantalla />;
@@ -42,16 +46,17 @@ const Acta = () => {
     return (
         <main className="mx-auto max-w-5xl bg-white p-6 text-texto print:max-w-none print:p-0 md:p-10">
             <div className="mb-6 flex flex-wrap gap-2 print:hidden">
-                <Link to="/aprobaciones" className={`${BOTON} bg-borde text-texto-tenue`}>Volver</Link>
+                <Link to={ruta('/aprobaciones')} className={`${BOTON} bg-borde text-texto-tenue`}>Volver</Link>
                 <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}>Imprimir</button>
-                <button type="button" onClick={() => descargar(actaMarkdown({ nombre, ronda, grupos, generada }), `acta-${ronda.nombre.replaceAll(' ', '-').toLowerCase()}.md`)} className={`${BOTON} border border-primario text-primario`}>
+                <button type="button" onClick={() => descargar(actaMarkdown({ producto, nombre, ronda, grupos, generada }), `acta-${ronda.nombre.replaceAll(' ', '-').toLowerCase()}.md`)} className={`${BOTON} border border-primario text-primario`}>
                     Descargar .md
                 </button>
             </div>
-            <h1 className="tipo-negrita text-2xl">{nombre ? `Acta de aprobación · ${nombre}` : 'Acta de aprobación'}</h1>
-            <p className="mt-1 tipo-media text-sm text-texto-tenue">
-                Ronda: {ronda.nombre}{ronda.snapshot ? ` (${ronda.snapshot})` : ''} · Generada: {generada}
-            </p>
+            <EncabezadoImpreso titulo="Acta de aprobación">
+                <p className="mt-1 tipo-media text-sm text-texto-tenue">
+                    Ronda: {ronda.nombre}{ronda.snapshot ? ` (${ronda.snapshot})` : ''} · Generada: {generada}
+                </p>
+            </EncabezadoImpreso>
             {grupos.map((g) => (
                 <section key={g.clave} className="mt-8 break-inside-avoid-page">
                     <h2 className="border-b border-borde pb-1 tipo-negrita text-lg text-primario">{g.nombre}</h2>

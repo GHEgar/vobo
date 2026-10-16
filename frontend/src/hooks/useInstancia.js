@@ -1,26 +1,51 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchInstancia } from '@/services/validacion';
+import { useClaveProyecto } from '@/hooks/useProyecto';
+import { tituloDocumento } from '@/utils/marca';
 
-const VACIA = { nombre: '', descripcion: '', proyectos: [] };
+const VACIA = {
+    producto: '',
+    nombre: '',
+    descripcion: '',
+    logo: null,
+    favicon: '',
+    color_tema: '',
+    entrada: { titulo: '', mensaje: '' },
+    proyectos: [],
+    sistemas: [],
+    proyecto: null,
+};
 
 export const useInstancia = () => {
+    const proyecto = useClaveProyecto();
     const { data } = useQuery({
-        queryKey: ['instancia'],
-        queryFn: fetchInstancia,
+        queryKey: ['instancia', proyecto],
+        queryFn: () => fetchInstancia(proyecto),
         staleTime: 60 * 60 * 1000,
         retry: 1,
     });
     return data ?? VACIA;
 };
 
-export const useProyectos = () => useInstancia().proyectos;
+export const useSistemas = () => useInstancia().sistemas;
+
+const fijarAtributo = (selector, atributo, valor) => {
+    const elemento = document.querySelector(selector);
+    if (elemento && valor) elemento.setAttribute(atributo, valor);
+};
 
 export const useMetaInstancia = () => {
-    const { nombre, descripcion } = useInstancia();
+    const { producto, nombre, descripcion, favicon, color_tema: colorTema } = useInstancia();
     useEffect(() => {
-        if (nombre) document.title = nombre;
-        const meta = document.querySelector('meta[name="description"]');
-        if (meta && descripcion) meta.setAttribute('content', descripcion);
-    }, [nombre, descripcion]);
+        const titulo = tituloDocumento(producto, nombre);
+        if (titulo) document.title = titulo;
+        fijarAtributo('meta[name="description"]', 'content', descripcion);
+        fijarAtributo('meta[name="theme-color"]', 'content', colorTema);
+        const icono = document.querySelector('link[rel="icon"]');
+        if (icono && favicon && icono.getAttribute('href') !== favicon) {
+            icono.removeAttribute('type');
+            icono.setAttribute('href', favicon);
+        }
+    }, [producto, nombre, descripcion, favicon, colorTema]);
 };

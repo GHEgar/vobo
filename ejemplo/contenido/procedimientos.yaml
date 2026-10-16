@@ -1,6 +1,6 @@
 - id: usar-esta-pagina
   titulo: Cómo usar esta página
-  url_inicio: https://validaciones.ejemplo/
+  url_inicio: https://vobo.ejemplo/
   cuenta: val-cliente-01
   pasos:
     - Abrir una sección desde Inicio
@@ -9,7 +9,7 @@
     - Pulsar «Pasa»
 - id: reportar-falla
   titulo: Reportar una falla
-  url_inicio: https://validaciones.ejemplo/
+  url_inicio: https://vobo.ejemplo/
   cuenta: val-cliente-01
   pasos:
     - Abrir un caso

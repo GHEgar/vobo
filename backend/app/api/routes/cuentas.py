@@ -5,14 +5,13 @@ from app.api.deps import Actor, get_actor
 from app.core.database import get_db
 from app.core.permisos import GESTIONAR_FALLAS
 from app.schemas.cuenta import CuentaPrueba
-from app.services import contenido, cuentas, rondas, visibilidad
+from app.services import contenido, cuentas, proyectos, rondas, visibilidad
 
 router = APIRouter(prefix="/api/cuentas-prueba", tags=["cuentas"])
 
 
 def _cuentas_de_sus_casos(db: Session, actor: Actor, ronda: int) -> list[str]:
-    rondas.obtener_o_404(db, ronda)
-    actual = contenido.obtener()
+    actual = contenido.obtener(proyectos.de_ronda(db, ronda))
     asignadas = set(rondas.secciones_asignadas(db, ronda, actor.email))
     visibles = visibilidad.secciones_visibles(
         actual, asignadas, actor.ve(visibilidad.PAGINA_TECNICO)

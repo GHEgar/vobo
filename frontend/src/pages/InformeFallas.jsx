@@ -2,15 +2,16 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
+import { EncabezadoImpreso } from '@/components/EncabezadoImpreso';
 import { MediaImagen } from '@/components/MediaImagen';
-import { useInstancia } from '@/hooks/useInstancia';
 import { useRonda } from '@/hooks/useRonda';
 import { useFallas } from '@/hooks/useValidacion';
 import { ESTADOS_FALLA, REPRODUCIBLE, SEVERIDADES } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
 import { describirFiltros, filtrosDe, pasoDeFalla, resumenFallas } from '@/utils/informeFallas';
+import { ArrowLeft, Document, Filter } from 'tesela/react';
 
-const BOTON = 'inline-flex h-[36px] items-center rounded-full px-5 tipo-negrita text-sm';
+const BOTON = 'inline-flex h-[36px] items-center gap-2 rounded-full px-5 tipo-negrita text-sm';
 
 const TablaConteo = ({ titulo, filas, total }) => (
     <table className="w-full border-collapse text-left text-[13px]">
@@ -80,7 +81,6 @@ const InformeFallas = () => {
     const filtros = useMemo(() => filtrosDe(params), [params]);
     const { rondas } = useRonda();
     const ronda = rondas.find((r) => String(r.id) === filtros.ronda);
-    const { nombre } = useInstancia();
     const { data, isPending, error, refetch } = useFallas(filtros);
     const [generado] = useState(() => formatearFecha(new Date().toISOString()));
     const resumen = useMemo(() => resumenFallas(data ?? []), [data]);
@@ -91,16 +91,17 @@ const InformeFallas = () => {
     return (
         <main className="mx-auto max-w-5xl bg-white p-6 text-texto print:max-w-none print:p-0 md:p-10">
             <div className="mb-6 flex flex-wrap gap-2 print:hidden">
-                <Link to={`/fallas?${params}`} className={`${BOTON} bg-borde text-texto-tenue`}>Volver</Link>
-                <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}>Imprimir / guardar PDF</button>
+                <Link to={`/fallas?${params}`} className={`${BOTON} bg-borde text-texto-tenue`}><ArrowLeft size={18} className="shrink-0" />Volver</Link>
+                <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}><Document size={18} className="shrink-0" />Imprimir / guardar PDF</button>
             </div>
-            <h1 className="tipo-negrita text-2xl">{nombre ? `Informe de fallas · ${nombre}` : 'Informe de fallas'}</h1>
-            <p className="mt-1 tipo-media text-sm text-texto-tenue">
-                Ronda: {ronda ? `${ronda.nombre}${ronda.snapshot ? ` (${ronda.snapshot})` : ''}` : 'Todas'} · Generado: {generado}
-            </p>
-            <p className="mt-1 tipo-media text-xs text-texto-apagado">
-                Filtros: {describirFiltros(filtros, ronda).map(([k, v]) => `${k}: ${v}`).join(' · ')}
-            </p>
+            <EncabezadoImpreso titulo="Informe de fallas">
+                <p className="mt-1 tipo-media text-sm text-texto-tenue">
+                    Ronda: {ronda ? `${ronda.nombre}${ronda.snapshot ? ` (${ronda.snapshot})` : ''}` : 'Todas'} · Generado: {generado}
+                </p>
+                <p className="mt-1 tipo-media text-xs text-texto-apagado">
+                    Filtros: {describirFiltros(filtros, ronda).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                </p>
+            </EncabezadoImpreso>
             <section className="mt-8 break-inside-avoid-page">
                 <h2 className="border-b border-borde pb-1 tipo-negrita text-lg text-primario">Resumen</h2>
                 {data.length ? (
@@ -110,7 +111,7 @@ const InformeFallas = () => {
                         <TablaConteo titulo="Sección" filas={resumen.seccion} total={data.length} />
                     </div>
                 ) : (
-                    <p className="mt-2 text-sm text-texto-tenue">No hay fallas con estos filtros.</p>
+                    <p className="mt-2 flex items-center gap-2 text-sm text-texto-tenue"><Filter size={16} className="shrink-0" />No hay fallas con estos filtros.</p>
                 )}
             </section>
             {data.length > 0 && (

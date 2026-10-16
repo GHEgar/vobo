@@ -1,10 +1,12 @@
 import logging
 from pathlib import Path
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.core.config import settings
 from app.schemas.cuenta import CuentaPrueba
 from app.schemas.instancia import CuentaDeInstancia
-from app.services import contenido
+from app.services import configuracion
 
 logger = logging.getLogger("validacion.cuentas")
 
@@ -13,8 +15,8 @@ DESCRIPCION_GENERICA = "Cuenta de prueba"
 
 def _descripciones() -> list[CuentaDeInstancia]:
     try:
-        return contenido.cargar().instancia.cuentas
-    except ValueError:
+        return configuracion.efectiva().cuentas
+    except (ValueError, SQLAlchemyError):
         return []
 
 
