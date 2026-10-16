@@ -49,6 +49,29 @@ requisitos() {
     row 'Compose' "$version" "$C_GREEN"
 }
 
+revisar_compose_imagen() {
+    local version
+    version=$(docker compose version --short 2>/dev/null || printf '0')
+    [ "$(printf '2.24.0\n%s\n' "$version" | sort -V | head -n 1)" = '2.24.0' ] \
+        || fail "Compose:version $version" 'El modo imagen necesita docker compose 2.24 o mas reciente'
+}
+
+reunir_modo() {
+    elegir MODO_DESPLIEGUE 'Como se despliega (imagen: descarga lo publicado; codigo: compila aqui)' 'imagen/codigo' 'imagen'
+    ENV_NUEVO[MODO_DESPLIEGUE]=$MODO_DESPLIEGUE
+    if [ "$MODO_DESPLIEGUE" = 'codigo' ]; then
+        [ -f backend/Dockerfile ] || fail 'Modo:codigo necesita el repositorio completo' \
+            'Clona el repositorio o instala con MODO_DESPLIEGUE=imagen'
+        return 0
+    fi
+    revisar_compose_imagen
+    preguntar VOBO_VERSION 'Version publicada a instalar' "$(version_local)"
+    [ -n "$VOBO_VERSION" ] || fail 'Version:falta VOBO_VERSION' 'Indica una version publicada, p. ej. VOBO_VERSION=0.3.0'
+    ENV_NUEVO[VOBO_VERSION]=$VOBO_VERSION
+    ENV_NUEVO[VOBO_IMAGEN_BACKEND]=${VOBO_IMAGEN_BACKEND:-}
+    ENV_NUEVO[VOBO_IMAGEN_WEB]=${VOBO_IMAGEN_WEB:-}
+}
+
 valor_env() {
     sed -n "s/^$1=//p" .env.production 2>/dev/null | tail -n 1
 }
@@ -56,6 +79,7 @@ valor_env() {
 reunir_valores() {
     local sitio ip
     printf '\n  %sEnter acepta el valor entre corchetes.%s\n\n' "$C_DIM" "$C_RESET"
+    reunir_modo
     preguntar DOMINIO 'Dominio o IP con que se entra' "$(hostname -f 2>/dev/null || hostname)"
     elegir HTTPS 'Se entra por HTTPS (un proxy pone el certificado)' 'si/no' 'si'
     preguntar NGINX_PORT 'Puerto donde escucha la app en este servidor' '80'

@@ -65,7 +65,8 @@ respaldar() {
     run_step 'Media' volcar_tar /contenido-media "$carpeta/media.tar"
     run_step 'Config' volcar_config "$carpeta/config.tar"
     version=$(en_backend printenv APP_VERSION 2>/dev/null || printf '')
-    commit=$(git rev-parse HEAD 2>/dev/null || printf '')
+    commit=''
+    [ "${MODO_ACTIVO:-codigo}" = 'imagen' ] || commit=$(git rev-parse HEAD 2>/dev/null || printf '')
     run_step 'Manifiesto' python3 make/manifiesto.py crear "$carpeta" \
         --proyecto "$PROJECT_PROD" --version "$version" --git "$commit"
     chmod 600 "$carpeta"/*
@@ -94,6 +95,14 @@ cargar_base() {
     en_backend sh -c 'rm -f "$0" "$0-wal" "$0-shm" && cat > "$0"' "$BASE_SQLITE" < "$1"
 }
 
+revision_conocida() {
+    if [ "${MODO_ACTIVO:-codigo}" = 'imagen' ]; then
+        en_backend sh -c 'ls alembic/versions/"$0"_*.py' "$1" >/dev/null 2>&1
+    else
+        compgen -G "backend/alembic/versions/${1}_*.py" >/dev/null
+    fi
+}
+
 revisar_respaldo() {
     local desde=$1 revision
     [ -n "$desde" ] || fail 'Origen:falta desde' 'Uso: make restaurar desde=respaldos/<carpeta>'
@@ -102,9 +111,9 @@ revisar_respaldo() {
     run_step 'sha256' python3 make/manifiesto.py verificar "$desde" \
         || fail 'Integridad:el respaldo no coincide con su manifiesto' 'No se toco nada'
     revision=$(python3 make/manifiesto.py campo "$desde" alembic)
-    if [ -n "$revision" ] && ! compgen -G "backend/alembic/versions/${revision}_*.py" >/dev/null; then
+    if [ -n "$revision" ] && ! revision_conocida "$revision"; then
         fail "Version:el respaldo es de una version mas nueva (revision $revision)" \
-             'Actualiza el codigo a esa version antes de restaurarlo'
+             'Pasa a esa version antes de restaurarlo (make actualizar)'
     fi
     row 'Creado' "$(python3 make/manifiesto.py campo "$desde" creado)" "$C_GREEN"
     row 'Proyecto' "$(python3 make/manifiesto.py campo "$desde" proyecto)" "$C_GREEN"

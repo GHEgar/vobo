@@ -51,3 +51,15 @@ fijar_version() {
     export APP_VERSION
     row 'Version' "$APP_VERSION" "$C_GREEN"
 }
+
+version_imagen() {
+    local version
+    version=${VOBO_VERSION:-$(sed -n 's/^VOBO_VERSION=//p' .env.production 2>/dev/null | tail -n 1)}
+    [ -n "$version" ] || fail 'Version:falta VOBO_VERSION en .env.production' \
+        'Indica una version publicada: make actualizar version=X.Y.Z'
+    if [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        row 'Version' "$version" "$C_GREEN" 'imagenes publicadas'
+    else
+        row 'Version' "$version" "$C_YELLOW" 'no es X.Y.Z; el pull solo baja las imagenes que falten'
+    fi
+}

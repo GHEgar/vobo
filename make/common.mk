@@ -23,6 +23,8 @@ UP_PROD_CMD ?= dc prod up -d
 DEPLOY_CMD ?= dc prod up -d --build
 DEPLOY_POST ?= $(UP_POST)
 DEPLOY_SYNC ?= git_sync
+DEPLOY_BUILD ?= run_step 'Build' dc prod build
+DEPLOY_DOWN ?= run_step 'Down' dc prod down --remove-orphans
 
 export REPO_NAME PROJECT_PROD PROJECT_DEV COMPOSE_PROD_CMD COMPOSE_DEV_CMD VERBOSE
 
@@ -57,15 +59,15 @@ _up-prod: $(UP_PRE)
 	rule
 	printf '\n'
 
-deploy: $(DEPLOY_PRE) ## Actualizar, reconstruir y levantar produccion (VERBOSE=1 para ver el build)
+deploy: $(DEPLOY_PRE) ## Levantar produccion: modo codigo reconstruye, modo imagen descarga VOBO_VERSION (VERBOSE=1 detalla)
 	@$(LIB)
 	start=$$(date +%s)
-	banner 'DEPLOY' 'produccion'
+	banner 'DEPLOY' "produccion, modo $${MODO_ACTIVO:-codigo}"
 	$(DEPLOY_SYNC)
 	$(DEPLOY_GUARDS)
 	rule
-	run_step 'Build' dc prod build
-	run_step 'Down' dc prod down --remove-orphans
+	$(DEPLOY_BUILD)
+	$(DEPLOY_DOWN)
 	run_step 'Up' $(DEPLOY_CMD)
 	$(DEPLOY_POST)
 	rule

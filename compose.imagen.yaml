@@ -1,0 +1,8 @@
+services:
+  backend:
+    image: ${VOBO_IMAGEN_BACKEND:-ghcr.io/ghegar/vobo-backend}:${VOBO_VERSION:?}
+    build: !reset null
+
+  nginx:
+    image: ${VOBO_IMAGEN_WEB:-ghcr.io/ghegar/vobo-web}:${VOBO_VERSION:?}
+    build: !reset null

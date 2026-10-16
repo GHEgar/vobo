@@ -9,7 +9,7 @@ ARG APP_VERSION=""
 ENV VITE_APP_VERSION=$APP_VERSION
 RUN npm run build
 
-FROM nginx:1.30.4-alpine
+FROM nginxinc/nginx-unprivileged:1.30.4-alpine
 COPY nginx/validacion.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 8080

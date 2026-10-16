@@ -3,7 +3,7 @@ map $host $app_csp {
 }
 
 server {
-    listen 80;
+    listen 8080;
     server_name ${DOMINIO} ${VM_IP};
     root /usr/share/nginx/html;
     index index.html;
