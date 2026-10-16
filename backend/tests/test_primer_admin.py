@@ -43,3 +43,30 @@ def test_no_hay_forma_web_de_crear_admin_sin_token(monkeypatch, cliente_de) -> N
     )
     assert falso.status_code == 404
     assert anonimo.post("/api/admin/roles", json={"clave": "x1", "nombre": "X"}).status_code == 401
+
+
+def _usuario(email: str) -> None:
+    from app.models.usuario import Usuario
+
+    with SessionLocal() as db:
+        db.add(Usuario(email=email, nombre="Persona", sub_oidc=f"sub-{email}"))
+        db.commit()
+
+
+def test_en_oidc_asigna_el_rol_a_quien_ya_entro(monkeypatch, capsys) -> None:
+    from app.services import roles
+
+    monkeypatch.setattr(settings, "auth_modo", "oidc")
+    _usuario("persona@ejemplo.test")
+    assert crear_admin.main(["Persona@Ejemplo.test"]) == 0
+    assert "asignada a persona@ejemplo.test" in capsys.readouterr().out
+    with SessionLocal() as db:
+        assert roles.administradores(db) == 1
+    assert crear_admin.main(["persona@ejemplo.test"]) == 1
+    assert "Ya hay" in capsys.readouterr().err
+
+
+def test_en_oidc_pide_que_la_persona_entre_primero(monkeypatch, capsys) -> None:
+    monkeypatch.setattr(settings, "auth_modo", "oidc")
+    assert crear_admin.main(["nadie@ejemplo.test"]) == 1
+    assert "todavía no ha entrado" in capsys.readouterr().err

@@ -45,7 +45,7 @@ migracion: ## Crear una revision de Alembic contra los modelos: make migracion m
 	rule
 	printf '\n'
 
-admin: ## Invitar al primer administrador (cuentas o ambos): make admin email=persona@ejemplo
+admin: ## Primer administrador: invitación (cuentas o ambos) o rol a quien ya entró (oidc): make admin email=persona@ejemplo
 	@$(LIB)
 	banner 'ADMIN' 'primer administrador'
 	if [ -z '$(email)' ]; then

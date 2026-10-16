@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Corregido
+
+- `make admin` no podía nombrar al primer administrador con `AUTH_MODO=oidc`: ahora da el rol a una
+  persona que ya entró por el proveedor.
+
+
 ## [0.3.1] - 2026-10-16
 
 ### Cambiado

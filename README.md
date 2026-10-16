@@ -332,7 +332,9 @@ sessions, tokens or screenshots.
 There is no self sign-up and no outgoing email: links are generated and shared by hand.
 
 - **First administrator.** While nobody holds Administración, `make admin email=person@example.org`
-  prints a one-time invitation link valid for 48 h. It refuses once an administrator exists.
+  prints a one-time invitation link valid for 48 h (`cuentas`, `ambos`). With `AUTH_MODO=oidc` it gives
+  the role to that person instead, once they have signed in through the provider. It refuses once an
+  administrator exists.
 - **Invitations and resets.** Administración → Personas invites by email with roles or resets a
   password, each with a one-time 48 h link; a reset closes that person's password sessions.
 - **Deactivation** blocks password sign-in and closes its sessions; provider sign-in is unaffected.
