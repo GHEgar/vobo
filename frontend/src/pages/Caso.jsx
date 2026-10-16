@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
-import { ChevronLeft } from 'tesela/react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { CheckCircle, ChevronLeft, Edit, Refresh, Search } from 'tesela/react';
+import { BarraEdicion } from '@/components/edicion/Editable';
+import { contornoEdicion } from '@/utils/edicion';
+import { ModalCaso } from '@/components/edicion/ModalCaso';
+import { BotonIcono } from '@/components/editor/ListaOrdenable';
+import { useEdicion } from '@/hooks/useEdicion';
 import { Spinner } from '@/components/Spinner';
 import { EmptyState, ErrorState } from '@/components/Estados';
 import { Button } from '@/components/Button';
@@ -19,6 +24,7 @@ import { useProgreso } from '@/hooks/useMisCasos';
 import { useSesion } from '@/hooks/useSesion';
 import { PERMISOS } from '@/utils/permisos';
 import { estadoDe } from '@/utils/progreso';
+import { useRuta } from '@/hooks/useProyecto';
 
 const PLANTILLA = 'Qué hice: \nQué vi: \nQué esperaba: \n';
 
@@ -69,7 +75,7 @@ const Preparacion = ({ caso }) => (
     </div>
 );
 
-const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
+const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido, acciones }) => {
     const { usuario, puede } = useSesion();
     const resultado = datos.estados.get(caso.id);
     const siguiente = siguientePendiente(datos, caso.id);
@@ -97,12 +103,14 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
 
     return (
         <>
-            <Tarjeta className="flex flex-col gap-5 pb-4 md:pb-5">
-                <div>
+            <Tarjeta className={`flex flex-col gap-5 pb-4 md:pb-5 ${acciones ? `${contornoEdicion(true)} pt-14 md:pt-7` : ''}`}>
+                {acciones}
+                <div className={acciones ? 'md:pr-12' : undefined}>
                     <Cabecera caso={caso} contador={contador} />
                 </div>
                 {guia.terminado ? (
-                    <p role="status" className="rounded-2xl bg-pasa-fondo px-5 py-4 tipo-negrita text-sm text-pasa">
+                    <p role="status" className="flex items-center gap-2 rounded-2xl bg-pasa-fondo px-5 py-4 tipo-negrita text-sm text-pasa">
+                        <CheckCircle size={20} className="shrink-0" />
                         {siguiente ? 'Caso guardado · siguiente…' : 'Caso guardado. Terminaste todos tus casos de esta ronda.'}
                     </p>
                 ) : (
@@ -121,7 +129,7 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
                 {guia.guardar.error && <p className="tipo-media text-sm text-error-fuerte">{guia.guardar.error.message}</p>}
             </Tarjeta>
             {!guia.terminado && guia.modo === 'comentario' && (
-                <Tarjeta id="accion-paso" className="scroll-mt-32">
+                <Tarjeta id="accion-paso" className="scroll-mt-44 sm:scroll-mt-40">
                     <h2 className="mb-1 tipo-negrita text-lg text-texto">Comentario sobre el paso {guia.actual + 1}</h2>
                     <ComentarioPaso
                         id={`comentario-${guia.actual}`}
@@ -137,7 +145,7 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
                 </Tarjeta>
             )}
             {!guia.terminado && guia.modo === 'falla' && (
-                <Tarjeta id="accion-paso" className="scroll-mt-32">
+                <Tarjeta id="accion-paso" className="scroll-mt-44 sm:scroll-mt-40">
                     <FallaForm
                         caso={caso}
                         ronda={ronda}
@@ -149,7 +157,7 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
                 </Tarjeta>
             )}
             {!guia.terminado && guia.modo === 'otro' && (
-                <Tarjeta id="accion-paso" className="scroll-mt-32">
+                <Tarjeta id="accion-paso" className="scroll-mt-44 sm:scroll-mt-40">
                     <FallaForm
                         caso={caso}
                         ronda={ronda}
@@ -161,7 +169,8 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
                 </Tarjeta>
             )}
             {guia.modo === 'enviado' && (
-                <p role="status" className="rounded-2xl bg-pasa-fondo px-5 py-4 tipo-negrita text-sm text-pasa">
+                <p role="status" className="flex items-center gap-2 rounded-2xl bg-pasa-fondo px-5 py-4 tipo-negrita text-sm text-pasa">
+                    <CheckCircle size={20} className="shrink-0" />
                     Reporte enviado. Sigue con el paso {guia.actual + 1}.
                 </p>
             )}
@@ -171,33 +180,51 @@ const CasoGuia = ({ caso, datos, ronda, pedidoFuera, pasoPedido }) => {
 };
 
 const Caso = () => {
+    const ruta = useRuta();
     const { casoId } = useParams();
     const [params] = useSearchParams();
     const { ronda, datos, cargando, error, reintentar } = useProgreso();
     const [verPreparacion, setVerPreparacion] = useState(false);
     const [pedidoFuera, setPedidoFuera] = useState(0);
+    const { activo: editando } = useEdicion();
+    const [editandoCaso, setEditandoCaso] = useState(false);
+    const navigate = useNavigate();
 
     if (cargando) return <Spinner pantalla />;
     if (error) return <ErrorState mensaje={error.message} onReintentar={reintentar} />;
     const caso = datos.indice.casos.get(casoId);
-    if (!caso) return <EmptyState titulo="Caso no encontrado" />;
+    if (!caso) return <EmptyState icono={Search} titulo="Caso no encontrado" />;
     const seccion = datos.indice.secciones.get(caso.seccionId);
     const pasoPedido = pasoDeUrl(params.get('paso'), caso.pasos.length);
+    const acciones = editando ? (
+        <BarraEdicion etiqueta={`Acciones de ${caso.id}`}>
+            <BotonIcono etiqueta={`Editar ${caso.id}`} onClick={() => setEditandoCaso(true)}><Edit size={16} /></BotonIcono>
+        </BarraEdicion>
+    ) : null;
 
     return (
         <>
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <Link to={`/seccion/${seccion.id}`} className="inline-flex w-fit items-center gap-1 tipo-negrita text-sm text-primario hover:underline"><ChevronLeft size={16} stroke={2} />{seccion.titulo}</Link>
+                <Link to={ruta(`/seccion/${seccion.id}`)} className="inline-flex w-fit items-center gap-1 tipo-negrita text-sm text-primario hover:underline"><ChevronLeft size={16} />{seccion.titulo}</Link>
                 <div className="flex flex-wrap items-center gap-2">
                     {ronda && <Button label="Algo fuera de los pasos" small variant="ghost" onClick={() => setPedidoFuera((n) => n + 1)} />}
                     <CuentasPrueba etiqueta="Cuentas de prueba" resaltar={caso.cuenta} />
                     <Button label="Antes de empezar" small variant="ghost" onClick={() => setVerPreparacion(true)} />
                 </div>
             </div>
+            <ModalCaso
+                seccionId={seccion.id}
+                pedido={editandoCaso ? { tipo: 'editar', casoId: caso.id } : null}
+                onCerrar={() => setEditandoCaso(false)}
+                onGuardado={(nuevo) => {
+                    setEditandoCaso(false);
+                    if (nuevo.id !== caso.id) navigate(ruta(`/caso/${encodeURIComponent(nuevo.id)}`), { replace: true });
+                }}
+            />
             <Modal abierto={verPreparacion} titulo="Preparación" onCerrar={() => setVerPreparacion(false)}>
                 <Preparacion caso={caso} />
             </Modal>
-            {ronda ? <CasoGuia key={`${ronda.id}-${caso.id}-${pasoPedido ?? ''}`} caso={caso} datos={datos} ronda={ronda} pedidoFuera={pedidoFuera} pasoPedido={pasoPedido} /> : <EmptyState titulo="No hay una ronda abierta" />}
+            {ronda ? <CasoGuia key={`${ronda.id}-${caso.id}-${pasoPedido ?? ''}`} caso={caso} datos={datos} ronda={ronda} pedidoFuera={pedidoFuera} pasoPedido={pasoPedido} acciones={acciones} /> : <EmptyState icono={Refresh} titulo="No hay una ronda abierta" />}
         </>
     );
 };

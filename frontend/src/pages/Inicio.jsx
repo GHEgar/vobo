@@ -5,21 +5,26 @@ import { Modal } from '@/components/Modal';
 import { Continuar } from '@/components/inicio/Continuar';
 import { SelectorRonda } from '@/components/SelectorRonda';
 import { CuentasPrueba } from '@/components/inicio/CuentasPrueba';
-import { PestanasProyectos } from '@/components/inicio/PestanasProyectos';
-import { AvancePorProyecto } from '@/components/inicio/PorProyecto';
+import { PestanasSistemas } from '@/components/inicio/PestanasSistemas';
+import { AvancePorSistema } from '@/components/inicio/PorSistema';
 import { SinRonda } from '@/components/SinRonda';
+import { AccionesSeccion } from '@/components/edicion/AccionesSeccion';
+import { ModalSeccion } from '@/components/edicion/ModalSeccion';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { useProyectos } from '@/hooks/useInstancia';
+import { useSistemas } from '@/hooks/useInstancia';
 import { useProgreso } from '@/hooks/useMisCasos';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useRecordarScroll } from '@/hooks/useRecordarScroll';
 import { useSesion } from '@/hooks/useSesion';
+import { useEdicion } from '@/hooks/useEdicion';
+import { useSeccionesEditables } from '@/hooks/useSeccionesEditables';
 import { formatearPorcentaje } from '@/utils/formato';
 import { casoParaContinuar } from '@/utils/progreso';
-import { agruparPorProyecto } from '@/utils/proyectos';
+import { agruparSeccionesPorSistema } from '@/utils/sistemas';
+import { Layers } from 'tesela/react';
 
-const ID_PESTANAS = 'proyectos';
+const ID_PESTANAS = 'sistemas';
 
 const BotonAvance = ({ hechos, total, onClick }) => {
     const porcentaje = total ? Math.round((hechos / total) * 100) : 0;
@@ -51,27 +56,33 @@ const Inicio = () => {
     const [params, setParams] = useSearchParams();
     const [verAvance, setVerAvance] = useState(false);
     const { ronda, datos, cargando, error, reintentar } = useProgreso();
-    const listaProyectos = useProyectos();
-    useRecordarScroll(`inicio:${params.get('proyecto') ?? pestanaGuardada ?? ''}`, Boolean(ronda) && !cargando && !error);
+    const listaSistemas = useSistemas();
+    const { activo: editando } = useEdicion();
+    const [pedido, setPedido] = useState(null);
+    const editables = useSeccionesEditables(datos?.secciones ?? null, editando);
+    useRecordarScroll(`inicio:${params.get('sistema') ?? pestanaGuardada ?? ''}`, Boolean(ronda) && !cargando && !error);
 
     if (!ronda && !cargando) return <SinRonda />;
     if (cargando) return <Spinner pantalla />;
     if (error) return <ErrorState mensaje={error.message} onReintentar={reintentar} />;
 
-    const { total, secciones, asignadas } = datos;
-    const proyectos = agruparPorProyecto(listaProyectos, secciones);
+    const { total, asignadas } = datos;
+    const sistemas = agruparSeccionesPorSistema(listaSistemas, editables.secciones);
     const objetivo = casoParaContinuar(datos);
-    const existe = (clave) => proyectos.some((g) => g.clave === clave);
-    const enDireccion = params.get('proyecto');
-    const pestana = [enDireccion, pestanaGuardada].find(existe) ?? pestanaInicial(proyectos, objetivo);
+    const existe = (clave) => sistemas.some((g) => g.clave === clave);
+    const pestana = [params.get('sistema'), params.get('proyecto'), pestanaGuardada].find(existe) ?? pestanaInicial(sistemas, objetivo);
     const elegir = (clave) => {
         setPestanaGuardada(clave);
         setParams((actuales) => {
             const nuevos = new URLSearchParams(actuales);
-            nuevos.set('proyecto', clave);
+            nuevos.set('sistema', clave);
             return nuevos;
         }, { replace: true });
     };
+    const edicion = editando ? {
+        onNueva: (sistema, audiencia) => setPedido({ id: null, inicial: { sistema, audiencia } }),
+        acciones: (s, lista) => <AccionesSeccion seccion={s} lista={lista} ids={editables.ids} onUsar={() => elegir(s.sistema)} onEditar={() => setPedido({ id: s.id, titulo: s.titulo })} />,
+    } : null;
 
     return (
         <>
@@ -91,23 +102,25 @@ const Inicio = () => {
                     <ProgressBar {...total} />
                     <span className="shrink-0 tipo-negrita text-sm text-primario">{formatearPorcentaje(total.hechos, total.total)}</span>
                 </div>
-                <h3 className="mt-5 tipo-negrita text-sm text-texto">Por proyecto</h3>
-                <AvancePorProyecto grupos={proyectos} />
+                <h3 className="mt-5 tipo-negrita text-sm text-texto">Por sistema</h3>
+                <AvancePorSistema grupos={sistemas} />
             </Modal>
-            {proyectos.length ? (
-                <PestanasProyectos
+            {sistemas.length ? (
+                <PestanasSistemas
                     id={ID_PESTANAS}
-                    grupos={proyectos}
+                    grupos={sistemas}
                     estados={datos.estados}
                     elegido={pestana}
                     onElegir={elegir}
                     modos={modos}
                     destacado={objetivo?.caso.id}
                     onCambiarModo={(clave, modo) => setModos({ ...modos, [clave]: modo })}
+                    edicion={edicion}
                 />
             ) : (
-                <EmptyState titulo="Sin secciones" />
+                <EmptyState icono={Layers} titulo="Sin secciones" />
             )}
+            <ModalSeccion pedido={pedido} onCerrar={() => setPedido(null)} />
         </>
     );
 };
