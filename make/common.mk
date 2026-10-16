@@ -6,7 +6,7 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .ONESHELL:
 
-NETWORK_NAME := validaciones-red
+NETWORK_NAME := vobo-red
 LIB := source make/lib.sh$(if $(wildcard make/repo.sh), && source make/repo.sh)
 
 PROJECT_PROD ?= $(REPO_NAME)
@@ -22,6 +22,7 @@ UP_CMD ?= dc $(UP_ENV) up -d
 UP_PROD_CMD ?= dc prod up -d
 DEPLOY_CMD ?= dc prod up -d --build
 DEPLOY_POST ?= $(UP_POST)
+DEPLOY_SYNC ?= git_sync
 
 export REPO_NAME PROJECT_PROD PROJECT_DEV COMPOSE_PROD_CMD COMPOSE_DEV_CMD VERBOSE
 
@@ -60,7 +61,7 @@ deploy: $(DEPLOY_PRE) ## Actualizar, reconstruir y levantar produccion (VERBOSE=
 	@$(LIB)
 	start=$$(date +%s)
 	banner 'DEPLOY' 'produccion'
-	git_sync
+	$(DEPLOY_SYNC)
 	$(DEPLOY_GUARDS)
 	rule
 	run_step 'Build' dc prod build

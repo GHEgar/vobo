@@ -1,4 +1,4 @@
-name: ${COMPOSE_NOMBRE:-validaciones}
+name: ${COMPOSE_NOMBRE:-vobo}
 
 x-logging: &logging
   driver: json-file
@@ -17,13 +17,17 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile
+      args:
+        APP_VERSION: ${APP_VERSION:-}
     environment:
       - DOMINIO=${DOMINIO:?}
       - VM_IP=${VM_IP:?}
+      - CONTENIDO_FUENTE=${CONTENIDO_FUENTE:-archivos}
     ports:
       - '${NGINX_BIND_ADDR:?}:${NGINX_PORT:?}:80'
     volumes:
-      - ${CONTENIDO_DIR:-./ejemplo/contenido}/media:/usr/share/nginx/media:ro
+      - ${CONTENIDO_DIR:-./ejemplo/contenido}/media:/usr/share/nginx/media-archivos:ro
+      - media:/usr/share/nginx/media-base:ro
       - ${TEMA_DIR:-./frontend/public/tema}:/usr/share/nginx/html/tema:ro
     depends_on:
       backend:
@@ -37,12 +41,16 @@ services:
   backend:
     build:
       target: production
+      args:
+        APP_VERSION: ${APP_VERSION:-}
     expose:
       - '8000'
     restart: unless-stopped
 
 volumes:
   datos:
-    name: ${VOLUMEN_DATOS:-validaciones_datos}
+    name: ${VOLUMEN_DATOS:-vobo_datos}
   evidencias:
-    name: ${VOLUMEN_EVIDENCIAS:-validaciones_evidencias}
+    name: ${VOLUMEN_EVIDENCIAS:-vobo_evidencias}
+  media:
+    name: ${VOLUMEN_MEDIA:-vobo_media}

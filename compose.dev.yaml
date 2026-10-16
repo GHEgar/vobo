@@ -1,4 +1,4 @@
-name: validaciones-dev
+name: vobo-dev
 
 x-logging: &logging
   driver: json-file

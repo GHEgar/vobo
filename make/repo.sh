@@ -4,7 +4,7 @@ OPCIONALES='validacion_cuentas'
 env_guard() {
     if [ ! -f .env.production ]; then
         fail 'Env:falta .env.production' \
-             'Crealo desde la plantilla y llenalo: cp .env.production.example .env.production'
+             'Crealo con make instalar, o a mano desde .env.production.example'
     fi
     local nombre
     for nombre in $SECRETOS; do
@@ -42,4 +42,12 @@ proteger_secretos() {
     docker run --rm -v "$PWD/secrets":/s alpine sh -c \
         'chgrp 10001 /s && chmod 750 /s && find /s -type f ! -name "*.example" ! -name ".gitkeep" -exec chgrp 10001 {} + -exec chmod 640 {} +' \
         >/dev/null 2>&1 || chmod 600 secrets/* 2>/dev/null || true
+}
+
+fijar_version() {
+    local hash
+    hash=$(git rev-parse --short HEAD 2>/dev/null || printf 'sin-git')
+    APP_VERSION="$hash-$(date -u +%Y%m%d%H%M%S)"
+    export APP_VERSION
+    row 'Version' "$APP_VERSION" "$C_GREEN"
 }

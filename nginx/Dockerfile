@@ -5,6 +5,8 @@ COPY frontend/package*.json ./
 COPY frontend/vendor/ vendor/
 RUN --mount=type=cache,target=/root/.npm npm ci
 COPY frontend/ .
+ARG APP_VERSION=""
+ENV VITE_APP_VERSION=$APP_VERSION
 RUN npm run build
 
 FROM nginx:1.30.4-alpine

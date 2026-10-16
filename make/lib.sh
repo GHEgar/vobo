@@ -95,7 +95,7 @@ run_step() {
 }
 
 ensure_network() {
-    local name=${1:-validaciones-red}
+    local name=${1:-vobo-red}
     if docker network inspect "$name" >/dev/null 2>&1; then
         row 'Red' 'ya existe' "$C_GREEN" "($name)"
     else

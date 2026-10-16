@@ -22,6 +22,8 @@ services:
       - DATABASE_PATH=/data/validacion.sqlite3
       - EVIDENCIAS_DIR=/evidencias
       - CONTENIDO_DIR=/contenido
+      - CONTENIDO_FUENTE=${CONTENIDO_FUENTE:-archivos}
+      - MEDIA_DIR=/contenido-media
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:?}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:?}
       - FRONTEND_URL=${FRONTEND_URL:?}
@@ -35,6 +37,8 @@ services:
       - OIDC_TOKEN_TYP=${OIDC_TOKEN_TYP:-}
       - OIDC_PERMISOS_URL=${OIDC_PERMISOS_URL:-}
       - OIDC_PERMISOS_CLAIM=${OIDC_PERMISOS_CLAIM:-permissions}
+      - OIDC_ROLES_CLAIM=${OIDC_ROLES_CLAIM:-}
+      - OIDC_ROLES_MAPA=${OIDC_ROLES_MAPA:-}
     secrets:
       - secret_key
       - oidc_client_secret
@@ -44,6 +48,7 @@ services:
       - datos:/data
       - evidencias:/evidencias
       - ${CONTENIDO_DIR:-./ejemplo/contenido}:/contenido:ro
+      - media:/contenido-media
     healthcheck:
       <<: *healthcheck
       test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
@@ -52,6 +57,7 @@ services:
 volumes:
   datos:
   evidencias:
+  media:
 
 secrets:
   secret_key:
