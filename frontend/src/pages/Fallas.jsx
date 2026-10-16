@@ -15,7 +15,7 @@ import { consulta as aConsulta } from '@/services/api';
 import { urlInformeFallas } from '@/services/validacion';
 import { zonaHoraria } from '@/utils/informeFallas';
 import { ESTADOS_FALLA, SEVERIDADES, opciones } from '@/utils/etiquetas';
-import { Document, Download, Filter } from 'tesela/react';
+import { FileTable, FileText, Filter } from 'tesela/react';
 
 const TIPOS = [
     { valor: 'falla', texto: 'Fallas' },
@@ -52,8 +52,8 @@ const Fallas = () => {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="tipo-negrita text-lg text-texto">Fallas reportadas</h1>
                     <div className="flex flex-wrap gap-2">
-                        <a href={urlInformeFallas({ ...consulta, proyecto, tz: zonaHoraria() })} download className={ENLACE}><Download size={16} className="shrink-0" />Descargar CSV</a>
-                        <Link to={ruta(`/informe-fallas${aConsulta(consulta)}`)} className={ENLACE}><Document size={16} className="shrink-0" />Informe imprimible</Link>
+                        <a href={urlInformeFallas({ ...consulta, proyecto, tz: zonaHoraria() })} download className={ENLACE}><FileTable size={16} className="shrink-0" />Descargar CSV</a>
+                        <Link to={ruta(`/informe-fallas${aConsulta(consulta)}`)} className={ENLACE}><FileText size={16} className="shrink-0" />Informe imprimible</Link>
                     </div>
                 </div>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">

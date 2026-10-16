@@ -7,8 +7,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- tesela 0.7: íconos de archivo según lo que se maneja (CSV, informe, acta en Markdown, paquete
+  .zip, capturas, animaciones y logos).
+
 ### Corregido
 
+- Variable sin usar en el Tablero que hacía fallar el lint.
 - `make actualizar` de modo código a modo imagen fallaba en el respaldo previo: faltaba `VOBO_VERSION`
   y no existía la carpeta de animaciones en contenedores anteriores a 0.3.0.
 

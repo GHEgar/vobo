@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { Download, Upload } from 'tesela/react';
+import { FileArchive } from 'tesela/react';
 import { Button } from '@/components/Button';
 import { Titulo } from '@/components/Tarjeta';
 import { ResumenErrores } from '@/components/editor/ResumenErrores';
@@ -20,7 +20,7 @@ export const Exportar = () => {
     const nombre = proyecto?.por_omision ? 'contenido.zip' : `contenido-${proyecto?.clave}.zip`;
     return (
         <a href={urlExportar(proyecto?.clave)} download={nombre} className={`${ENLACE} border border-primario text-primario hover:bg-primario-suave`}>
-            <Download size={18} /> Exportar YAML (.zip)
+            <FileArchive size={18} /> Exportar YAML (.zip)
         </a>
     );
 };
@@ -66,7 +66,7 @@ export const Paquete = () => {
                 <h3 className="tipo-negrita text-sm text-texto">Importar YAML</h3>
                 <p className="mt-1 tipo-media text-xs text-texto-tenue">Reemplaza todo el contenido por el del .zip. Antes de aplicar se muestra qué cambia; cada cambio queda en el historial.</p>
                 <label htmlFor={id} className={`${ENLACE} mt-3 cursor-pointer bg-borde text-texto-tenue hover:bg-gris-hover`}>
-                    <Upload size={18} /> {archivo ? archivo.name : 'Elegir .zip'}
+                    <FileArchive size={18} /> {archivo ? archivo.name : 'Elegir .zip'}
                 </label>
                 <input id={id} type="file" accept=".zip,application/zip" className="sr-only" onChange={(e) => { analizar(e.target.files?.[0] ?? null); e.target.value = ''; }} />
                 {importar.isPending && <p role="status" className="mt-3 tipo-media text-xs text-texto-tenue">Revisando el paquete…</p>}

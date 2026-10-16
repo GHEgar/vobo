@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { CornerDownRight } from 'tesela/react';
+import { CornerDownRight, FileText } from 'tesela/react';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
 import { EncabezadoImpreso } from '@/components/EncabezadoImpreso';
@@ -49,6 +49,7 @@ const Acta = () => {
                 <Link to={ruta('/aprobaciones')} className={`${BOTON} bg-borde text-texto-tenue`}>Volver</Link>
                 <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}>Imprimir</button>
                 <button type="button" onClick={() => descargar(actaMarkdown({ producto, nombre, ronda, grupos, generada }), `acta-${ronda.nombre.replaceAll(' ', '-').toLowerCase()}.md`)} className={`${BOTON} border border-primario text-primario`}>
+                    <FileText size={18} className="shrink-0" />
                     Descargar .md
                 </button>
             </div>

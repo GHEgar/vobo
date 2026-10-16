@@ -16,9 +16,9 @@ export const IconoCerrar = ({ className = '' }) => (
     </Circulo>
 );
 
-export const IconoSubir = ({ className = '' }) => (
+export const IconoSubir = ({ className = '', icono: Icono = Upload }) => (
     <Circulo className={className} fondo="bg-primario-suave text-primario">
-        <Upload size={26} />
+        <Icono size={26} />
     </Circulo>
 );
 

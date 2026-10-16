@@ -1,10 +1,16 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import { Close } from 'tesela/react';
+import { Close, FileImage, FileVideo, Upload } from 'tesela/react';
 import { IconoSubir } from '@/components/Iconos';
 import { MediaImagen } from '@/components/MediaImagen';
 import { Label } from '@/components/Label';
 
 const TIPOS = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+const iconoDeTipos = (tipos) => {
+    if (tipos.some((t) => t.startsWith('video/'))) return FileVideo;
+    if (tipos.every((t) => t.startsWith('image/'))) return FileImage;
+    return Upload;
+};
 
 export const Dragger = ({
     label,
@@ -56,7 +62,7 @@ export const Dragger = ({
                 }}
                 className={`mt-3 flex w-full cursor-pointer items-center gap-6 rounded-2xl border border-dashed border-primario px-6 py-5 hover:bg-fondo md:gap-10 md:px-8 ${arrastrando ? 'bg-primario-suave' : 'bg-white'}`}
             >
-                <IconoSubir className="h-12 w-12 shrink-0" />
+                <IconoSubir className="h-12 w-12 shrink-0" icono={iconoDeTipos(tipos)} />
                 <span className="tipo-negrita text-lg/6 text-primario">
                     {titulo}
                     <span className="block tipo-media text-xs text-texto-tenue">{ayuda.replace('{maxMB}', maxMB)}</span>
