@@ -27,10 +27,11 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Corregido
 
+- `make restaurar CON_CONFIG=1` fallaba si `secrets/` o `.env.production` eran enlaces simbólicos: ahora
+  copia el contenido sobre las rutas existentes.
 - Las direcciones muy largas en comentarios desbordaban su contenedor.
 - `make admin` no podía nombrar al primer administrador con `AUTH_MODO=oidc`: ahora da el rol a una
   persona que ya entró por el proveedor.
-
 
 ## [0.3.1] - 2026-10-16
 

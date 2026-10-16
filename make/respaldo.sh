@@ -52,6 +52,17 @@ volcar_config() {
     tar -cf "$1" "${archivos[@]}"
 }
 
+restaurar_config() {
+    local temporal archivo
+    temporal=$(mktemp -d)
+    tar -xf "$1" -C "$temporal"
+    while IFS= read -r archivo; do
+        mkdir -p "$(dirname "$archivo")"
+        (umask 077; cat "$temporal/$archivo" > "$archivo")
+    done < <(cd "$temporal" && find . -type f)
+    rm -rf "$temporal"
+}
+
 respaldar() {
     local etiqueta=${1:-} carpeta version commit
     carpeta="$RESPALDOS_DIR/$(date +%Y%m%d-%H%M%S)${etiqueta:+-$etiqueta}"
@@ -124,7 +135,7 @@ restaurar_datos() {
     local desde=$1
     run_step 'Stop' dc prod stop
     if [ -n "${CON_CONFIG:-}" ]; then
-        run_step 'Config' tar -xf "$desde/config.tar"
+        run_step 'Config' restaurar_config "$desde/config.tar"
         proteger_secretos
     fi
     run_step 'Datos' cargar_tar /data "$desde/datos.tar"
