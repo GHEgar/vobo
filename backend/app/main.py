@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import (
     accesos,
+    actividad,
     admin,
     aprobaciones,
     auth,
@@ -73,6 +74,7 @@ def create_app() -> FastAPI:
         avisos,
         buscar,
         presencia,
+        actividad,
         version,
     ):
         aplicacion.include_router(modulo.router)

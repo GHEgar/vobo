@@ -24,6 +24,8 @@ const segmento = (pathname, prefijo) => {
     }
 };
 
+const pantalla = () => `${Math.round(window.innerWidth)}x${Math.round(window.innerHeight)}`;
+
 const construir = ({ pathname, search }, rondaId, proyecto, detalle) => {
     const casoId = segmento(pathname, 'caso');
     const propio = detalle && detalle.casoId === casoId ? detalle : null;
@@ -54,7 +56,7 @@ export const usePresencia = () => {
         if (!csrf) return undefined;
         const cuerpo = JSON.parse(clave);
         const enviar = () => {
-            if (document.visibilityState === 'visible') registrarPresencia(cuerpo).catch(() => {});
+            if (document.visibilityState === 'visible') registrarPresencia({ ...cuerpo, pantalla: pantalla() }).catch(() => {});
         };
         enviar();
         const intervalo = setInterval(enviar, INTERVALO_MS);

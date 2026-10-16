@@ -136,4 +136,36 @@ export const presenciasSchema = z.array(z.object({
     estado: z.enum(['activo', 'inactivo']),
     hace_segundos: z.number(),
     yo: z.boolean(),
+    navegador: z.string().default(''),
+    dispositivo: z.enum(['escritorio', 'movil', 'tableta']).default('escritorio'),
+    pantalla: z.string().nullable().default(null),
+    desde: z.string().nullable().default(null),
+    sesion_segundos: z.number().default(0),
 }));
+
+export const resumenActividadSchema = z.object({
+    activos: z.number(),
+    inactivos: z.number(),
+});
+
+export const actividadSchema = z.object({
+    eventos: z.array(z.object({
+        id: z.string(),
+        tipo: z.enum(['resultado', 'falla', 'comentario', 'aprobacion', 'decision', 'aviso', 'sesion', 'contenido']),
+        cuando: z.string(),
+        usuario: z.object({ email: z.string(), nombre: z.string() }),
+        resumen: z.string(),
+        caso_id: z.string().nullable(),
+        caso_titulo: z.string().nullable(),
+        seccion_id: z.string().nullable(),
+        paso: z.number().nullable(),
+        ronda_id: z.number().nullable(),
+        ruta: z.string().nullable(),
+        estado: z.string().nullable(),
+        comentario: z.string().nullable(),
+        severidad: z.string().nullable(),
+        capturas: z.number().nullable(),
+        aproximado: z.boolean(),
+    })),
+    siguiente: z.string().nullable(),
+});

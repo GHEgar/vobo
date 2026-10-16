@@ -5,11 +5,13 @@ import { useScrollArribaAlNavegar } from '@/hooks/useRecordarScroll';
 import { usePresencia } from '@/hooks/usePresencia';
 import { PresenciaContext } from '@/contexts/PresenciaContext';
 import { MenuUsuario } from '@/components/MenuUsuario';
+import { BotonActividad } from '@/components/actividad/BotonActividad';
 import { SelectorRonda } from '@/components/SelectorRonda';
 import { Buscador } from '@/components/buscador/Buscador';
 import { Marca } from '@/components/Marca';
 import { SelectorProyecto } from '@/components/SelectorProyecto';
 import { etiquetaInicio } from '@/utils/marca';
+import { puedeSeguir } from '@/utils/permisos';
 
 const ENLACES = [
     { to: '/', texto: 'Inicio', pagina: null },
@@ -17,7 +19,6 @@ const ENLACES = [
     { to: '/fallas', texto: 'Fallas', pagina: 'fallas' },
     { to: '/herramientas', texto: 'Herramientas', pagina: 'herramientas' },
     { to: '/aprobaciones', texto: 'Aprobaciones', pagina: 'aprobaciones' },
-    { to: '/rondas', texto: 'Rondas', pagina: 'rondas' },
 ];
 
 const CON_SELECTOR = new Set(['/fallas', '/aprobaciones', '/rondas']);
@@ -38,7 +39,7 @@ const MenuPaginas = ({ enlaces, className }) => (
 );
 
 export const MainLayout = () => {
-    const { usuario, ve, salir } = useSesion();
+    const { usuario, ve, puede, salir } = useSesion();
     const enlaces = ENLACES.filter((e) => !e.pagina || ve(e.pagina));
     const variasPaginas = enlaces.length > 1;
     const { pathname } = useLocation();
@@ -59,7 +60,10 @@ export const MainLayout = () => {
                                 <SelectorProyecto />
                             </div>
                             {!variasPaginas && <Buscador className="order-last w-full sm:order-none sm:w-[190px] sm:shrink-0" />}
-                            <MenuUsuario usuario={usuario} onSalir={salir} />
+                            <div className="flex shrink-0 items-center gap-2">
+                                {puedeSeguir(puede) && <BotonActividad />}
+                                <MenuUsuario usuario={usuario} onSalir={salir} />
+                            </div>
                         </div>
                         {variasPaginas && (
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">

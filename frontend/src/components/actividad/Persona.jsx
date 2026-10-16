@@ -1,19 +1,31 @@
 import { Link } from 'react-router';
-import { Spinner } from '@/components/Spinner';
-import { EmptyState, ErrorState } from '@/components/Estados';
-import { Tarjeta, Titulo } from '@/components/Tarjeta';
-import { usePresentes } from '@/hooks/useValidacion';
+import { useRuta } from '@/hooks/useProyecto';
 import { iniciales } from '@/utils/formato';
 import { describirPresencia, enlacePresencia, haceTiempo } from '@/utils/presencia';
-import { useRuta } from '@/hooks/useProyecto';
-import { Eye, User } from 'tesela/react';
+import { DISPOSITIVOS, duracion, pantallaLegible } from '@/utils/actividad';
 
 const PUNTO = {
     activo: { clase: 'bg-exito', texto: 'Activo' },
     inactivo: { clase: 'bg-texto-apagado', texto: 'Inactivo' },
 };
 
-const Persona = ({ persona }) => {
+const Detalles = ({ persona, ronda }) => {
+    const dispositivo = DISPOSITIVOS[persona.dispositivo] ?? DISPOSITIVOS.escritorio;
+    const Icono = dispositivo.icono;
+    const pantalla = pantallaLegible(persona.pantalla);
+    return (
+        <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 tipo-media text-[11px] text-texto-apagado">
+            {persona.sesion_segundos > 0 && <li>En sesión desde hace {duracion(persona.sesion_segundos)}</li>}
+            {ronda && <li>{ronda}</li>}
+            <li className="inline-flex items-center gap-1">
+                <Icono size={13} className="shrink-0" aria-hidden="true" />
+                <span>{[persona.navegador, dispositivo.texto, pantalla].filter(Boolean).join(' · ')}</span>
+            </li>
+        </ul>
+    );
+};
+
+export const Persona = ({ persona, ronda, detallada = false, onNavegar }) => {
     const ruta = useRuta();
     const punto = PUNTO[persona.estado];
     const enlace = enlacePresencia(persona, ruta);
@@ -31,27 +43,13 @@ const Persona = ({ persona }) => {
                     </span>
                 </p>
                 <p className="mt-0.5 break-words tipo-media text-xs text-texto-tenue">{describirPresencia(persona)}</p>
+                {detallada && <Detalles persona={persona} ronda={ronda} />}
             </div>
-            {enlace && <Link to={enlace} className="shrink-0 self-center tipo-negrita text-xs text-primario hover:underline">Ver caso</Link>}
-        </li>
-    );
-};
-
-export const EnLinea = () => {
-    const { data, isPending, error, refetch } = usePresentes();
-    const activos = data?.filter((p) => p.estado === 'activo').length ?? 0;
-
-    return (
-        <Tarjeta>
-            <Titulo icono={Eye} descripcion={data ? `${activos === 1 ? '1 persona activa' : `${activos} personas activas`} ahora · últimos 10 minutos` : 'Últimos 10 minutos'}>En línea</Titulo>
-            {isPending && <Spinner />}
-            {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
-            {data && !data.length && <EmptyState icono={User} titulo="Nadie conectado en los últimos 10 minutos" />}
-            {data?.length > 0 && (
-                <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                    {data.map((p) => <Persona key={p.email} persona={p} />)}
-                </ul>
+            {enlace && (
+                <Link to={enlace} onClick={onNavegar} className="shrink-0 self-center tipo-negrita text-xs text-primario hover:underline">
+                    Ver caso
+                </Link>
             )}
-        </Tarjeta>
+        </li>
     );
 };

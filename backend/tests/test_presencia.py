@@ -117,3 +117,69 @@ def test_envios_simultaneos_no_fallan(cliente_de) -> None:
         )
     assert set(codigos) == {204}
     assert len(cliente_de("coordinacion").get("/api/presencia").json()) == 1
+
+
+IPHONE = (
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 "
+    "(KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"
+)
+
+
+def _desde(email: str):
+    from app.core.database import SessionLocal
+    from app.core.time import como_utc
+    from app.models.presencia import Presencia
+
+    with SessionLocal() as db:
+        return como_utc(db.get(Presencia, email).desde)
+
+
+def _mover_desde(email: str, minutos: float) -> None:
+    from app.core.database import SessionLocal
+    from app.core.time import utcnow
+    from app.models.presencia import Presencia
+
+    with SessionLocal() as db:
+        db.get(Presencia, email).desde = utcnow() - timedelta(minutes=minutos)
+        db.commit()
+
+
+def test_navegador_dispositivo_y_pantalla(cliente_de) -> None:
+    validador = cliente_de("validador")
+    cabecera = {"User-Agent": IPHONE}
+    datos = {"ruta": "/", "pantalla": "390x844"}
+    assert validador.post("/api/presencia", json=datos, headers=cabecera).status_code == 204
+    lista = cliente_de("coordinacion").get("/api/presencia").json()
+    [fila] = [p for p in lista if p["email"] == "validador@local.test"]
+    assert fila["navegador"] == "Safari 26"
+    assert fila["dispositivo"] == "movil"
+    assert fila["pantalla"] == "390x844"
+    assert fila["desde"] is not None
+    assert "agente" not in fila
+
+
+def test_pantalla_invalida(cliente_de) -> None:
+    validador = cliente_de("validador")
+    for pantalla in ("390", "0x844", "390×844", "a" * 12, "99999x1x2"):
+        datos = {"ruta": "/", "pantalla": pantalla}
+        assert validador.post("/api/presencia", json=datos).status_code == 422
+
+
+def test_desde_se_conserva_y_se_reinicia(cliente_de) -> None:
+    validador = cliente_de("validador")
+    email = "validador@local.test"
+    validador.post("/api/presencia", json={"ruta": "/"})
+    _mover_desde(email, 30)
+    _envejecer(email, 3)
+    validador.post("/api/presencia", json={"ruta": "/tablero"})
+    [fila] = [
+        p for p in cliente_de("coordinacion").get("/api/presencia").json() if p["yo"] is False
+    ]
+    assert 1790 <= fila["sesion_segundos"] <= 1810
+    _envejecer(email, 11)
+    validador.post("/api/presencia", json={"ruta": "/"})
+    assert _desde(email) is not None
+    [fila] = [
+        p for p in cliente_de("coordinacion").get("/api/presencia").json() if p["yo"] is False
+    ]
+    assert fila["sesion_segundos"] < 5

@@ -12,12 +12,10 @@ import { SelectorRonda } from '@/components/SelectorRonda';
 import { Button } from '@/components/Button';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { Veredicto } from '@/components/tablero/Veredicto';
-import { EnLinea } from '@/components/tablero/EnLinea';
 import { useRonda } from '@/hooks/useRonda';
 import { useSesion } from '@/hooks/useSesion';
 import { useTablero } from '@/hooks/useValidacion';
 import { SEVERIDADES } from '@/utils/etiquetas';
-import { PERMISOS } from '@/utils/permisos';
 import { LineChart } from 'tesela/react';
 
 const Tablero = () => {
@@ -63,7 +61,6 @@ const Tablero = () => {
                     </div>
                 </Tarjeta>
             </div>
-            {(puede(PERMISOS.verTablero) || puede(PERMISOS.gestionarFallas)) && <EnLinea />}
             <Tarjeta>
                 <Titulo
                     descripcion={vista === 'proyecto' ? 'Casos marcados por persona y sistema; «—» es un sistema que no tiene asignado.' : 'Casos marcados por persona y familia.'}

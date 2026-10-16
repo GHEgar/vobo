@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { Bell, Edit, Lock, Logout, Settings, User } from 'tesela/react';
+import { Bell, Edit, Lock, Logout, Refresh, Settings, User } from 'tesela/react';
 import { Modal } from '@/components/Modal';
 import { CambiarContrasena } from '@/components/cuentas/CambiarContrasena';
 import { PildoraEdicion } from '@/components/edicion/PildoraEdicion';
@@ -90,6 +90,12 @@ export const MenuUsuario = ({ usuario, onSalir }) => {
                             </span>
                         )}
                     </Link>
+                    {ve('rondas') && (
+                        <Link to="/rondas" role="menuitem" onClick={() => setAbierto(false)} className={ITEM}>
+                            <Refresh size={18} className="shrink-0 text-primario" />
+                            Rondas
+                        </Link>
+                    )}
                     {ve('admin') && (
                         <Link to="/admin" role="menuitem" onClick={() => setAbierto(false)} className={ITEM}>
                             <Settings size={18} className="shrink-0 text-primario" />

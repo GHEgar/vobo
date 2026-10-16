@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.core import oidc, security
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.permisos import GESTIONAR_FALLAS, VER_TABLERO
 from app.models.proyecto import Proyecto
 from app.models.usuario import Sesion, Usuario
 from app.services import accesos, proyectos, roles, sesiones
@@ -81,6 +82,18 @@ def require_permission(permiso: str) -> Callable[..., Awaitable[Actor]]:
         return actor
 
     return dependencia
+
+
+def require_alguno(*permisos: str) -> Callable[..., Awaitable[Actor]]:
+    async def dependencia(actor: Actor = Depends(get_actor)) -> Actor:
+        if not any(actor.puede(p) for p in permisos):
+            raise _prohibido(" o ".join(permisos))
+        return actor
+
+    return dependencia
+
+
+SEGUIMIENTO = require_alguno(VER_TABLERO, GESTIONAR_FALLAS)
 
 
 def _actor_de_token(credenciales: HTTPAuthorizationCredentials) -> Actor:

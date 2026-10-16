@@ -6,3 +6,5 @@ export const PERMISOS = {
     administrar: 'validacion.admin',
     editarContenido: 'validacion.contenido.editar',
 };
+
+export const puedeSeguir = (puede) => puede(PERMISOS.verTablero) || puede(PERMISOS.gestionarFallas);

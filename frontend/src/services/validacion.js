@@ -1,5 +1,6 @@
 import { consulta, solicitar } from '@/services/api';
 import {
+    actividadSchema,
     avisoSchema,
     avisosSchema,
     contenidoSchema,
@@ -9,6 +10,7 @@ import {
     presenciasSchema,
     proyectosSchema,
     resultadosBusquedaSchema,
+    resumenActividadSchema,
     sesionSchema,
 } from '@/services/esquemas';
 
@@ -90,3 +92,5 @@ export const crearAviso = async (datos) => avisosSchema.parse(await solicitar('/
 
 export const registrarPresencia = (datos) => solicitar('/presencia', { method: 'POST', json: datos });
 export const fetchPresencia = async (proyecto) => presenciasSchema.parse(await solicitar(`/presencia${consulta({ proyecto })}`));
+export const fetchResumenActividad = async (proyecto) => resumenActividadSchema.parse(await solicitar(`/actividad/resumen${consulta({ proyecto })}`));
+export const fetchActividad = async (filtros) => actividadSchema.parse(await solicitar(`/actividad${consulta(filtros)}`));

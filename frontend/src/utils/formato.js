@@ -8,7 +8,7 @@ const UNIDADES = [
     ['day', 24 * 60 * 60, 7],
 ];
 
-const aFecha = (valor) => {
+export const aFecha = (valor) => {
     const texto = typeof valor === 'string' && !/[zZ]|[+-]\d\d:\d\d$/.test(valor) ? `${valor}Z` : valor;
     return new Date(texto);
 };

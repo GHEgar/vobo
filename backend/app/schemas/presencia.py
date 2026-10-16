@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
 AccionPresencia = Literal["viendo", "reportando", "comentando"]
 EstadoPresencia = Literal["activo", "inactivo"]
+Dispositivo = Literal["escritorio", "movil", "tableta"]
 
 
 class PresenciaCreate(BaseModel):
@@ -14,6 +16,7 @@ class PresenciaCreate(BaseModel):
     accion: AccionPresencia = "viendo"
     ronda_id: int | None = Field(default=None, ge=1)
     proyecto: str | None = Field(default=None, max_length=60)
+    pantalla: str | None = Field(default=None, pattern=r"^[1-9]\d{1,4}x[1-9]\d{1,4}$")
 
 
 class PresenciaResponse(BaseModel):
@@ -31,3 +34,13 @@ class PresenciaResponse(BaseModel):
     estado: EstadoPresencia
     hace_segundos: int
     yo: bool
+    navegador: str = ""
+    dispositivo: Dispositivo = "escritorio"
+    pantalla: str | None = None
+    desde: datetime | None = None
+    sesion_segundos: int = 0
+
+
+class ResumenPresencia(BaseModel):
+    activos: int
+    inactivos: int

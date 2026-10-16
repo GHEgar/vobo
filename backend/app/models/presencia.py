@@ -19,3 +19,10 @@ class Presencia(Base):
         Integer, ForeignKey("proyectos.id", ondelete="SET NULL"), nullable=True, index=True
     )
     actualizado = Column(DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    navegador = Column(String(80), nullable=False, default="", server_default="")
+    agente = Column(String(300), nullable=False, default="", server_default="")
+    dispositivo = Column(
+        String(10), nullable=False, default="escritorio", server_default="escritorio"
+    )
+    pantalla = Column(String(11), nullable=True)
+    desde = Column(DateTime(timezone=True), nullable=True)
