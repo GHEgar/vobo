@@ -1,4 +1,6 @@
 *
+!alembic/
+!alembic.ini
 !app/
 !tests/
 !requirements.txt
