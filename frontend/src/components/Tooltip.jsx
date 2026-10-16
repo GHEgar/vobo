@@ -23,7 +23,7 @@ export const Tooltip = ({ text, label = 'Más información' }) => {
     if (!text) return null;
 
     return (
-        <span className="relative inline-flex align-middle">
+        <span className="relative inline-flex items-center align-middle leading-none">
             <button
                 ref={triggerRef}
                 type="button"

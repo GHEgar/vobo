@@ -1,18 +1,14 @@
-import { useState } from 'react';
-import { flushSync } from 'react-dom';
 import { useNavigate } from 'react-router';
 import { useCombobox } from '@ghegar/muestrario';
 import { buscar } from '@/services/validacion';
 import { useRonda } from '@/hooks/useRonda';
+import { useClaveProyecto } from '@/hooks/useProyecto';
 import { Search } from 'tesela/react';
 import { ListaResultados } from '@/components/buscador/ListaResultados';
 import { useAtajoBuscar } from '@/components/buscador/useAtajoBuscar';
+import { useRuta } from '@/hooks/useProyecto';
 
 const MINIMO = 2;
-
-const CAMPO_DESPLEGADO = 'absolute inset-x-3 top-full z-40 mt-2 lg:left-auto lg:w-[420px]';
-
-const CAMPO_EN_LINEA = 'xl:relative xl:inset-auto xl:mt-0 xl:block xl:w-[220px]';
 
 const GRUPOS = {
     caso: 'Casos',
@@ -32,20 +28,22 @@ const ETIQUETAS = {
     results: (n) => `${n} ${n === 1 ? 'resultado' : 'resultados'}`,
 };
 
-export const Buscador = () => {
+export const Buscador = ({ className = '' }) => {
+    const ruta = useRuta();
     const navigate = useNavigate();
     const { ronda } = useRonda();
-    const [desplegado, setDesplegado] = useState(false);
+    const proyecto = useClaveProyecto();
     const combo = useCombobox({
         getLabel: (r) => r.titulo,
         getKey: (r) => `${r.tipo}:${r.id}`,
-        load: (q, signal) => buscar(q, ronda?.id, signal),
+        load: (q, signal) => buscar(q, ronda?.id, proyecto, signal),
         minChars: MINIMO,
         groupBy: (r) => GRUPOS[r.tipo],
         value: null,
+        placement: 'bottom-end',
         onChange: (r) => {
             if (!r) return;
-            navigate(r.ruta);
+            navigate(ruta(r.ruta));
             queueMicrotask(() => combo.clear());
         },
         labels: ETIQUETAS,
@@ -53,45 +51,27 @@ export const Buscador = () => {
     const entrada = combo.getInputProps();
     const idEntrada = entrada.id;
 
-    const enfocar = () => {
-        flushSync(() => setDesplegado(true));
+    useAtajoBuscar(() => {
         const campo = document.getElementById(idEntrada);
         campo?.focus();
         campo?.select();
-    };
-    useAtajoBuscar(enfocar);
+    });
 
     return (
-        <>
-            <button
-                type="button"
-                aria-label="Buscar"
-                aria-keyshortcuts="ñ Control+K Meta+K"
-                onClick={enfocar}
-                className={`${desplegado ? 'hidden' : 'flex'} h-[36px] w-[36px] items-center justify-center rounded-full bg-primario-claro text-primario hover:ring-2 hover:ring-primario-anillo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario xl:hidden`}
-            >
-                <Search size={20} stroke={1.75} />
-            </button>
-            <div
-                {...combo.getAnchorProps()}
-                className={`${desplegado ? CAMPO_DESPLEGADO : 'relative hidden'} ${CAMPO_EN_LINEA}`}
-            >
-                <Search size={16} stroke={2} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-primario" />
+        <div className={`relative h-[36px] ${className}`}>
+            <div {...combo.getAnchorProps()} role="search" className="absolute top-0 right-0 w-full transition-[width] duration-200 ease-out focus-within:z-10 motion-reduce:transition-none @min-[60rem]:focus-within:w-[max(100%,260px)]">
+                <Search size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-primario" />
                 <input
                     {...entrada}
                     type="search"
                     aria-label="Buscar casos, pasos y secciones"
                     aria-keyshortcuts="ñ Control+K Meta+K"
                     placeholder="Buscar (ñ)"
-                    onBlur={(e) => {
-                        entrada.onBlur(e);
-                        setDesplegado(false);
-                    }}
-                    className="block h-[36px] w-full rounded-full border border-transparent bg-fondo pr-4 pl-9 tipo-media text-[13px] text-primario shadow-[0px_3px_12px_var(--color-sombra-suave)] placeholder-texto-placeholder placeholder:tipo-regular hover:border-primario hover:bg-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-primario xl:shadow-none [&::-webkit-search-cancel-button]:hidden"
+                    className="block h-[36px] w-full rounded-full border border-transparent bg-fondo pr-4 pl-9 tipo-media text-[13px] text-primario placeholder-texto-placeholder placeholder:tipo-regular hover:border-primario hover:bg-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-primario [&::-webkit-search-cancel-button]:hidden"
                 />
+                {combo.open && <ListaResultados combo={combo} />}
+                <span className="sr-only" {...combo.getStatusProps()}>{combo.statusText}</span>
             </div>
-            {combo.open && <ListaResultados combo={combo} />}
-            <span className="sr-only" {...combo.getStatusProps()}>{combo.statusText}</span>
-        </>
+        </div>
     );
 };

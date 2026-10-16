@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-export const PestanasVerticales = ({ id, titulo, pestanas, elegida, onElegir, children }) => {
+export const PestanasVerticales = ({ id, titulo, etiqueta = 'Sistemas', pestanas, elegida, onElegir, children }) => {
     const refs = useRef([]);
     const indice = Math.max(0, pestanas.findIndex((p) => p.clave === elegida));
     const activa = pestanas[indice];
@@ -22,7 +22,7 @@ export const PestanasVerticales = ({ id, titulo, pestanas, elegida, onElegir, ch
             <div className="md:grid md:grid-cols-[240px_minmax(0,1fr)] md:gap-4 md:px-6 md:pb-5">
                 <div
                     role="tablist"
-                    aria-label="Proyectos"
+                    aria-label={etiqueta}
                     aria-orientation="vertical"
                     className="flex gap-2 overflow-x-auto px-4 pt-4 pb-3 [scrollbar-width:none] [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)] md:max-h-[70dvh] md:flex-col md:overflow-x-visible md:overflow-y-auto md:px-0 md:py-4 md:[mask-image:linear-gradient(to_bottom,transparent,black_16px,black_calc(100%-16px),transparent)]"
                 >
@@ -42,7 +42,10 @@ export const PestanasVerticales = ({ id, titulo, pestanas, elegida, onElegir, ch
                                 onKeyDown={mover}
                                 className={`inline-flex min-h-[36px] shrink-0 items-center gap-2 rounded-full px-4 py-1 text-left tipo-negrita text-xs md:w-full md:justify-between ${seleccionada ? 'bg-primario text-white' : 'bg-fondo text-texto-tenue hover:bg-primario-claro md:bg-transparent'}`}
                             >
-                                {p.nombre}
+                                <span className="inline-flex items-center gap-2">
+                                    {p.icono && <p.icono size={16} className="shrink-0" />}
+                                    {p.nombre}
+                                </span>
                                 {p.contador && <span className={`tipo-media ${seleccionada ? 'text-primario-claro' : 'text-texto-apagado'}`}>{p.contador}</span>}
                             </button>
                         );

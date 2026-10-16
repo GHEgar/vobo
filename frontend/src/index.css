@@ -14,6 +14,7 @@
     --color-texto-apagado: #737A82;
     --color-texto-placeholder: #6B6B6B;
     --color-texto-deshabilitado: #9B9B9B;
+    --color-nombre: var(--color-texto-tenue);
 
     --color-neutro: #5B6670;
     --color-neutro-icono: #798189;
@@ -64,6 +65,15 @@
     --tipo-media-peso: 500;
     --tipo-regular: 'Rotulo', system-ui, sans-serif;
     --tipo-regular-peso: 400;
+
+    --animate-emerger: emerger 180ms ease-out;
+
+    @keyframes emerger {
+        from {
+            opacity: 0;
+            transform: scale(0.6);
+        }
+    }
 }
 
 @utility tipo-negrita {
@@ -99,5 +109,21 @@
     button {
         font-family: inherit;
         cursor: pointer;
+    }
+}
+
+@layer base {
+    .bg-primario,
+    .bg-primario-hover,
+    .bg-primario-medio,
+    .bg-aviso,
+    .bg-aviso-texto,
+    .bg-error,
+    .bg-error-fuerte,
+    .bg-pasa,
+    .bg-falla,
+    .bg-pendiente,
+    .bg-neutro {
+        --tesela-dir: -1;
     }
 }

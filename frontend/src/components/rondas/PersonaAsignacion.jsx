@@ -3,9 +3,9 @@ import { ChevronRight } from 'tesela/react';
 import { Checkbox } from '@/components/Checkbox';
 import { Chip } from '@/components/Chip';
 import { Tooltip } from '@/components/Tooltip';
-import { useProyectos } from '@/hooks/useInstancia';
+import { useSistemas } from '@/hooks/useInstancia';
 import { rolesDe } from '@/utils/roles';
-import { seccionesPorProyecto } from '@/utils/proyectos';
+import { seccionesPorSistema } from '@/utils/sistemas';
 
 const SeleccionarTodo = ({ id, marcadas, total, onFijar, etiqueta, ayuda }) => (
     <span className="group relative inline-flex items-center">
@@ -36,8 +36,8 @@ const tonoDe = (marcadas, total) => {
 export const PersonaAsignacion = ({ email, usuario, elegidas, secciones, abierto, onAlternarAbierto, onAlternar, onFijar }) => {
     const [filtro, setFiltro] = useState([]);
     const panelId = `secciones-${email}`;
-    const proyectos = useProyectos();
-    const grupos = seccionesPorProyecto(proyectos, secciones).map((g) => ({
+    const sistemas = useSistemas();
+    const grupos = seccionesPorSistema(sistemas, secciones).map((g) => ({
         ...g,
         marcadas: g.secciones.filter((s) => elegidas.includes(s.id)).length,
     }));
@@ -69,7 +69,7 @@ export const PersonaAsignacion = ({ email, usuario, elegidas, secciones, abierto
                     aria-controls={panelId}
                     className="flex min-w-0 items-center gap-3 bg-transparent p-0 text-left"
                 >
-                    <ChevronRight size={16} stroke={2} className={`shrink-0 text-primario transition-transform ${desplegado ? 'rotate-90' : ''}`} />
+                    <ChevronRight size={16} className={`shrink-0 text-primario transition-transform ${desplegado ? 'rotate-90' : ''}`} />
                     <span className="flex min-w-0 flex-col">
                         <span className="truncate tipo-negrita text-sm text-texto">{usuario?.nombre ?? email}</span>
                         {usuario && <span className="truncate tipo-media text-[11px] text-texto-apagado">{email}</span>}
@@ -90,7 +90,7 @@ export const PersonaAsignacion = ({ email, usuario, elegidas, secciones, abierto
             </div>
             {desplegado && (
                 <div className="flex flex-wrap items-center gap-2 px-4 pt-3 pb-3">
-                    <Tooltip text="Pulsa un proyecto para ver solo sus secciones; puedes elegir varios. Sin ninguno elegido, al desplegar se ven todos." />
+                    <Tooltip text="Pulsa un sistema para ver solo sus secciones; puedes elegir varios. Sin ninguno elegido, al desplegar se ven todos." />
                     {grupos.map((g) => (
                         <Chip
                             key={g.clave}

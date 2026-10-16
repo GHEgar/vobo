@@ -31,7 +31,7 @@ export const Desplegable = ({ opciones, value, onChange, 'aria-label': etiqueta,
 
     return (
         <div className={`relative ${className}`}>
-            {prefijo && <span className="absolute top-1/2 left-2 z-10 -translate-y-1/2">{prefijo}</span>}
+            {prefijo && <span className="absolute inset-y-0 left-2 z-10 flex items-center">{prefijo}</span>}
             <button
                 {...boton}
                 onClick={(e) => {
@@ -45,10 +45,10 @@ export const Desplegable = ({ opciones, value, onChange, 'aria-label': etiqueta,
                 className={`${BOTON} ${prefijo ? 'pl-10' : 'pl-4'}`}
             >
                 <span className="sr-only">{etiqueta}: </span>
-                <span className="min-w-0 truncate">{elegida?.texto ?? ''}</span>
+                <span className="min-w-0 truncate" style={elegida?.color ? { color: elegida.color } : undefined}>{elegida?.texto ?? ''}</span>
                 {elegida?.extra && <span className="flex shrink-0 *:min-h-[22px] *:px-2.5 *:py-0">{elegida.extra}</span>}
             </button>
-            <ChevronDown size={16} stroke={2} className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-primario" />
+            <ChevronDown size={16} className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-primario" />
             {menu.open && createPortal(
                 <div
                     {...lista}
@@ -64,7 +64,7 @@ export const Desplegable = ({ opciones, value, onChange, 'aria-label': etiqueta,
                                 className={`flex cursor-pointer items-center gap-2 rounded-xl py-2 pr-3 pl-2 text-sm outline-none data-[active]:bg-primario-claro ${marcada ? 'tipo-negrita text-primario' : 'tipo-media text-texto-tenue'}`}
                             >
                                 <span className="flex w-4 shrink-0 justify-center">
-                                    {marcada && <Check size={16} stroke={2} />}
+                                    {marcada && <Check size={16} />}
                                 </span>
                                 <span className="min-w-0 flex-1 truncate">{opcion.texto}</span>
                                 {opcion.extra}

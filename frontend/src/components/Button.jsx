@@ -16,6 +16,7 @@ const DESHABILITADO = 'bg-gris text-neutro cursor-not-allowed';
 
 export const Button = ({
     label,
+    icono,
     variant = 'primary',
     type = 'button',
     disabled = false,
@@ -35,6 +36,6 @@ export const Button = ({
         className={`inline-flex items-center justify-center gap-2 rounded-full tipo-negrita transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario focus-visible:ring-offset-2 ${small ? 'h-[30px] px-4 text-xs' : grande ? 'h-[44px] px-8 text-base' : 'h-[40px] px-6 text-sm'} ${fullWidth ? 'w-full' : ''} ${disabled ? DESHABILITADO : VARIANTES[variant]} ${className}`}
         {...rest}
     >
-        {loading ? <Spinner pequeno claro={variant !== 'secondary'} /> : label}
+        {loading ? <Spinner pequeno claro={variant !== 'secondary'} /> : <>{icono}{label}</>}
     </button>
 );

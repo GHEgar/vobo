@@ -16,7 +16,7 @@ export const Plegable = ({ titulo, resumen, abierto, onAlternar, children }) => 
                     {titulo}
                     {resumen && <span className="tipo-media text-texto-tenue"> · {resumen}</span>}
                 </span>
-                <ChevronRight size={16} stroke={2} className={`shrink-0 text-primario transition-transform ${abierto ? 'rotate-90' : ''}`} />
+                <ChevronRight size={16} className={`shrink-0 text-primario transition-transform ${abierto ? 'rotate-90' : ''}`} />
             </button>
             {abierto && <div id={id} className="px-5 pb-5 md:px-7 md:pb-7">{children}</div>}
         </section>

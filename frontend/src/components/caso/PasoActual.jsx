@@ -1,6 +1,7 @@
 import { Button } from '@/components/Button';
 import { MediaImagen } from '@/components/MediaImagen';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
+import { CheckCircle, CloseCircle } from 'tesela/react';
 
 const ENLACE = 'bg-transparent p-0 tipo-negrita text-xs text-primario hover:underline disabled:cursor-not-allowed disabled:text-texto-deshabilitado';
 
@@ -39,8 +40,8 @@ export const PasoActual = ({
             {['botones', 'enviado'].includes(modo) && (
                 <div className="flex flex-col gap-2">
                     <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-2">
-                        <Button label="Pasa" variant={varianteDe('pasa', elegido)} pressed={elegido === 'pasa'} grande onClick={() => onResponder('pasa', null)} disabled={!editable} loading={guardando} fullWidth />
-                        <Button label="Falla" variant={varianteDe('falla', elegido)} pressed={elegido === 'falla' || elegido === 'no_pude'} grande onClick={() => onModo('falla')} disabled={!editable} fullWidth />
+                        <Button label="Pasa" icono={<CheckCircle size={20} />} variant={varianteDe('pasa', elegido)} pressed={elegido === 'pasa'} grande onClick={() => onResponder('pasa', null)} disabled={!editable} loading={guardando} fullWidth />
+                        <Button label="Falla" icono={<CloseCircle size={20} />} variant={varianteDe('falla', elegido)} pressed={elegido === 'falla' || elegido === 'no_pude'} grande onClick={() => onModo('falla')} disabled={!editable} fullWidth />
                     </div>
                     <div className="flex flex-wrap justify-center gap-x-5 gap-y-1 sm:justify-start">
                         {[['comentario', 'Comentario']].map(([clave, texto]) => (

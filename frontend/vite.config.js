@@ -14,6 +14,17 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: { '@': path.resolve(raiz, 'src') },
         },
+        build: {
+            rolldownOptions: {
+                output: {
+                    codeSplitting: {
+                        groups: [
+                            { name: 'react', test: /node_modules[\\/](react|react-dom|scheduler|react-router|@tanstack)[\\/]/, priority: 20 },
+                        ],
+                    },
+                },
+            },
+        },
         server: {
             host: true,
             port: Number(env.VITE_DEV_PORT) || 5173,

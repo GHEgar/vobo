@@ -12,7 +12,7 @@ export const BotonMas = ({ etiqueta, ayuda, onClick }) => {
                 onClick={onClick}
                 className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-full border border-gris bg-transparent p-0 text-texto-tenue hover:border-primario hover:text-primario focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primario focus-visible:ring-offset-2"
             >
-                <Plus size={18} stroke={2} />
+                <Plus size={18} />
             </button>
             {ayuda && (
                 <span

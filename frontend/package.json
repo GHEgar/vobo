@@ -1,5 +1,5 @@
 {
-    "name": "validaciones",
+    "name": "vobo",
     "version": "0.2.0",
     "description": "Guía para que un equipo valide un ciclo de cambios por casos guiados",
     "private": true,
@@ -19,8 +19,8 @@
         "react": "19.2.8",
         "react-dom": "19.2.8",
         "react-router": "^8.4.0",
-        "rotulo": "^0.1.1",
-        "tesela": "^0.4.0",
+        "rotulo": "^0.3.0",
+        "tesela": "^0.6.1",
         "zod": "^4.1.0"
     },
     "devDependencies": {
