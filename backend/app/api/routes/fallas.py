@@ -19,7 +19,15 @@ from app.core.permisos import EJECUTAR_CASOS, GESTIONAR_FALLAS
 from app.core.time import utcnow
 from app.models.proyecto import Proyecto
 from app.schemas.falla import EstadoFalla, FallaResponse, FallaUpdate, Reproducible, TipoFalla
-from app.services import contenido, evidencias, fallas, informe_fallas, proyectos, rondas
+from app.services import (
+    comentarios,
+    contenido,
+    evidencias,
+    fallas,
+    informe_fallas,
+    proyectos,
+    rondas,
+)
 
 router = APIRouter(prefix="/api/fallas", tags=["fallas"])
 
@@ -59,6 +67,7 @@ def listar_fallas(
 def informe_csv(
     filtro: fallas.FiltroFallas = Depends(filtro_fallas),
     tz: str | None = Query(default=None, max_length=64),
+    incluir: bool = Query(default=False, alias="comentarios"),
     db: Session = Depends(get_db),
     proyecto: Proyecto = Depends(proyecto_actual),
     _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
@@ -67,8 +76,11 @@ def informe_csv(
     zona = informe_fallas.zona(tz)
     serializadas = [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
     nombre = informe_fallas.nombre_archivo(filtro.ronda, zona, utcnow())
+    notas = (
+        comentarios.listar(db, actual, filtro.ronda, proyecto_id=proyecto.id) if incluir else None
+    )
     return Response(
-        content=informe_fallas.generar(db, actual, serializadas, zona).encode("utf-8"),
+        content=informe_fallas.generar(db, actual, serializadas, zona, notas).encode("utf-8"),
         media_type="text/csv; charset=utf-8",
         headers={
             "Content-Disposition": f'attachment; filename="{nombre}"',

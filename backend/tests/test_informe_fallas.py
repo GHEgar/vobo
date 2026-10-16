@@ -95,3 +95,60 @@ def test_escapa_formulas(cliente_de, ronda_id) -> None:
         "'@SUM(A1)",
         "Texto normal",
     }
+
+
+def _comentar(cliente, ronda_id, caso_id, pasos) -> None:
+    marcados = [{"paso": p, "estado": "comentario", "comentario": t} for p, t in pasos]
+    respuesta = cliente.put(
+        f"/api/resultados/{caso_id}",
+        json={"ronda_id": ronda_id, "estado": "pendiente", "pasos_marcados": marcados},
+    )
+    assert respuesta.status_code == 200
+
+
+def test_sin_comentarios_por_omision(cliente_de, ronda_id) -> None:
+    validador = cliente_de("validador")
+    _reportar(validador, ronda_id, "A-GEN-03", "Falla")
+    _comentar(validador, ronda_id, "A-GEN-03", [(0, "Lento")])
+    [fila] = _filas(cliente_de("coordinacion").get("/api/fallas/informe.csv"))
+    assert "Comentarios" not in fila
+
+
+def test_comentarios_del_caso_y_paso(cliente_de, ronda_id) -> None:
+    validador = cliente_de("validador")
+    general = _reportar(validador, ronda_id, "A-GEN-03", "Fuera de pasos")
+    respuesta = validador.post(
+        "/api/fallas",
+        data={
+            "ronda_id": ronda_id,
+            "caso_id": "A-GEN-03",
+            "obtenido": "En el segundo paso",
+            "reproducible": "siempre",
+            "paso": 1,
+        },
+    )
+    assert respuesta.status_code == 201
+    del_paso = respuesta.json()
+    otra = _reportar(validador, ronda_id, "C-CAT-01", "Sin notas")
+    _comentar(validador, ronda_id, "A-GEN-03", [(0, "Lento"), (1, "=1+1 y\nsegunda línea")])
+    respuesta = cliente_de("coordinacion").get(
+        "/api/fallas/informe.csv?comentarios=1&tz=America/Mexico_City"
+    )
+    filas = {int(f["id"]): f for f in _filas(respuesta)}
+    assert list(filas[general["id"]])[-1] == "Comentarios"
+    lineas = filas[general["id"]]["Comentarios"].split("\n")
+    assert len(lineas) == 3
+    assert lineas[0][16:] == " · Valeria Validadora: Lento"
+    assert filas[del_paso["id"]]["Comentarios"].endswith(": =1+1 y\nsegunda línea")
+    assert "Lento" not in filas[del_paso["id"]]["Comentarios"]
+    assert filas[otra["id"]]["Comentarios"] == ""
+
+
+def test_comentarios_solo_de_la_ronda(cliente_de, ronda_id) -> None:
+    validador = cliente_de("validador")
+    _reportar(validador, ronda_id, "A-GEN-03", "Falla")
+    coordinacion = cliente_de("coordinacion")
+    otra = coordinacion.post("/api/rondas", json={"nombre": "Ronda 2", "snapshot": "s2"}).json()
+    _comentar(validador, otra["id"], "A-GEN-03", [(0, "De otra ronda")])
+    [fila] = _filas(coordinacion.get("/api/fallas/informe.csv?comentarios=1"))
+    assert fila["Comentarios"] == ""

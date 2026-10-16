@@ -2,16 +2,18 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
+import { Checkbox } from '@/components/Checkbox';
 import { EncabezadoImpreso } from '@/components/EncabezadoImpreso';
+import { BOTON_IMPRESO as BOTON, HojaImpresa } from '@/components/HojaImpresa';
 import { MediaImagen } from '@/components/MediaImagen';
+import { TextoConEnlaces } from '@/components/TextoConEnlaces';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useRonda } from '@/hooks/useRonda';
-import { useFallas } from '@/hooks/useValidacion';
+import { useComentarios, useFallas } from '@/hooks/useValidacion';
 import { ESTADOS_FALLA, REPRODUCIBLE, SEVERIDADES } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
-import { describirFiltros, filtrosDe, pasoDeFalla, resumenFallas } from '@/utils/informeFallas';
+import { CLAVE_COMENTARIOS, comentariosDeFalla, describirFiltros, filtrosDe, pasoDeFalla, resumenFallas } from '@/utils/informeFallas';
 import { ArrowLeft, Document, Filter } from 'tesela/react';
-
-const BOTON = 'inline-flex h-[36px] items-center gap-2 rounded-full px-5 tipo-negrita text-sm';
 
 const TablaConteo = ({ titulo, filas, total }) => (
     <table className="w-full border-collapse text-left text-[13px]">
@@ -39,13 +41,32 @@ const TablaConteo = ({ titulo, filas, total }) => (
 const Dato = ({ termino, children }) => (
     <div>
         <dt className="tipo-media text-[11px] text-texto-apagado">{termino}</dt>
-        <dd className="break-words text-[13px]">{children || '—'}</dd>
+        <dd className="wrap-anywhere text-[13px]">{children || '—'}</dd>
     </div>
 );
 
-const DetalleFalla = ({ falla }) => (
-    <article className="break-inside-avoid border-t border-borde py-4">
-        <h3 className="tipo-negrita text-base">
+const ComentariosFalla = ({ comentarios }) => (
+    <div className="mt-3 min-w-0 rounded-lg border border-borde px-3 py-2">
+        <p className="tipo-negrita text-[13px]">Comentarios</p>
+        {comentarios.length ? (
+            <ul className="mt-1 flex flex-col gap-1">
+                {comentarios.map((c) => (
+                    <li key={`${c.usuario_email}-${c.tipo}-${c.paso}`} className="whitespace-pre-line wrap-anywhere text-[13px]">
+                        <span className="tipo-media text-texto-apagado">{formatearFecha(c.actualizado)} · {c.autor || c.usuario_email}:</span>
+                        {' '}
+                        <TextoConEnlaces texto={c.comentario} />
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p className="mt-1 text-[13px] text-texto-apagado">Sin comentarios.</p>
+        )}
+    </div>
+);
+
+const DetalleFalla = ({ falla, comentarios }) => (
+    <article className="min-w-0 break-inside-avoid border-t border-borde py-4">
+        <h3 className="wrap-anywhere tipo-negrita text-base">
             #{falla.id} · {falla.seccion_completa ? falla.seccion_titulo : falla.caso_titulo || falla.caso_id}
             <span className="ml-2 tipo-media text-xs text-texto-apagado">{falla.caso_id}</span>
         </h3>
@@ -59,9 +80,9 @@ const DetalleFalla = ({ falla }) => (
             <Dato termino="Versión visible">{falla.version_visible}</Dato>
             <Dato termino="Dirección">{falla.url}</Dato>
         </dl>
-        <p className="mt-2 text-[13px]"><span className="tipo-negrita">Paso:</span> {pasoDeFalla(falla)}</p>
-        <p className="mt-1 whitespace-pre-line text-[13px]"><span className="tipo-negrita">Obtenido:</span> {falla.obtenido}</p>
-        {falla.nota_resolucion && <p className="mt-1 text-[13px]"><span className="tipo-negrita">Nota de resolución:</span> {falla.nota_resolucion}</p>}
+        <p className="mt-2 wrap-anywhere text-[13px]"><span className="tipo-negrita">Paso:</span> {pasoDeFalla(falla)}</p>
+        <p className="mt-1 whitespace-pre-line wrap-anywhere text-[13px]"><span className="tipo-negrita">Obtenido:</span> <TextoConEnlaces texto={falla.obtenido} /></p>
+        {falla.nota_resolucion && <p className="mt-1 wrap-anywhere text-[13px]"><span className="tipo-negrita">Nota de resolución:</span> {falla.nota_resolucion}</p>}
         {falla.evidencias.length > 0 && (
             <ul className="mt-3 flex flex-wrap gap-2">
                 {falla.evidencias.map((e) => (
@@ -73,27 +94,48 @@ const DetalleFalla = ({ falla }) => (
                 ))}
             </ul>
         )}
+        {comentarios && <ComentariosFalla comentarios={comentarios} />}
     </article>
 );
 
 const InformeFallas = () => {
-    const [params] = useSearchParams();
+    const [params, setParams] = useSearchParams();
     const filtros = useMemo(() => filtrosDe(params), [params]);
+    const conComentarios = params.get('comentarios') === '1';
+    const [, recordar] = useLocalStorageState(CLAVE_COMENTARIOS, false);
     const { rondas } = useRonda();
     const ronda = rondas.find((r) => String(r.id) === filtros.ronda);
     const { data, isPending, error, refetch } = useFallas(filtros);
+    const comentarios = useComentarios(filtros.ronda, conComentarios);
+    const alternar = (activo) => {
+        recordar(activo);
+        setParams((previos) => {
+            const nuevos = new URLSearchParams(previos);
+            if (activo) nuevos.set('comentarios', '1');
+            else nuevos.delete('comentarios');
+            return nuevos;
+        }, { replace: true });
+    };
     const [generado] = useState(() => formatearFecha(new Date().toISOString()));
     const resumen = useMemo(() => resumenFallas(data ?? []), [data]);
 
-    if (isPending) return <Spinner pantalla />;
-    if (error) return <ErrorState mensaje={error.message} onReintentar={refetch} pantalla />;
+    if (isPending || (conComentarios && comentarios.isPending)) return <Spinner pantalla />;
+    const fallo = error || (conComentarios && comentarios.error);
+    if (fallo) return <ErrorState mensaje={fallo.message} onReintentar={error ? refetch : comentarios.refetch} pantalla />;
+    const deFalla = (f) => (conComentarios ? comentariosDeFalla(f, comentarios.data ?? []) : null);
 
-    return (
-        <main className="mx-auto max-w-5xl bg-white p-6 text-texto print:max-w-none print:p-0 md:p-10">
-            <div className="mb-6 flex flex-wrap gap-2 print:hidden">
+    const acciones = (
+        <>
+            <div className="flex flex-wrap gap-2">
                 <Link to={`/fallas?${params}`} className={`${BOTON} bg-borde text-texto-tenue`}><ArrowLeft size={18} className="shrink-0" />Volver</Link>
                 <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}><Document size={18} className="shrink-0" />Imprimir / guardar PDF</button>
             </div>
+            <Checkbox id="informe-comentarios" checked={conComentarios} onChange={alternar}>Incluir comentarios</Checkbox>
+        </>
+    );
+
+    return (
+        <HojaImpresa acciones={acciones}>
             <EncabezadoImpreso titulo="Informe de fallas">
                 <p className="mt-1 tipo-media text-sm text-texto-tenue">
                     Ronda: {ronda ? `${ronda.nombre}${ronda.snapshot ? ` (${ronda.snapshot})` : ''}` : 'Todas'} · Generado: {generado}
@@ -117,10 +159,10 @@ const InformeFallas = () => {
             {data.length > 0 && (
                 <section className="mt-8">
                     <h2 className="border-b border-borde pb-1 tipo-negrita text-lg text-primario">Detalle ({data.length})</h2>
-                    {data.map((f) => <DetalleFalla key={f.id} falla={f} />)}
+                    {data.map((f) => <DetalleFalla key={f.id} falla={f} comentarios={deFalla(f)} />)}
                 </section>
             )}
-        </main>
+        </HojaImpresa>
     );
 };
 

@@ -4,7 +4,8 @@ import { CornerDownRight, FileText } from 'tesela/react';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
 import { EncabezadoImpreso } from '@/components/EncabezadoImpreso';
-import { useInstancia } from '@/hooks/useInstancia';
+import { BOTON_IMPRESO as BOTON, HojaImpresa } from '@/components/HojaImpresa';
+import { useInstancia, useNombreProyecto } from '@/hooks/useInstancia';
 import { useRonda } from '@/hooks/useRonda';
 import { useAprobaciones, useHerramientas } from '@/hooks/useValidacion';
 import { actaMarkdown, aprobacionDe, evidenciaDe, pendientesORechazadas, recomendacionDe } from '@/utils/acta';
@@ -12,8 +13,6 @@ import { agruparPorSistema, combinar } from '@/utils/aprobaciones';
 import { APROBACIONES } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
 import { useRuta } from '@/hooks/useProyecto';
-
-const BOTON = 'inline-flex h-[36px] items-center rounded-full px-5 tipo-negrita text-sm';
 
 const descargar = (texto, nombre) => {
     const url = URL.createObjectURL(new Blob([texto], { type: 'text/markdown;charset=utf-8' }));
@@ -28,8 +27,8 @@ const Acta = () => {
     const [params] = useSearchParams();
     const { rondas, ronda: actual } = useRonda();
     const ronda = rondas.find((r) => String(r.id) === params.get('ronda')) ?? actual;
-    const { producto, nombre: instancia, proyecto, sistemas } = useInstancia();
-    const nombre = proyecto?.nombre || instancia;
+    const { producto, sistemas } = useInstancia();
+    const nombre = useNombreProyecto();
     const ruta = useRuta();
     const herramientas = useHerramientas(ronda?.id);
     const aprobaciones = useAprobaciones(ronda?.id);
@@ -44,8 +43,8 @@ const Acta = () => {
     if (error) return <ErrorState mensaje={error.message} pantalla />;
 
     return (
-        <main className="mx-auto max-w-5xl bg-white p-6 text-texto print:max-w-none print:p-0 md:p-10">
-            <div className="mb-6 flex flex-wrap gap-2 print:hidden">
+        <HojaImpresa acciones={(
+            <div className="flex flex-wrap gap-2">
                 <Link to={ruta('/aprobaciones')} className={`${BOTON} bg-borde text-texto-tenue`}>Volver</Link>
                 <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}>Imprimir</button>
                 <button type="button" onClick={() => descargar(actaMarkdown({ producto, nombre, ronda, grupos, generada }), `acta-${ronda.nombre.replaceAll(' ', '-').toLowerCase()}.md`)} className={`${BOTON} border border-primario text-primario`}>
@@ -53,6 +52,8 @@ const Acta = () => {
                     Descargar .md
                 </button>
             </div>
+        )}
+        >
             <EncabezadoImpreso titulo="Acta de aprobación">
                 <p className="mt-1 tipo-media text-sm text-texto-tenue">
                     Ronda: {ronda.nombre}{ronda.snapshot ? ` (${ronda.snapshot})` : ''} · Generada: {generada}
@@ -98,7 +99,7 @@ const Acta = () => {
                     </table>
                 </section>
             ))}
-        </main>
+        </HojaImpresa>
     );
 };
 

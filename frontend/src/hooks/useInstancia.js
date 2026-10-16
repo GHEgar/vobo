@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchInstancia } from '@/services/validacion';
-import { useClaveProyecto } from '@/hooks/useProyecto';
-import { tituloDocumento } from '@/utils/marca';
+import { useClaveProyecto, useProyecto } from '@/hooks/useProyecto';
+import { nombreVisible, tituloDocumento } from '@/utils/marca';
 
 const VACIA = {
     producto: '',
@@ -29,6 +29,12 @@ export const useInstancia = () => {
 };
 
 export const useSistemas = () => useInstancia().sistemas;
+
+export const useNombreProyecto = () => {
+    const { producto } = useInstancia();
+    const { proyecto, proyectos } = useProyecto();
+    return nombreVisible(producto, proyecto, proyectos);
+};
 
 const fijarAtributo = (selector, atributo, valor) => {
     const elemento = document.querySelector(selector);

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import { Checkbox } from '@/components/Checkbox';
 import { SelectField } from '@/components/Field';
 import { Spinner } from '@/components/Spinner';
 import { EmptyState, ErrorState } from '@/components/Estados';
@@ -9,11 +10,12 @@ import { FallaCard } from '@/components/fallas/FallaCard';
 import { useRonda } from '@/hooks/useRonda';
 import { useClaveProyecto, useRuta } from '@/hooks/useProyecto';
 import { useSesion } from '@/hooks/useSesion';
+import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { PERMISOS } from '@/utils/permisos';
 import { useContenido, useFallas } from '@/hooks/useValidacion';
 import { consulta as aConsulta } from '@/services/api';
 import { urlInformeFallas } from '@/services/validacion';
-import { zonaHoraria } from '@/utils/informeFallas';
+import { CLAVE_COMENTARIOS, zonaHoraria } from '@/utils/informeFallas';
 import { ESTADOS_FALLA, SEVERIDADES, opciones } from '@/utils/etiquetas';
 import { FileTable, FileText, Filter } from 'tesela/react';
 
@@ -38,7 +40,9 @@ const Fallas = () => {
         tipo: 'falla',
         ronda: null,
     }));
+    const [conComentarios, setConComentarios] = useLocalStorageState(CLAVE_COMENTARIOS, false);
     const consulta = { ...filtros, ronda: filtros.ronda ?? ronda?.id ?? '' };
+    const informe = { ...consulta, comentarios: conComentarios ? 1 : '' };
     const { data, isPending, error, refetch } = useFallas(consulta);
     const sistemas = useMemo(
         () => [...new Set((contenido?.secciones ?? []).map((s) => s.sistema))].sort().map((s) => ({ valor: s, texto: s })),
@@ -51,9 +55,12 @@ const Fallas = () => {
             <Tarjeta>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="tipo-negrita text-lg text-texto">Fallas reportadas</h1>
-                    <div className="flex flex-wrap gap-2">
-                        <a href={urlInformeFallas({ ...consulta, proyecto, tz: zonaHoraria() })} download className={ENLACE}><FileTable size={16} className="shrink-0" />Descargar CSV</a>
-                        <Link to={ruta(`/informe-fallas${aConsulta(consulta)}`)} className={ENLACE}><FileText size={16} className="shrink-0" />Informe imprimible</Link>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <Checkbox id="f-comentarios" checked={conComentarios} onChange={setConComentarios}>Incluir comentarios</Checkbox>
+                        <div className="flex flex-wrap gap-2">
+                            <a href={urlInformeFallas({ ...informe, proyecto, tz: zonaHoraria() })} download className={ENLACE}><FileTable size={16} className="shrink-0" />Descargar CSV</a>
+                            <Link to={ruta(`/informe-fallas${aConsulta(informe)}`)} title="Informe imprimible o PDF" className={ENLACE}><FileText size={16} className="shrink-0" />Informe</Link>
+                        </div>
                     </div>
                 </div>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">

@@ -35,3 +35,13 @@ export const resumenFallas = (fallas) => ({
 });
 
 export const pasoDeFalla = (falla) => (falla.paso === null ? 'Fuera de los pasos' : `${falla.paso + 1}. ${falla.paso_texto}`);
+
+export const CLAVE_COMENTARIOS = 'validacion.informe.comentarios';
+
+const delCaso = (falla, c) => c.caso_id === falla.caso_id
+    && c.ronda_id === falla.ronda_id
+    && (falla.paso === null || c.paso === null || c.paso === falla.paso);
+
+export const comentariosDeFalla = (falla, comentarios) => comentarios
+    .filter((c) => delCaso(falla, c))
+    .sort((a, b) => a.actualizado.localeCompare(b.actualizado));

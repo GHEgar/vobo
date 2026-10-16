@@ -28,7 +28,7 @@ const AvisoItem = ({ aviso, onLeer }) => {
     };
 
     return (
-        <li className={`rounded-2xl p-5 shadow-[0px_3px_12px_var(--color-sombra-tenue)] ${nuevo ? 'bg-primario-suave ring-1 ring-primario-borde' : 'bg-white'}`}>
+        <li className={`min-w-0 rounded-2xl p-5 shadow-[0px_3px_12px_var(--color-sombra-tenue)] ${nuevo ? 'bg-primario-suave ring-1 ring-primario-borde' : 'bg-white'}`}>
             <button
                 type="button"
                 onClick={alternar}
@@ -46,7 +46,7 @@ const AvisoItem = ({ aviso, onLeer }) => {
                 </span>
                 <span className="tipo-negrita text-xs text-primario">{abierto ? 'Ocultar' : 'Leer'}</span>
             </button>
-            <p className={`mt-3 whitespace-pre-line tipo-regular text-[15px]/6 text-texto ${abierto ? '' : 'line-clamp-2'}`}>
+            <p className={`mt-3 whitespace-pre-line wrap-anywhere tipo-regular text-[15px]/6 text-texto ${abierto ? '' : 'line-clamp-2'}`}>
                 <TextoConEnlaces texto={aviso.mensaje} />
             </p>
             {aviso.caso_id && (

@@ -59,12 +59,13 @@ export const useHerramientas = (rondaId) => useQuery({
     staleTime: 30 * 1000,
 });
 
-export const useComentarios = (rondaId) => {
+export const useComentarios = (rondaId, activo = true) => {
     const proyecto = useClaveProyecto();
     return useQuery({
         queryKey: ['comentarios', { rondaId, proyecto }],
         queryFn: () => api.fetchComentarios(rondaId, proyecto),
         staleTime: 15 * 1000,
+        enabled: activo,
     });
 };
 

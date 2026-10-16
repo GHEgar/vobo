@@ -7,8 +7,27 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Comentarios en el informe de fallas: `GET /api/fallas/informe.csv?comentarios=1` agrega la columna
+  «Comentarios» con los del mismo caso (y paso) de esa ronda, `fecha · nombre: texto` uno por línea.
+  En Fallas, la casilla «Incluir comentarios» (recordada en el navegador) la activa para el CSV y el
+  informe imprimible, que los muestra debajo de cada falla.
+
+### Cambiado
+
+- El enlace «Informe imprimible» de Fallas pasa a decir «Informe».
+- El informe de fallas y el acta separan las acciones del documento: barra fija arriba que no se
+  imprime y el documento como hoja centrada.
+- El encabezado del informe, del acta y su `.md` usan el nombre del proyecto actual.
+- Con un solo proyecto cuyo nombre es igual al producto (sin distinguir mayúsculas, acentos ni
+  espacios), el nombre no se repite junto a la marca, en la entrada ni en los títulos.
+- Los enlaces de comentarios, avisos y pasos se muestran acortados (dominio y ruta, con la dirección
+  completa al pasar el cursor) y los comentarios ya son enlazables.
+
 ### Corregido
 
+- Las direcciones muy largas en comentarios desbordaban su contenedor.
 - `make admin` no podía nombrar al primer administrador con `AUTH_MODO=oidc`: ahora da el rol a una
   persona que ya entró por el proveedor.
 

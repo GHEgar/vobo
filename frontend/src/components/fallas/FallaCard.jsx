@@ -13,7 +13,7 @@ import { describirNavegador, formatearFecha } from '@/utils/formato';
 const Dato = ({ termino, children }) => (
     <div>
         <dt className="tipo-media text-[11px] text-texto-apagado">{termino}</dt>
-        <dd className="break-words tipo-media text-sm text-texto">{children || '—'}</dd>
+        <dd className="wrap-anywhere tipo-media text-sm text-texto">{children || '—'}</dd>
     </div>
 );
 
@@ -51,7 +51,7 @@ export const FallaCard = ({ falla, editable }) => {
                     <Chip tono={ESTADOS_FALLA[falla.estado].tono}>{ESTADOS_FALLA[falla.estado].texto}</Chip>
                 )}
             </div>
-            <p className="mt-3 whitespace-pre-line tipo-regular text-[15px]/6 text-texto">{falla.obtenido}</p>
+            <p className="mt-3 whitespace-pre-line wrap-anywhere tipo-regular text-[15px]/6 text-texto">{falla.obtenido}</p>
             <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <Dato termino="Paso">{falla.paso === null ? 'Fuera de los pasos' : `${falla.paso + 1}. ${falla.paso_texto}`}</Dato>
                 {falla.tipo !== 'no_pude' && <Dato termino="Se repite">{REPRODUCIBLE[falla.reproducible]}</Dato>}
@@ -73,7 +73,7 @@ export const FallaCard = ({ falla, editable }) => {
                 </ul>
             )}
             {!editable && falla.nota_resolucion && (
-                <p className="mt-4 tipo-media text-sm text-texto-tenue">Nota de resolución: {falla.nota_resolucion}</p>
+                <p className="mt-4 wrap-anywhere tipo-media text-sm text-texto-tenue">Nota de resolución: {falla.nota_resolucion}</p>
             )}
             {editable && <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end">
                 <div className="grow">

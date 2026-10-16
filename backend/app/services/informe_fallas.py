@@ -10,6 +10,7 @@ from app.core.time import como_utc
 from app.models.ronda import Ronda
 from app.models.usuario import Usuario
 from app.schemas.falla import FallaResponse
+from app.schemas.resultado import ComentarioResponse
 from app.services.contenido import Contenido
 
 BOM = "﻿"
@@ -81,12 +82,34 @@ def _paso(falla: FallaResponse) -> str:
     return f"{falla.paso + 1}. {falla.paso_texto}".strip()
 
 
-def generar(db: Session, contenido: Contenido, fallas: list[FallaResponse], tz: ZoneInfo) -> str:
+def del_caso(falla: FallaResponse, comentario: ComentarioResponse) -> bool:
+    if (comentario.caso_id, comentario.ronda_id) != (falla.caso_id, falla.ronda_id):
+        return False
+    return falla.paso is None or comentario.paso in (None, falla.paso)
+
+
+def comentarios_de(
+    falla: FallaResponse, comentarios: list[ComentarioResponse], tz: ZoneInfo
+) -> str:
+    propios = sorted((c for c in comentarios if del_caso(falla, c)), key=lambda c: c.actualizado)
+    return "\n".join(
+        f"{fecha_local(c.actualizado, tz)} · {c.autor or c.usuario_email}: {c.comentario}"
+        for c in propios
+    )
+
+
+def generar(
+    db: Session,
+    contenido: Contenido,
+    fallas: list[FallaResponse],
+    tz: ZoneInfo,
+    comentarios: list[ComentarioResponse] | None = None,
+) -> str:
     nombres = {u.email: u.nombre for u in db.scalars(select(Usuario))}
     rondas = {r.id: r.nombre for r in db.scalars(select(Ronda))}
     salida = io.StringIO()
     escritor = csv.writer(salida, lineterminator="\r\n")
-    escritor.writerow(COLUMNAS)
+    escritor.writerow(COLUMNAS if comentarios is None else (*COLUMNAS, "Comentarios"))
     for f in fallas:
         fila = (
             f.id,
@@ -110,6 +133,8 @@ def generar(db: Session, contenido: Contenido, fallas: list[FallaResponse], tz: 
             f.navegador,
             len(f.evidencias),
         )
+        if comentarios is not None:
+            fila = (*fila, comentarios_de(f, comentarios, tz))
         escritor.writerow([seguro(v) for v in fila])
     return BOM + salida.getvalue()
 
