@@ -20,7 +20,7 @@ import { LineChart } from 'tesela/react';
 
 const Tablero = () => {
     const { ronda, cargando: cargandoRonda } = useRonda();
-    const { ve, puede } = useSesion();
+    const { ve } = useSesion();
     const [audiencia, setAudiencia] = useLocalStorageState('validacion.tablero.audiencia', 'todas');
     const { data, isPending, error, refetch } = useTablero(ronda?.id, audiencia);
     const [vista, setVista] = useLocalStorageState('validacion.tablero.vista', 'familia');
