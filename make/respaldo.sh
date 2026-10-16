@@ -35,7 +35,7 @@ shutil.rmtree(carpeta)" > "$1"
 volcar_tar() {
     local origen=$1 destino=$2
     shift 2
-    en_backend tar -C "$origen" "$@" -cf - . > "$destino"
+    en_backend sh -c 'o=$1; shift; if [ -d "$o" ]; then exec tar -C "$o" "$@" -cf - .; else exec tar -cf - -T /dev/null; fi' sh "$origen" "$@" > "$destino"
 }
 
 volcar_datos() {

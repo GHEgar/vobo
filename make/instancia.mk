@@ -71,6 +71,7 @@ actualizar: ## Respaldar y desplegar: modo imagen con version=X.Y.Z, modo codigo
 		rule
 		run_step 'Pull' bajar_version "$$NUEVA" \
 			|| fail "Pull:no se pudieron bajar las imagenes de $$NUEVA" 'Revisa que la version este publicada; nada cambio'
+		export VOBO_VERSION="$${ANTERIOR:-$$NUEVA}"
 	else
 		revisar_git
 		if [ "$$NUEVOS" -eq 0 ] && [ -z '$(FORZAR)' ]; then
