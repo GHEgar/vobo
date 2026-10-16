@@ -9,6 +9,47 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Agregado
 
+- Proyectos: lo que se valida (una versión, un ecosistema) con su propio contenido y sus propias
+  rondas. Tabla `proyectos` (migración `0005`) con clave, nombre, descripción, color del nombre,
+  orden, archivado y por omisión; la migración crea el proyecto `principal` con el nombre de la
+  instancia y le asigna todas las rondas, el contenido en base, los avisos y la presencia. Con
+  `CONTENIDO_FUENTE=base` cada proyecto tiene secciones, casos, procedimientos, animaciones,
+  historial y .zip propios, y los ids de caso pueden repetirse entre proyectos; con `archivos` hay un
+  solo proyecto. La API resuelve el proyecto por la ronda, luego por `?proyecto=<clave>` y si no por
+  el de omisión, así que los scripts y el token de lectura siguen igual; `GET /api/proyectos`,
+  `GET /api/rondas?proyecto=`, `proyecto` al crear una ronda y `/api/admin/proyectos` para
+  administrarlos.
+- Administración → Proyectos: crear, editar, ordenar, archivar, marcar por omisión y borrar los que
+  no tienen rondas. En modo archivos muestra el único proyecto y por qué no se pueden crear más.
+- Selector de proyecto junto al logo cuando hay más de uno; el elegido se recuerda y los enlaces de
+  caso, sección, informe, acta y avisos llevan `?proyecto=<clave>` cuando no es el de omisión.
+
+- Instalación, respaldo, restauración y actualización con make. `make instalar` revisa requisitos
+  y puerto, crea `.env.production` preguntando lo mínimo (o con variables, sin terminal), genera los
+  secretos, construye, espera los healthchecks e imprime la invitación del primer administrador.
+  `make respaldo` copia en caliente la base con la API de backup de SQLite, el resto del volumen de
+  datos, evidencias, media, `.env.production` y `secrets/` a `respaldos/<fecha-hora>/` con
+  `manifiesto.json` (versión, commit, revisión Alembic, conteos y sha256), y `RETENER=N` borra los
+  de más de N días. `make restaurar desde=...` verifica sumas, pide confirmación, respalda el estado
+  actual, restaura (`CON_CONFIG=1` incluye la configuración) y compara conteos. `make actualizar`
+  respalda, hace `git pull --ff-only`, despliega y, si no queda sano, imprime cómo volver.
+- Configuración de la instancia desde la app (Administración → Configuración): identidad, textos de
+  entrada, logo claro y oscuro, favicon, color del navegador, doce colores con vista previa en vivo,
+  fuente, proyectos ordenables y descripciones de cuentas de prueba. Lo guardado gana sobre
+  `instancia.yaml` y el tema de archivos, y cada campo se puede restablecer; sin nada guardado todo
+  queda igual. Tabla `configuracion` (migración `0004`), imágenes PNG, SVG o WebP de hasta 2 MB en
+  `MARCA_DIR` (`/data/marca`) con SVG peligrosos rechazados, `GET /api/instancia/tema.css` y API en
+  `/api/admin/configuracion`.
+- Aviso de versión nueva: `make deploy` fija `APP_VERSION` en las dos imágenes, `GET /api/version`
+  la expone y las pestañas abiertas ofrecen recargar cuando cambia.
+
+- Editor de contenido opcional con `CONTENIDO_FUENTE=base` (por omisión `archivos`, sin cambios):
+  secciones, casos, herramientas, galería y procedimientos en SQLite (revisión `0003`), importación
+  inicial desde `CONTENIDO_DIR`, página `/editor` con permiso nuevo `validacion.contenido.editar`,
+  validación por campo, historial con restaurar, ocultar secciones con resultados y animaciones
+  WebP/GIF/PNG/JPEG/MP4/WebM en el volumen `VOLUMEN_MEDIA`. API en `/api/editor/...`.
+- Exportar el contenido como .zip de YAML (`GET /api/contenido/exportar.zip`) e importarlo desde el
+  editor con vista previa de cambios.
 - Presencia en línea para coordinación: cada sesión informa dónde está (página, caso, paso y si está
   reportando una falla o comentando) cada 30 s mientras la pestaña está visible; panel «En línea» en
   el tablero con estado activo/inactivo y enlace al caso. `POST` y `GET /api/presencia`.
@@ -16,6 +57,75 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   (`GET /api/fallas/informe.csv`, UTF-8 con BOM, fechas en la zona horaria de quien descarga y
   celdas protegidas contra fórmulas) e informe imprimible en `/informe-fallas` con resumen por
   severidad, estado y sección, detalle de cada falla y miniaturas de sus capturas.
+- Marca por instancia en `instancia.yaml`: nombre del producto, logo claro/oscuro, favicon, color del
+  navegador (`theme-color`) y textos de la pantalla de entrada, con rutas limitadas a la carpeta del
+  tema. Se usan en la cabecera, la entrada, el acta y el informe imprimibles; tema de ejemplo en
+  `ejemplo/tema`.
+- Roles en la app: tablas `roles` y `usuario_roles` con cuatro roles de sistema (Validador,
+  Coordinación, Aprobación y Administración) y permiso nuevo `validacion.admin`, que implica todos los
+  demás. Los permisos efectivos son la unión de los del proveedor, los de los roles asignados y los de
+  roles mapeados desde grupos del proveedor (`OIDC_ROLES_CLAIM`, `OIDC_ROLES_MAPA`).
+- Página Administración (menú de usuario, solo con `validacion.admin`): personas con sus roles,
+  asignación de roles, activación de cuentas, y roles propios con permisos descritos. API en
+  `/api/admin/...`.
+- Cuentas propias con correo y contraseña: `AUTH_MODO=cuentas` o `ambos` (cuentas más proveedor),
+  hashes Argon2id, invitaciones y restablecimientos por enlace de un solo uso de 48 h, cambio de la
+  propia contraseña, límite de 5 intentos fallidos por correo e IP cada 15 min y primer administrador
+  con `make admin email=...`. Migración `0002`.
+- Modo edición en contexto para quien puede editar el contenido y solo con `CONTENIDO_FUENTE=base`:
+  se enciende desde el menú de la cuenta, está apagado por omisión, dura la pestaña y se apaga al
+  salir. Mientras está activo, una píldora con borde envuelve al avatar con «Modo edición» y «Salir»,
+  sin relleno. Cada contenedor editable lleva contorno punteado y su propia barra de
+  acciones arriba a la derecha (atenuada hasta pasar el puntero o enfocarla; siempre visible en
+  pantallas táctiles): en el inicio cada sección se ordena, edita, oculta, muestra o borra (solo sin
+  resultados), con las ocultas atenuadas; en la sección se edita su cabecera y cada caso se ordena,
+  edita, duplica o borra; el caso se edita completo desde su tarjeta. «Agregar sección» y «Agregar
+  caso» son un contenedor fantasma al final de cada lista. Los formularios son los del editor, en un
+  modal con enlace «Abrir en el editor», que acepta `?seccion=<id>`. El listado del editor incluye
+  la audiencia de cada sección.
+
+### Cambiado
+
+- rotulo 0.3.0: trazo un 15 % más grueso y descendentes del largo de las ascendentes.
+- Lo que antes se llamaba «proyectos» (agrupación de secciones por `sistema`) se llama «Sistemas» en
+  la interfaz: Configuración → Sistemas, pestañas del inicio, vista «Por sistema» del tablero, editor y
+  asignaciones. Son de toda la instancia. `instancia.yaml` acepta `sistemas` además de `proyectos`, y
+  `GET /api/instancia` sigue devolviendo `proyectos` y agrega `sistemas` y el `proyecto` pedido. Las
+  pestañas del inicio usan `?sistema=` en la dirección (también leen el `?proyecto=` de enlaces viejos).
+- El producto se llama VoBo (paquete `vobo`); los defaults de compose, volúmenes y red de instalaciones
+  nuevas pasan a `vobo`. Permisos `validacion.*`, secretos y base conservan su nombre.
+- El `nombre` de la instancia queda vacío por omisión: la marca la da `producto`, y un campo inválido
+  de `instancia.yaml` se reporta sin descartar el resto del archivo.
+- Migraciones con Alembic (revisión base `0001` y `make migracion m="..."`) y adopción automática
+  de bases existentes al arrancar: se aplican las migraciones a mano previas, se verifica el esquema
+  contra la revisión base y se marca, todo en una transacción que no toca nada si algo no coincide.
+- Cabecera en dos filas: el nombre de la instancia va junto al logo, separado por un divisor, y el
+  avatar a la derecha; debajo, las páginas a la izquierda y el buscador fijo como campo de texto a la
+  derecha (en pantallas chicas, en su propia fila a todo el ancho). Conserva ñ y Ctrl/Cmd+K.
+- Color del nombre de la instancia configurable con `color_nombre` en `instancia.yaml` o en
+  Configuración → Colores («Nombre del proyecto», token `--color-nombre`); por omisión usa el texto
+  tenue y ya no es naranja.
+- Íconos de tesela 0.6.1 (con centrado óptico) y reseleccionados: el menú del avatar usa lápiz para
+  el editor de contenido y el ícono de cerrar sesión en «Salir», que también sale del modo edición
+  desde su píldora; Pasa, Falla y No pude probarlo usan círculo con palomita, círculo con cruz y
+  alerta en botones, chips y criterios de salida; la ayuda de los campos es un signo de
+  interrogación; los estados vacíos y de error muestran un ícono grande en duotono; las pestañas de
+  Administración y del editor tienen ícono, y descargar, informe, imprimir, restaurar y «Cómo se ve»
+  llevan el suyo. Grosor de trazo por omisión en íconos de 16 px o más.
+- Menú de páginas solo con texto; el buscador mide lo que su placeholder y crece al enfocarlo si hay
+  espacio, y con una sola página visible se coloca junto a la cuenta, sin segunda fila.
+- El botón «Continuar» del inicio usa el color primario.
+- Carga diferida de las páginas que no usa todo el mundo y React, React Router y React Query en su
+  propio chunk: el chunk principal pasa de 639 kB a 117 kB.
+
+### Corregido
+
+- El detalle de los íconos de tesela casi no se veía sobre botones y fondos de relleno oscuros; ahora
+  va en dirección clara (`--tesela-dir: -1`) sobre esos fondos.
+- El ícono de ayuda del selector de ronda quedaba por debajo del centro.
+- La presencia ya no se envía antes de que la sesión tenga su token CSRF, lo que daba 403 al cargar.
+- Una sesión vencida ya no deja pestañas consultando con 401 en bucle: el primer 401 de una petición
+  autenticada cierra la sesión en el cliente y lleva a la pantalla de entrada.
 
 ## [0.2.0] - 2026-10-15
 
