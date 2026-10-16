@@ -7,7 +7,25 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.3.0] - 2026-10-16
+
 ### Agregado
+
+- Imágenes públicas versionadas en GHCR: `ghcr.io/ghegar/vobo-backend` y `ghcr.io/ghegar/vobo-web`
+  para `linux/amd64` y `linux/arm64`, con tags `X.Y.Z`, `X.Y`, `latest` (salvo prerrelease) y
+  `sha-<commit>`, etiquetas OCI y `APP_VERSION` igual a la versión. Nada de la instancia va horneado:
+  dominio, OIDC, tema y contenido llegan por variables y volúmenes al arrancar.
+- Instalación desde imágenes, sin compilar: `compose.imagen.yaml` cambia el build por
+  `image: …:${VOBO_VERSION}` y `MODO_DESPLIEGUE=imagen` (por omisión de `make instalar`) guarda la
+  versión en `.env.production`. En ese modo `make deploy` baja las imágenes, levanta y espera los
+  healthchecks, y `make actualizar version=X.Y.Z` respalda, cambia de versión y despliega; si no queda
+  sano imprime cómo volver a la anterior. `MODO_DESPLIEGUE=codigo` sigue construyendo en el servidor.
+- Kit de instalación `vobo-kit-X.Y.Z.tar.gz` (compose, `Makefile`, `make/`, plantillas de
+  `.env.production` y secretos, ejemplo y tema neutro) con `make kit`, para instalar sin clonar el
+  repositorio.
+- Release automático: al empujar un tag `vX.Y.Z` el workflow `imagenes` verifica que coincida con
+  `frontend/package.json` y el CHANGELOG, publica las imágenes y crea el release de GitHub con el kit
+  adjunto y estas notas.
 
 - Proyectos: lo que se valida (una versión, un ecosistema) con su propio contenido y sus propias
   rondas. Tabla `proyectos` (migración `0005`) con clave, nombre, descripción, color del nombre,
@@ -51,8 +69,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Exportar el contenido como .zip de YAML (`GET /api/contenido/exportar.zip`) e importarlo desde el
   editor con vista previa de cambios.
 - Presencia en línea para coordinación: cada sesión informa dónde está (página, caso, paso y si está
-  reportando una falla o comentando) cada 30 s mientras la pestaña está visible; panel «En línea» en
-  el tablero con estado activo/inactivo y enlace al caso. `POST` y `GET /api/presencia`.
+  reportando una falla o comentando) cada 30 s mientras la pestaña está visible, y
+  coordinación lo ve en Actividad con estado activo/inactivo y enlace al caso. `POST` y `GET /api/presencia`.
 - Informe de fallas con los filtros vigentes: descarga CSV para hojas de cálculo
   (`GET /api/fallas/informe.csv`, UTF-8 con BOM, fechas en la zona horaria de quien descarga y
   celdas protegidas contra fórmulas) e informe imprimible en `/informe-fallas` con resumen por
@@ -83,9 +101,28 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   caso» son un contenedor fantasma al final de cada lista. Los formularios son los del editor, en un
   modal con enlace «Abrir en el editor», que acepta `?seccion=<id>`. El listado del editor incluye
   la audiencia de cada sección.
+- Actividad, para coordinación y administración (`validacion.tablero.ver` o
+  `validacion.fallas.gestionar`): botón «Actividad» en la cabecera con el número de personas activas
+  y un modal con **Ahora** (quién está, qué hace, desde cuándo, ronda, navegador, dispositivo y
+  pantalla) y **Actividad reciente**, una línea de tiempo por día de resultados, fallas, comentarios,
+  aprobaciones, decisiones, avisos, inicios de sesión y cambios de contenido, filtrable por persona y
+  tipo y paginada con «Cargar más». Se deriva de las tablas existentes, sin bitácora nueva:
+  `GET /api/actividad?proyecto=&ronda=&usuario=&tipo=&antes=&limite=` (cursor por fecha y
+  desempate, `limite` hasta 100) y `GET /api/actividad/resumen`. Nunca expone sesiones, tokens ni
+  capturas, solo cuántas trae una falla. La presencia guarda navegador y versión y dispositivo
+  (derivados del User-Agent en el servidor, que se guarda recortado a 300), pantalla que manda el
+  cliente y el inicio de la sesión de presencia, que se reinicia tras 10 minutos sin actividad
+  (migración `0006`). El botón es solo ícono, con la etiqueta como tooltip y el número de personas
+  activas.
 
 ### Cambiado
 
+- «Rondas» pasa del menú de páginas al menú de la cuenta, con su ícono, para quien ve la página; la
+  ruta `/rondas` no cambia y quien se queda con una sola página tiene la cabecera de una fila.
+
+- La imagen web corre nginx sin root (usuario `nginx`, uid 101) y escucha en el puerto 8080 del
+  contenedor; el puerto del servidor sigue siendo `NGINX_PORT`.
+- `make restaurar` comprueba la revisión del respaldo contra la imagen en uso en modo imagen.
 - rotulo 0.3.0: trazo un 15 % más grueso y descendentes del largo de las ascendentes.
 - Lo que antes se llamaba «proyectos» (agrupación de secciones por `sistema`) se llama «Sistemas» en
   la interfaz: Configuración → Sistemas, pestañas del inicio, vista «Por sistema» del tablero, editor y

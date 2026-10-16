@@ -12,31 +12,57 @@ organization.
 
 ## Install
 
-Needs a Linux server with Docker Engine, Docker Compose v2, `git`, `make` and `python3`.
+Needs a Linux server (`amd64` or `arm64`) with Docker Engine, Docker Compose 2.24 or newer, `make`,
+`python3` and `curl` or `git`. The recommended path runs the published images: nothing is compiled on
+the server.
+
+The images are public on GitHub Container Registry, `ghcr.io/ghegar/vobo-backend` and
+`ghcr.io/ghegar/vobo-web`, tagged `X.Y.Z`, `X.Y`, `latest` and `sha-<commit>`. Pin an exact
+`X.Y.Z`. Each [release](https://github.com/GHEgar/vobo/releases) attaches `vobo-kit-X.Y.Z.tar.gz`:
+the compose files, `Makefile` and `make/`, the `.env.production` and `secrets/` templates, the
+example content and the neutral theme. That is all a server needs:
 
 ```bash
-git clone <repository url> /srv/vobo
+VERSION=0.3.0
+BASE=https://github.com/GHEgar/vobo/releases/download/v$VERSION
+curl -fsSLO "$BASE/vobo-kit-$VERSION.tar.gz" -O "$BASE/vobo-kit-$VERSION.tar.gz.sha256"
+sha256sum -c "vobo-kit-$VERSION.tar.gz.sha256"
+sudo mkdir -p /srv/vobo && sudo chown "$USER" /srv/vobo
+tar -xzf "vobo-kit-$VERSION.tar.gz" -C /srv/vobo --strip-components=1
 cd /srv/vobo
 make instalar
 ```
 
-`make instalar` checks the requirements and the port, asks for the domain, whether people reach it
-over HTTPS, the port, the sign-in mode (`cuentas`, `oidc` or `ambos`, with the provider details when
-it applies), where content lives (`base` by default) and the compose project name, then writes
-`.env.production`, generates the secrets, builds, starts, waits for the healthchecks and, when the mode
-includes own accounts, prints the invitation link for the first administrator. Running it again never
+A shallow clone of the tag works the same way:
+`git clone --depth 1 --branch v0.3.0 <repository url> /srv/vobo`.
+
+`make instalar` checks the requirements and the port, asks how to deploy (`imagen` by default, or
+`codigo` to build on this server from a full clone) and which version (the kit's or the clone's), the
+domain, whether people reach it over HTTPS, the port, the sign-in mode (`cuentas`, `oidc` or `ambos`,
+with the provider details when it applies), where content lives (`base` by default) and the compose
+project name, then writes `.env.production` (with `MODO_DESPLIEGUE` and `VOBO_VERSION`), generates the
+secrets, pulls the images (or builds), starts, waits for the healthchecks and, when the mode includes
+own accounts, prints the invitation link for the first administrator. Running it again never
 overwrites an existing `.env.production`: it offers to continue with it or quit.
 
 Every question can be answered with a variable, and without a terminal it takes the defaults:
 
 ```bash
-DOMINIO=vobo.example.org HTTPS=si NGINX_PORT=8080 AUTH_MODO=cuentas \
+VOBO_VERSION=0.3.0 DOMINIO=vobo.example.org HTTPS=si NGINX_PORT=8080 AUTH_MODO=cuentas \
     ADMIN_EMAIL=person@example.org make instalar
 ```
 
-`COMPOSE_NOMBRE`, `VOLUMEN_DATOS`, `VOLUMEN_EVIDENCIAS`, `VOLUMEN_MEDIA`, `NGINX_BIND_ADDR`, `VM_IP`,
-`CONTENIDO_DIR`, `TEMA_DIR` and, for the provider, `OIDC_ISSUER_URL`, `OIDC_PUBLIC_URL`,
-`OIDC_CLIENT_ID`, `OIDC_AUDIENCE` and `OIDC_CLIENT_SECRET` work the same way.
+`MODO_DESPLIEGUE`, `COMPOSE_NOMBRE`, `VOLUMEN_DATOS`, `VOLUMEN_EVIDENCIAS`, `VOLUMEN_MEDIA`,
+`NGINX_BIND_ADDR`, `VM_IP`, `CONTENIDO_DIR`, `TEMA_DIR` and, for the provider, `OIDC_ISSUER_URL`,
+`OIDC_PUBLIC_URL`, `OIDC_CLIENT_ID`, `OIDC_AUDIENCE` and `OIDC_CLIENT_SECRET` work the same way.
+`VOBO_IMAGEN_BACKEND` and `VOBO_IMAGEN_WEB` replace the image repositories (a mirror, a local build);
+the tag is always `VOBO_VERSION`.
+
+In `imagen` mode `compose.imagen.yaml` is layered over `compose.yaml` and `compose.prod.yaml`: it only
+swaps each `build` for `image: <repository>:${VOBO_VERSION}`, so volumes, variables and secrets are
+the same in both modes. `codigo` mode keeps building on the server; development and anyone who
+prefers to compile use it. An instance installed before 0.3.0 has no `MODO_DESPLIEGUE` and stays in
+`codigo`; `make actualizar version=X.Y.Z MODO_DESPLIEGUE=imagen` moves it to the images.
 
 ## Quick start
 
@@ -76,8 +102,11 @@ The production stack is two containers: nginx serves the build and proxies `/api
 | `COMPOSE_NOMBRE`, `VOLUMEN_*` | Project and volume names; changing them on a running instance starts empty volumes |
 
 Secrets live in `secrets/` (`secret_key`, `oidc_client_secret`, `validacion_lectura_token` and
-`validacion_cuentas`), never in `.env.production`. `make deploy` rebuilds and restarts with the current
-tree; `make status`, `make logs` and `make shell` help diagnose.
+`validacion_cuentas`), never in `.env.production`. In `imagen` mode `make deploy` pulls the images of
+`VOBO_VERSION` that are missing, recreates what changed and waits for the healthchecks; in `codigo`
+mode it rebuilds and restarts with the current tree. `make status`, `make logs` and `make shell` help
+diagnose. Both containers run as non-root users: the backend as uid 10001, nginx as uid 101 on port
+8080 inside the container.
 
 ## Backups
 
@@ -108,22 +137,50 @@ A suggested daily cron entry, plus a copy of `respaldos/` to another machine:
 0 3 * * * cd /srv/vobo && make respaldo RETENER=14 >> respaldos/cron.log 2>&1
 ```
 
-To move to a new server: clone the repository at the backup's `git` commit, extract `config.tar` from
-the backup in the repository folder, run `make instalar` (it keeps that `.env.production`), then
-`make restaurar desde=<folder>`.
+To move to a new server: unpack the kit of the backup's `version` (in `codigo` mode, clone the
+repository at its `git` commit), extract `config.tar` from the backup in that folder, run
+`make instalar` (it keeps that `.env.production`), then `make restaurar desde=<folder>`.
 
 ## Upgrading
 
 ```bash
-make actualizar
+make actualizar version=0.3.1
 ```
 
-It refuses local changes to tracked files, takes a `-previo-actualizar` backup, runs
+In `imagen` mode it pulls the images of the new version first (a version that is not published
+changes nothing), takes a `-previo-actualizar` backup, writes `VOBO_VERSION` in `.env.production`,
+deploys and waits for the healthchecks. Migrations run when the backend starts. Without `version`, or
+with the current one, it does nothing (`FORZAR=1` redeploys anyway). If the new version does not come
+up healthy it changes nothing on its own and prints the way back:
+`make actualizar version=<previous>`, then `make restaurar desde=<that backup>` when the database was
+already migrated and the previous version refuses it. Read the release notes before jumping several
+versions.
+
+In `codigo` mode `make actualizar` refuses local changes to tracked files, takes the backup, runs
 `git pull --ff-only` on the current branch, rebuilds with `make deploy` and waits for the
-healthchecks. With no new commits it does nothing (`FORZAR=1` redeploys anyway). If the new version
-does not come up healthy it changes nothing on its own and prints the way back:
-`git checkout <previous commit> && make deploy DEPLOY_SYNC=:`, then
-`make restaurar desde=<that backup>` if the data needs it too.
+healthchecks; with no new commits it does nothing. The way back is
+`git checkout <previous commit> && make deploy DEPLOY_SYNC=:`, then `make restaurar` if needed.
+
+## Releasing
+
+For the maintainer:
+
+1. Set the version in `frontend/package.json` and its lock (`npm version X.Y.Z --no-git-tag-version`
+   in `frontend/`).
+2. In `docs/CHANGELOG.md`, rename `## [No publicado]` to `## [X.Y.Z] - YYYY-MM-DD` and leave an empty
+   `## [No publicado]` above it.
+3. Commit, create the tag `vX.Y.Z` on that commit and push the tag to GitHub.
+
+The `imagenes` workflow checks that the tag, `package.json`, its lock and the latest dated CHANGELOG
+section agree, builds both images for `linux/amd64` and `linux/arm64` with `APP_VERSION=X.Y.Z`,
+pushes them to GHCR with the `GITHUB_TOKEN`, and creates the GitHub release with that CHANGELOG
+section as notes and the kit attached. A tag with a pre-release suffix (`v0.4.0-rc.1`) publishes only
+its exact tag and a pre-release. It can be re-run for an existing tag from *Actions → imagenes → Run
+workflow*. `make kit version=X.Y.Z` builds the same kit locally in `dist/`.
+
+GHCR creates a new package as private. After the first publish, open each package
+(`vobo-backend`, `vobo-web`) from the repository's *Packages*, then *Package settings → Change
+visibility → Public*; it is a one-time step per package.
 
 ## Content
 
@@ -262,6 +319,13 @@ all the others and opens **Administración**. A person's permissions are the uni
 grants, the roles assigned in the app, and roles mapped from provider groups. Four system roles ship:
 Validador, Coordinación, Aprobación and Administración; own roles are managed in Administración → Roles,
 and a role's key is fixed once created.
+
+Anyone with `validacion.tablero.ver` or `validacion.fallas.gestionar` gets an **Actividad** button in
+the header with the number of people active right now. It shows who is online (what they are doing,
+for how long, round, browser, device and screen size) and a timeline of recent results, failures,
+comments, approvals, decisions, notices, sign-ins and content edits, filterable by person and type. It
+is derived from existing data (`GET /api/actividad`, `GET /api/actividad/resumen`) and never exposes
+sessions, tokens or screenshots.
 
 ### Own accounts
 
