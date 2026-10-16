@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGuardarResultado } from '@/hooks/useValidacion';
 import { conRespuesta, estadoDelCaso, normalizarPasos, pasoInicial, siguienteSinResponder } from '@/utils/pasos';
+import { useRuta } from '@/hooks/useProyecto';
 
 const PAUSA_MS = 1000;
 
 export const useCasoGuiado = ({ caso, ronda, resultado, siguiente, pasoPedido = null }) => {
+    const ruta = useRuta();
     const navigate = useNavigate();
     const guardar = useGuardarResultado();
     const total = caso.pasos.length;
@@ -16,9 +18,9 @@ export const useCasoGuiado = ({ caso, ronda, resultado, siguiente, pasoPedido = 
 
     useEffect(() => {
         if (!terminado || !siguiente) return undefined;
-        const espera = setTimeout(() => navigate(`/caso/${encodeURIComponent(siguiente.id)}`), PAUSA_MS);
+        const espera = setTimeout(() => navigate(ruta(`/caso/${encodeURIComponent(siguiente.id)}`)), PAUSA_MS);
         return () => clearTimeout(espera);
-    }, [terminado, siguiente, navigate]);
+    }, [terminado, siguiente, navigate, ruta]);
 
     const persistir = (estado, nuevos, comentario = null) => guardar.mutateAsync({
         casoId: caso.id,

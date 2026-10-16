@@ -7,6 +7,7 @@ import { Tarjeta } from '@/components/Tarjeta';
 import { ComentariosLista } from '@/components/fallas/ComentariosLista';
 import { FallaCard } from '@/components/fallas/FallaCard';
 import { useRonda } from '@/hooks/useRonda';
+import { useClaveProyecto, useRuta } from '@/hooks/useProyecto';
 import { useSesion } from '@/hooks/useSesion';
 import { PERMISOS } from '@/utils/permisos';
 import { useContenido, useFallas } from '@/hooks/useValidacion';
@@ -14,17 +15,20 @@ import { consulta as aConsulta } from '@/services/api';
 import { urlInformeFallas } from '@/services/validacion';
 import { zonaHoraria } from '@/utils/informeFallas';
 import { ESTADOS_FALLA, SEVERIDADES, opciones } from '@/utils/etiquetas';
+import { Document, Download, Filter } from 'tesela/react';
 
 const TIPOS = [
     { valor: 'falla', texto: 'Fallas' },
     { valor: 'no_pude', texto: 'No pude probarlo' },
 ];
 
-const ENLACE = 'inline-flex h-[30px] items-center rounded-full border border-primario px-4 tipo-negrita text-xs text-primario hover:bg-primario-suave';
+const ENLACE = 'inline-flex h-[30px] items-center gap-1.5 rounded-full border border-primario px-4 tipo-negrita text-xs text-primario hover:bg-primario-suave';
 
 const Fallas = () => {
     const { puede } = useSesion();
     const { ronda, rondas } = useRonda();
+    const ruta = useRuta();
+    const proyecto = useClaveProyecto();
     const { data: contenido } = useContenido();
     const [params] = useSearchParams();
     const [filtros, setFiltros] = useState(() => ({
@@ -48,8 +52,8 @@ const Fallas = () => {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="tipo-negrita text-lg text-texto">Fallas reportadas</h1>
                     <div className="flex flex-wrap gap-2">
-                        <a href={urlInformeFallas({ ...consulta, tz: zonaHoraria() })} download className={ENLACE}>Descargar CSV</a>
-                        <Link to={`/informe-fallas${aConsulta(consulta)}`} className={ENLACE}>Informe imprimible</Link>
+                        <a href={urlInformeFallas({ ...consulta, proyecto, tz: zonaHoraria() })} download className={ENLACE}><Download size={16} className="shrink-0" />Descargar CSV</a>
+                        <Link to={ruta(`/informe-fallas${aConsulta(consulta)}`)} className={ENLACE}><Document size={16} className="shrink-0" />Informe imprimible</Link>
                     </div>
                 </div>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -62,7 +66,7 @@ const Fallas = () => {
             </Tarjeta>
             {isPending && <Spinner pantalla />}
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
-            {data && !data.length && <EmptyState titulo="No hay fallas con estos filtros" />}
+            {data && !data.length && <EmptyState icono={Filter} titulo="No hay fallas con estos filtros" />}
             {data?.length > 0 && (
                 <ul className="flex flex-col gap-4">
                     {data.map((f) => <FallaCard key={`${f.id}-${f.nota_resolucion}`} falla={f} editable={puede(PERMISOS.gestionarFallas)} />)}

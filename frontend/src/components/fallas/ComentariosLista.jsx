@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Check, Copy } from 'tesela/react';
+import { Alert, Check, Copy } from 'tesela/react';
 import { Chip } from '@/components/Chip';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
@@ -8,6 +8,7 @@ import { Tarjeta, Titulo } from '@/components/Tarjeta';
 import { useComentarios } from '@/hooks/useValidacion';
 import { formatearFecha } from '@/utils/formato';
 import { copiarTexto } from '@/utils/portapapeles';
+import { useRuta } from '@/hooks/useProyecto';
 
 const paraTaiga = (c) => [
     `[${c.caso_id}] ${c.caso_titulo} — ${c.tipo === 'no_pude' ? 'no pudo probarlo' : `paso ${c.paso + 1}`}`,
@@ -30,6 +31,7 @@ const CopiarTaiga = ({ comentario }) => {
 };
 
 export const ComentariosLista = ({ rondaId, sistema }) => {
+    const ruta = useRuta();
     const { data, isPending, error, refetch } = useComentarios(rondaId);
     const visibles = (data ?? []).filter((c) => !sistema || c.sistema === sistema);
 
@@ -44,10 +46,11 @@ export const ComentariosLista = ({ rondaId, sistema }) => {
                     {visibles.map((c) => (
                         <li key={`${c.caso_id}-${c.usuario_email}-${c.tipo}-${c.paso}`} className="rounded-2xl bg-fondo px-5 py-3">
                             <div className="flex flex-wrap items-center gap-2">
-                                <Link to={`/caso/${encodeURIComponent(c.caso_id)}`} className="tipo-negrita text-sm text-primario hover:underline">
+                                <Link to={ruta(`/caso/${encodeURIComponent(c.caso_id)}`)} className="tipo-negrita text-sm text-primario hover:underline">
                                     {c.caso_id} · {c.caso_titulo}
                                 </Link>
                                 <Chip tono={c.tipo === 'no_pude' ? 'aviso' : 'marca'}>
+                                    {c.tipo === 'no_pude' && <Alert size={16} className="shrink-0" />}
                                     {c.tipo === 'no_pude' ? 'No pudo probarlo' : `Paso ${c.paso + 1}`}
                                 </Chip>
                                 <CopiarTaiga comentario={c} />

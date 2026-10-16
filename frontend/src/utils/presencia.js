@@ -27,8 +27,8 @@ export const haceTiempo = (segundos) => {
     return `hace ${Math.floor(segundos / 60)} min`;
 };
 
-export const enlacePresencia = (p) => {
+export const enlacePresencia = (p, ruta = (r) => r) => {
     if (!p.caso_id) return null;
     const caso = `/caso/${encodeURIComponent(p.caso_id)}`;
-    return p.paso ? `${caso}?paso=${p.paso}` : caso;
+    return ruta(p.paso ? `${caso}?paso=${p.paso}` : caso);
 };

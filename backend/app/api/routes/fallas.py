@@ -13,12 +13,13 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
-from app.api.deps import Actor, lectura_o_permiso, require_permission
+from app.api.deps import Actor, lectura_o_permiso, proyecto_actual, require_permission
 from app.core.database import get_db
 from app.core.permisos import EJECUTAR_CASOS, GESTIONAR_FALLAS
 from app.core.time import utcnow
+from app.models.proyecto import Proyecto
 from app.schemas.falla import EstadoFalla, FallaResponse, FallaUpdate, Reproducible, TipoFalla
-from app.services import contenido, evidencias, fallas, informe_fallas, rondas
+from app.services import contenido, evidencias, fallas, informe_fallas, proyectos, rondas
 
 router = APIRouter(prefix="/api/fallas", tags=["fallas"])
 
@@ -31,9 +32,15 @@ def filtro_fallas(
     severidad: SeveridadFiltro | None = Query(default=None),
     estado: EstadoFalla | None = Query(default=None),
     tipo: TipoFalla | None = Query(default=None),
+    proyecto: Proyecto = Depends(proyecto_actual),
 ) -> fallas.FiltroFallas:
     return fallas.FiltroFallas(
-        ronda=ronda, sistema=sistema, severidad=severidad, estado=estado, tipo=tipo
+        ronda=ronda,
+        sistema=sistema,
+        severidad=severidad,
+        estado=estado,
+        tipo=tipo,
+        proyecto_id=proyecto.id,
     )
 
 
@@ -41,9 +48,10 @@ def filtro_fallas(
 def listar_fallas(
     filtro: fallas.FiltroFallas = Depends(filtro_fallas),
     db: Session = Depends(get_db),
+    proyecto: Proyecto = Depends(proyecto_actual),
     _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
 ) -> list[FallaResponse]:
-    actual = contenido.obtener()
+    actual = contenido.obtener(proyecto)
     return [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
 
 
@@ -52,9 +60,10 @@ def informe_csv(
     filtro: fallas.FiltroFallas = Depends(filtro_fallas),
     tz: str | None = Query(default=None, max_length=64),
     db: Session = Depends(get_db),
+    proyecto: Proyecto = Depends(proyecto_actual),
     _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
 ) -> Response:
-    actual = contenido.obtener()
+    actual = contenido.obtener(proyecto)
     zona = informe_fallas.zona(tz)
     serializadas = [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
     nombre = informe_fallas.nombre_archivo(filtro.ronda, zona, utcnow())
@@ -87,7 +96,7 @@ async def reportar_falla(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Indica si la falla se repite"
         )
-    actual = contenido.obtener()
+    actual = contenido.obtener(proyectos.de_ronda(db, ronda_id))
     rondas.abierta_o_409(db, ronda_id)
     leidas = await evidencias.leer(imagenes)
     datos = fallas.NuevaFalla(
@@ -113,4 +122,4 @@ def actualizar_falla(
     _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> FallaResponse:
     falla = fallas.actualizar(db, falla_id, cambios)
-    return fallas.serializar(falla, contenido.obtener())
+    return fallas.serializar(falla, contenido.obtener(proyectos.de_ronda(db, falla.ronda_id)))

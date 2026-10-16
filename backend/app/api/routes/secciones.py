@@ -7,7 +7,7 @@ from app.api.deps import Actor, require_permission
 from app.core.database import get_db
 from app.core.permisos import EJECUTAR_CASOS
 from app.schemas.seccion import SeccionResultadoResponse
-from app.services import contenido, evidencias, secciones
+from app.services import contenido, evidencias, proyectos, secciones
 
 router = APIRouter(prefix="/api/secciones", tags=["secciones"])
 
@@ -36,4 +36,5 @@ async def marcar_seccion(
         url=url,
         tecnico=actor.ve("tecnico"),
     )
-    return secciones.aplicar(db, contenido.obtener(), actor.email, datos, leidas)
+    actual = contenido.obtener(proyectos.de_ronda(db, ronda_id))
+    return secciones.aplicar(db, actual, actor.email, datos, leidas)

@@ -5,6 +5,8 @@ import { Tarjeta, Titulo } from '@/components/Tarjeta';
 import { usePresentes } from '@/hooks/useValidacion';
 import { iniciales } from '@/utils/formato';
 import { describirPresencia, enlacePresencia, haceTiempo } from '@/utils/presencia';
+import { useRuta } from '@/hooks/useProyecto';
+import { Eye, User } from 'tesela/react';
 
 const PUNTO = {
     activo: { clase: 'bg-exito', texto: 'Activo' },
@@ -12,8 +14,9 @@ const PUNTO = {
 };
 
 const Persona = ({ persona }) => {
+    const ruta = useRuta();
     const punto = PUNTO[persona.estado];
-    const enlace = enlacePresencia(persona);
+    const enlace = enlacePresencia(persona, ruta);
     return (
         <li className="flex items-start gap-3 rounded-2xl bg-fondo p-3">
             <span className="relative flex h-[36px] w-[36px] shrink-0 items-center justify-center rounded-full bg-primario-claro tipo-negrita text-sm text-primario" aria-hidden="true">
@@ -40,10 +43,10 @@ export const EnLinea = () => {
 
     return (
         <Tarjeta>
-            <Titulo descripcion={data ? `${activos === 1 ? '1 persona activa' : `${activos} personas activas`} ahora · últimos 10 minutos` : 'Últimos 10 minutos'}>En línea</Titulo>
+            <Titulo icono={Eye} descripcion={data ? `${activos === 1 ? '1 persona activa' : `${activos} personas activas`} ahora · últimos 10 minutos` : 'Últimos 10 minutos'}>En línea</Titulo>
             {isPending && <Spinner />}
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
-            {data && !data.length && <EmptyState titulo="Nadie conectado en los últimos 10 minutos" />}
+            {data && !data.length && <EmptyState icono={User} titulo="Nadie conectado en los últimos 10 minutos" />}
             {data?.length > 0 && (
                 <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     {data.map((p) => <Persona key={p.email} persona={p} />)}

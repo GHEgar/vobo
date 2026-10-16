@@ -6,10 +6,12 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { SelectField } from '@/components/Field';
 import { useDecidirHerramienta } from '@/hooks/useValidacion';
 import { DECISIONES, HOY, SEVERIDADES, SUGERENCIAS, opciones } from '@/utils/etiquetas';
+import { useRuta } from '@/hooks/useProyecto';
 
 const CONTROL = 'block h-[40px] w-full rounded-[8px] border border-transparent bg-fondo px-4 tipo-media text-[13px] text-primario placeholder-texto-placeholder hover:border-primario hover:bg-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-primario';
 
 export const FilaHerramienta = ({ herramienta, rondaId, editable }) => {
+    const ruta = useRuta();
     const decidir = useDecidirHerramienta();
     const sugerida = herramienta.sugerencia === 'sin_probar' ? 'pendiente' : herramienta.sugerencia;
     const [decision, setDecision] = useState(herramienta.decision?.decision ?? sugerida);
@@ -25,7 +27,7 @@ export const FilaHerramienta = ({ herramienta, rondaId, editable }) => {
                     <span className="tipo-negrita text-sm text-texto">{herramienta.nombre}</span>
                     <Chip tono={HOY[herramienta.hoy].tono}>{HOY[herramienta.hoy].texto}</Chip>
                 </div>
-                <Link to={`/seccion/${herramienta.seccion_id}`} className="w-fit tipo-media text-xs text-primario hover:underline">
+                <Link to={ruta(`/seccion/${herramienta.seccion_id}`)} className="w-fit tipo-media text-xs text-primario hover:underline">
                     {herramienta.seccion_titulo}
                 </Link>
             </div>

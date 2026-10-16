@@ -12,6 +12,7 @@ import { useRonda } from '@/hooks/useRonda';
 import { useSesion } from '@/hooks/useSesion';
 import { PERMISOS } from '@/utils/permisos';
 import { useContenido, useHerramientas } from '@/hooks/useValidacion';
+import { Apps, Filter } from 'tesela/react';
 
 const Herramientas = () => {
     const { puede } = useSesion();
@@ -31,7 +32,7 @@ const Herramientas = () => {
     if (!ronda && !cargando) return <SinRonda />;
     if (isPending) return <Spinner pantalla />;
     if (error) return <ErrorState mensaje={error.message} onReintentar={refetch} />;
-    if (!data?.length) return <EmptyState titulo="El contenido todavía no declara herramientas" />;
+    if (!data?.length) return <EmptyState icono={Apps} titulo="El contenido todavía no declara herramientas" />;
 
     return (
         <>
@@ -55,7 +56,7 @@ const Herramientas = () => {
                     </div>
                 )}
             </Tarjeta>
-            {!grupos.length && <EmptyState titulo="No hay herramientas de este tipo" />}
+            {!grupos.length && <EmptyState icono={Filter} titulo="No hay herramientas de este tipo" />}
             {grupos.map(([sistema, herramientas]) => (
                 <Tarjeta key={sistema}>
                     <h2 className="mb-3 tipo-negrita text-base text-primario">{sistema}</h2>

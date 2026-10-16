@@ -1,6 +1,6 @@
 import { ProgressBar } from '@/components/ProgressBar';
 
-export const AvancePorProyecto = ({ grupos }) => (
+export const AvancePorSistema = ({ grupos }) => (
     <ul className="mt-4 flex flex-col gap-1">
         {grupos.map((g) => (
             <li key={g.clave} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-3 py-2 sm:grid-cols-[200px_minmax(0,1fr)_auto]">

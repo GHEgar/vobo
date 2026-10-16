@@ -41,6 +41,7 @@ class AvisoResponse(BaseModel):
     mensaje: str
     falla_id: int | None
     caso_id: str | None
+    proyecto_clave: str | None = None
     autor_email: str
     autor_nombre: str
     creado: datetime

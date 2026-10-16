@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { useRondas } from '@/hooks/useValidacion';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useProyecto } from '@/hooks/useProyecto';
 import { RondaContext } from '@/contexts/RondaContext';
 
-export const RondaProvider = ({ children }) => {
+const Elegida = ({ clave, children }) => {
     const { data: rondas = [], isPending, error } = useRondas();
-    const [elegida, setElegida] = useLocalStorageState('validacion.ronda', null);
+    const [elegida, setElegida] = useLocalStorageState(clave, null);
 
     const valor = useMemo(() => {
         const ronda = rondas.find((r) => r.id === elegida)
@@ -16,4 +17,10 @@ export const RondaProvider = ({ children }) => {
     }, [rondas, elegida, isPending, error, setElegida]);
 
     return <RondaContext value={valor}>{children}</RondaContext>;
+};
+
+export const RondaProvider = ({ children }) => {
+    const { proyecto } = useProyecto();
+    const clave = proyecto && !proyecto.por_omision ? `validacion.ronda.${proyecto.clave}` : 'validacion.ronda';
+    return <Elegida key={clave} clave={clave}>{children}</Elegida>;
 };

@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import Actor, get_actor, require_permission
+from app.api.deps import Actor, get_actor, proyecto_actual, require_permission
 from app.core.database import get_db
 from app.core.permisos import GESTIONAR_FALLAS
+from app.models.proyecto import Proyecto
 from app.models.ronda import Asignacion, Ronda
 from app.models.usuario import Usuario
 from app.schemas.ronda import (
@@ -15,14 +16,19 @@ from app.schemas.ronda import (
     RondaUpdate,
     UsuarioConocido,
 )
-from app.services import contenido, rondas
+from app.services import contenido, proyectos, rondas
 
 router = APIRouter(prefix="/api/rondas", tags=["rondas"])
 
 
 @router.get("", response_model=list[RondaResponse])
-def listar_rondas(db: Session = Depends(get_db), _actor: Actor = Depends(get_actor)) -> list[Ronda]:
-    return list(db.scalars(select(Ronda).order_by(Ronda.creada.desc(), Ronda.id.desc())))
+def listar_rondas(
+    db: Session = Depends(get_db),
+    proyecto: Proyecto = Depends(proyecto_actual),
+    _actor: Actor = Depends(get_actor),
+) -> list[Ronda]:
+    consulta = select(Ronda).where(Ronda.proyecto_id == proyecto.id)
+    return list(db.scalars(consulta.order_by(Ronda.creada.desc(), Ronda.id.desc())))
 
 
 @router.get("/usuarios", response_model=list[UsuarioConocido])
@@ -50,7 +56,20 @@ def crear_ronda(
     db: Session = Depends(get_db),
     _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> Ronda:
-    ronda = Ronda(nombre=datos.nombre.strip(), snapshot=datos.snapshot.strip(), abierta=True)
+    destino = (
+        proyectos.de_clave(db, datos.proyecto) if datos.proyecto else proyectos.por_omision(db)
+    )
+    if destino.archivado:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="El proyecto está archivado; desarchívalo para abrir rondas",
+        )
+    ronda = Ronda(
+        proyecto_id=destino.id,
+        nombre=datos.nombre.strip(),
+        snapshot=datos.snapshot.strip(),
+        abierta=True,
+    )
     db.add(ronda)
     db.commit()
     db.refresh(ronda)
@@ -89,5 +108,6 @@ def reemplazar_asignaciones(
     _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> list[Asignacion]:
     ronda = rondas.obtener_o_404(db, ronda_id)
-    validas = {s.id for s in contenido.obtener().respuesta.secciones}
+    del_proyecto = contenido.obtener(proyectos.obtener_o_404(db, ronda.proyecto_id))
+    validas = {s.id for s in del_proyecto.respuesta.secciones}
     return rondas.reemplazar_asignaciones(db, ronda, items, validas)

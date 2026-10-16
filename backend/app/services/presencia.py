@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
 
@@ -13,7 +13,9 @@ VENTANA = timedelta(minutes=10)
 ACTIVO = timedelta(minutes=2)
 
 
-def registrar(db: Session, email: str, nombre: str, datos: PresenciaCreate) -> None:
+def registrar(
+    db: Session, email: str, nombre: str, datos: PresenciaCreate, proyecto_id: int | None
+) -> None:
     valores = {
         "nombre": nombre[:200],
         "ruta": datos.ruta,
@@ -22,6 +24,7 @@ def registrar(db: Session, email: str, nombre: str, datos: PresenciaCreate) -> N
         "seccion_id": datos.seccion_id,
         "accion": datos.accion,
         "ronda_id": datos.ronda_id,
+        "proyecto_id": proyecto_id,
         "actualizado": utcnow(),
     }
     sentencia = insert(Presencia).values(usuario_email=email, **valores)
@@ -59,11 +62,16 @@ def _serializar(
     )
 
 
-def listar(db: Session, contenido: Contenido, solicitante: str) -> list[PresenciaResponse]:
+def listar(
+    db: Session, contenido: Contenido, solicitante: str, proyecto_id: int
+) -> list[PresenciaResponse]:
     ahora = utcnow()
     consulta = (
         select(Presencia)
-        .where(Presencia.actualizado >= ahora - VENTANA)
+        .where(
+            Presencia.actualizado >= ahora - VENTANA,
+            or_(Presencia.proyecto_id == proyecto_id, Presencia.proyecto_id.is_(None)),
+        )
         .order_by(Presencia.actualizado.desc())
     )
     return [_serializar(f, contenido, solicitante, ahora) for f in db.scalars(consulta)]

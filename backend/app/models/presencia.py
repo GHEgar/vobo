@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from app.core.database import Base
 from app.core.time import utcnow
@@ -15,4 +15,7 @@ class Presencia(Base):
     seccion_id = Column(String(120), nullable=True)
     accion = Column(String(30), nullable=False, default="viendo")
     ronda_id = Column(Integer, nullable=True)
+    proyecto_id = Column(
+        Integer, ForeignKey("proyectos.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     actualizado = Column(DateTime(timezone=True), nullable=False, default=utcnow, index=True)

@@ -2,6 +2,8 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { PresenciaContext } from '@/contexts/PresenciaContext';
 import { useRonda } from '@/hooks/useRonda';
+import { useSesion } from '@/hooks/useSesion';
+import { useClaveProyecto } from '@/hooks/useProyecto';
 import { registrarPresencia } from '@/services/validacion';
 
 const INTERVALO_MS = 30 * 1000;
@@ -22,7 +24,7 @@ const segmento = (pathname, prefijo) => {
     }
 };
 
-const construir = ({ pathname, search }, rondaId, detalle) => {
+const construir = ({ pathname, search }, rondaId, proyecto, detalle) => {
     const casoId = segmento(pathname, 'caso');
     const propio = detalle && detalle.casoId === casoId ? detalle : null;
     return {
@@ -32,20 +34,24 @@ const construir = ({ pathname, search }, rondaId, detalle) => {
         seccion_id: segmento(pathname, 'seccion')?.slice(0, 120) ?? null,
         accion: propio?.accion ?? 'viendo',
         ronda_id: rondaId ?? null,
+        proyecto,
     };
 };
 
 export const usePresencia = () => {
     const ubicacion = useLocation();
     const { ronda } = useRonda();
+    const { csrf } = useSesion();
+    const proyecto = useClaveProyecto();
     const [detalle, setDetalle] = useState(null);
     const datos = useMemo(
-        () => construir(ubicacion, ronda?.id, detalle),
-        [ubicacion, ronda?.id, detalle],
+        () => construir(ubicacion, ronda?.id, proyecto, detalle),
+        [ubicacion, ronda?.id, proyecto, detalle],
     );
     const clave = JSON.stringify(datos);
 
     useEffect(() => {
+        if (!csrf) return undefined;
         const cuerpo = JSON.parse(clave);
         const enviar = () => {
             if (document.visibilityState === 'visible') registrarPresencia(cuerpo).catch(() => {});
@@ -57,7 +63,7 @@ export const usePresencia = () => {
             clearInterval(intervalo);
             document.removeEventListener('visibilitychange', enviar);
         };
-    }, [clave]);
+    }, [clave, csrf]);
 
     return setDetalle;
 };

@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, field_validator
 class RondaCreate(BaseModel):
     nombre: str = Field(min_length=1, max_length=120)
     snapshot: str = Field(default="", max_length=200)
+    proyecto: str | None = Field(default=None, max_length=60)
 
 
 class RondaUpdate(BaseModel):
@@ -16,6 +17,7 @@ class RondaUpdate(BaseModel):
 
 class RondaResponse(BaseModel):
     id: int
+    proyecto_id: int
     nombre: str
     snapshot: str
     abierta: bool

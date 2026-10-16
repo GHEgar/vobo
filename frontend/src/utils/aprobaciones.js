@@ -1,4 +1,4 @@
-import { nombreProyecto, ordenarProyectos } from '@/utils/proyectos';
+import { nombreSistema, ordenarSistemas } from '@/utils/sistemas';
 
 export const FILTROS = [
     { clave: 'pendientes', texto: 'Pendientes', acepta: (e) => e === 'pendiente' },
@@ -26,7 +26,7 @@ export const combinar = (herramientas, aprobaciones) => {
     });
 };
 
-export const agruparPorSistema = (proyectos, items) => ordenarProyectos(proyectos, [...new Set(items.map((h) => h.sistema))])
-    .map((clave) => ({ clave, nombre: nombreProyecto(proyectos, clave), herramientas: items.filter((h) => h.sistema === clave) }));
+export const agruparPorSistema = (sistemas, items) => ordenarSistemas(sistemas, [...new Set(items.map((h) => h.sistema))])
+    .map((clave) => ({ clave, nombre: nombreSistema(sistemas, clave), herramientas: items.filter((h) => h.sistema === clave) }));
 
 export const contar = (items) => FILTROS.reduce((cuentas, f) => ({ ...cuentas, [f.clave]: items.filter((h) => f.acepta(h.aprobacion.estado)).length }), {});

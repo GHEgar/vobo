@@ -7,7 +7,7 @@ from app.api.deps import Actor, lectura_o_permiso
 from app.core.database import get_db
 from app.core.permisos import VER_TABLERO
 from app.schemas.tablero import TableroResponse
-from app.services import contenido, rondas, tablero
+from app.services import contenido, proyectos, rondas, tablero
 
 router = APIRouter(prefix="/api/tablero", tags=["tablero"])
 
@@ -19,4 +19,6 @@ def obtener_tablero(
     db: Session = Depends(get_db),
     _actor: Actor = Depends(lectura_o_permiso(VER_TABLERO, "tablero")),
 ) -> TableroResponse:
-    return tablero.calcular(db, contenido.obtener(), rondas.obtener_o_404(db, ronda), audiencia)
+    actual = rondas.obtener_o_404(db, ronda)
+    del_proyecto = contenido.obtener(proyectos.de_ronda(db, ronda))
+    return tablero.calcular(db, del_proyecto, actual, audiencia)

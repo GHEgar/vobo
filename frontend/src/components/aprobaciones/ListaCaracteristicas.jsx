@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { ChipResultado } from '@/components/ChipResultado';
 import { MediaImagen } from '@/components/MediaImagen';
 import { Modal } from '@/components/Modal';
 import { BotonesAprobacion } from '@/components/aprobaciones/BotonesAprobacion';
 import { QuienCuando } from '@/components/aprobaciones/QuienCuando';
-import { APROBACIONES, ESTADOS_RESULTADO } from '@/utils/etiquetas';
+import { APROBACIONES } from '@/utils/etiquetas';
 import { animacionDe } from '@/utils/aprobaciones';
+import { Play } from 'tesela/react';
 
 export const ListaCaracteristicas = ({ caracteristicas, indice, puedeAprobar, onDecidir, guardando }) => {
     const [viendo, setViendo] = useState(null);
@@ -22,10 +24,10 @@ export const ListaCaracteristicas = ({ caracteristicas, indice, puedeAprobar, on
                                 <p className="tipo-negrita text-sm text-texto">{c.titulo}</p>
                                 <div className="mt-1 flex flex-wrap items-center gap-2">
                                     <span className="tipo-media text-[11px] text-texto-apagado">{c.caso_id}</span>
-                                    <Chip tono={ESTADOS_RESULTADO[c.estado].tono}>{ESTADOS_RESULTADO[c.estado].texto}</Chip>
+                                    <ChipResultado estado={c.estado} />
                                     {c.fallas_abiertas > 0 && <Chip tono="error">{c.fallas_abiertas} falla(s) abierta(s)</Chip>}
                                     <Chip tono={aprobacion.tono}>{aprobacion.texto}</Chip>
-                                    {animacion && <Button label="Ver cómo" variant="link" small onClick={() => setViendo({ titulo: c.titulo, animacion })} />}
+                                    {animacion && <Button label="Ver cómo" icono={<Play size={16} />} variant="link" small onClick={() => setViendo({ titulo: c.titulo, animacion })} />}
                                 </div>
                                 <QuienCuando registro={c.aprobacion.actual} prefijo={c.aprobacion.origen === 'herramienta' ? 'Por la herramienta' : null} />
                             </div>

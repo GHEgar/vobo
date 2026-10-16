@@ -5,7 +5,7 @@ from app.api.deps import Actor, lectura_o_permiso, require_permission
 from app.core.database import get_db
 from app.core.permisos import APROBAR
 from app.schemas.aprobacion import AprobacionCreate, AprobacionesResponse
-from app.services import aprobaciones, contenido, rondas
+from app.services import aprobaciones, contenido, proyectos
 
 router = APIRouter(prefix="/api/aprobaciones", tags=["aprobaciones"])
 
@@ -16,8 +16,7 @@ def listar_aprobaciones(
     db: Session = Depends(get_db),
     _actor: Actor = Depends(lectura_o_permiso(APROBAR, "aprobaciones")),
 ) -> AprobacionesResponse:
-    rondas.obtener_o_404(db, ronda)
-    return aprobaciones.estado(db, contenido.obtener(), ronda)
+    return aprobaciones.estado(db, contenido.obtener(proyectos.de_ronda(db, ronda)), ronda)
 
 
 @router.post("", response_model=AprobacionesResponse, status_code=status.HTTP_201_CREATED)
@@ -26,7 +25,6 @@ def registrar_aprobaciones(
     db: Session = Depends(get_db),
     actor: Actor = Depends(require_permission(APROBAR)),
 ) -> AprobacionesResponse:
-    rondas.obtener_o_404(db, datos.ronda_id)
-    actual = contenido.obtener()
+    actual = contenido.obtener(proyectos.de_ronda(db, datos.ronda_id))
     aprobaciones.registrar(db, actual, actor.email, actor.nombre, datos)
     return aprobaciones.estado(db, actual, datos.ronda_id)

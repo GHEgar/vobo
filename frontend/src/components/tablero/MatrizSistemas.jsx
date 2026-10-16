@@ -1,10 +1,10 @@
 import { Chip } from '@/components/Chip';
 import { ProgressBar } from '@/components/ProgressBar';
-import { useProyectos } from '@/hooks/useInstancia';
-import { nombreProyecto, ordenarProyectos } from '@/utils/proyectos';
+import { useSistemas } from '@/hooks/useInstancia';
+import { nombreSistema, ordenarSistemas } from '@/utils/sistemas';
 
 const Celda = ({ celda }) => {
-    if (!celda?.asignado) return <span className="tipo-media text-sm text-gris" title="Sin secciones asignadas en este proyecto">—</span>;
+    if (!celda?.asignado) return <span className="tipo-media text-sm text-gris" title="Sin secciones asignadas en este sistema">—</span>;
     return (
         <div className="flex min-w-[90px] flex-col gap-1">
             <span className="tipo-negrita text-xs text-texto">{celda.hechos}/{celda.total}</span>
@@ -14,15 +14,15 @@ const Celda = ({ celda }) => {
     );
 };
 
-const sumar = (filas, proyecto) => filas.reduce((total, fila) => {
-    const celda = fila[proyecto];
+const sumar = (filas, sistema) => filas.reduce((total, fila) => {
+    const celda = fila[sistema];
     if (!celda?.asignado) return total;
     return { asignado: true, hechos: total.hechos + celda.hechos, total: total.total + celda.total, falla: total.falla + celda.falla };
 }, { asignado: false, hechos: 0, total: 0, falla: 0 });
 
-export const MatrizProyectos = ({ tablero }) => {
-    const lista = useProyectos();
-    const proyectos = ordenarProyectos(lista, tablero.proyectos);
+export const MatrizSistemas = ({ tablero }) => {
+    const lista = useSistemas();
+    const sistemas = ordenarSistemas(lista, tablero.proyectos);
     const personas = tablero.personas.filter((p) => tablero.por_proyecto[p.email]);
     const filas = personas.map((p) => tablero.por_proyecto[p.email]);
 
@@ -32,11 +32,11 @@ export const MatrizProyectos = ({ tablero }) => {
                 <thead>
                     <tr>
                         <th scope="col" className="px-3 align-bottom tipo-media text-xs text-texto-apagado">Persona</th>
-                        {proyectos.map((p) => {
+                        {sistemas.map((p) => {
                             const cobertura = tablero.cobertura[p] ?? 0;
                             return (
                                 <th key={p} scope="col" className="px-3 align-bottom">
-                                    <span className="block tipo-media text-xs text-texto-apagado">{nombreProyecto(lista, p)}</span>
+                                    <span className="block tipo-media text-xs text-texto-apagado">{nombreSistema(lista, p)}</span>
                                     <span className="mt-1 block">
                                         {cobertura ? (
                                             <span className="tipo-media text-[11px] text-texto-tenue">{cobertura} {cobertura === 1 ? 'persona' : 'personas'}</span>
@@ -56,8 +56,8 @@ export const MatrizProyectos = ({ tablero }) => {
                                 {persona.nombre}
                                 <span className="block tipo-media text-[11px] text-texto-apagado">{persona.email}</span>
                             </th>
-                            {proyectos.map((p, j) => (
-                                <td key={p} className={`px-3 py-3 ${j === proyectos.length - 1 ? 'rounded-r-xl' : ''}`}>
+                            {sistemas.map((p, j) => (
+                                <td key={p} className={`px-3 py-3 ${j === sistemas.length - 1 ? 'rounded-r-xl' : ''}`}>
                                     <Celda celda={filas[i][p]} />
                                 </td>
                             ))}
@@ -65,8 +65,8 @@ export const MatrizProyectos = ({ tablero }) => {
                     ))}
                     <tr className="bg-primario-claro">
                         <th scope="row" className="rounded-l-xl px-3 py-3 tipo-negrita text-sm text-primario">Equipo</th>
-                        {proyectos.map((p, j) => (
-                            <td key={p} className={`px-3 py-3 ${j === proyectos.length - 1 ? 'rounded-r-xl' : ''}`}>
+                        {sistemas.map((p, j) => (
+                            <td key={p} className={`px-3 py-3 ${j === sistemas.length - 1 ? 'rounded-r-xl' : ''}`}>
                                 <Celda celda={sumar(filas, p)} />
                             </td>
                         ))}

@@ -6,6 +6,7 @@ import { BotonesAprobacion } from '@/components/aprobaciones/BotonesAprobacion';
 import { ListaCaracteristicas } from '@/components/aprobaciones/ListaCaracteristicas';
 import { QuienCuando } from '@/components/aprobaciones/QuienCuando';
 import { APROBACIONES, DECISIONES, HOY, SEVERIDADES, SUGERENCIAS } from '@/utils/etiquetas';
+import { useRuta } from '@/hooks/useProyecto';
 
 const Recomendacion = ({ herramienta }) => {
     const decision = herramienta.decision;
@@ -27,6 +28,7 @@ const Recomendacion = ({ herramienta }) => {
 };
 
 export const TarjetaAprobacion = ({ herramienta, indice, puedeAprobar, onDecidir, guardando }) => {
+    const ruta = useRuta();
     const [abierta, setAbierta] = useState(false);
     const fallas = Object.entries(herramienta.fallas_abiertas).filter(([, n]) => n > 0);
     const estado = APROBACIONES[herramienta.aprobacion.estado];
@@ -40,7 +42,7 @@ export const TarjetaAprobacion = ({ herramienta, indice, puedeAprobar, onDecidir
                         <span className="tipo-negrita text-base text-texto">{herramienta.nombre}</span>
                         <Chip tono={HOY[herramienta.hoy].tono}>{HOY[herramienta.hoy].texto}</Chip>
                     </div>
-                    <Link to={`/seccion/${herramienta.seccion_id}`} className="tipo-media text-xs text-primario hover:underline">{herramienta.seccion_titulo}</Link>
+                    <Link to={ruta(`/seccion/${herramienta.seccion_id}`)} className="tipo-media text-xs text-primario hover:underline">{herramienta.seccion_titulo}</Link>
                 </div>
                 <div className="text-right">
                     <Chip tono={estado.tono}>{estado.texto}</Chip>
@@ -51,7 +53,7 @@ export const TarjetaAprobacion = ({ herramienta, indice, puedeAprobar, onDecidir
             <div className="flex flex-wrap items-center gap-2 tipo-media text-xs text-texto-tenue">
                 <span>{pasa} pasa · {falla} falla · {noPude} no pude{pendiente ? ` · ${pendiente} sin probar` : ''}</span>
                 {fallas.map(([severidad, n]) => (
-                    <Link key={severidad} to={`/fallas?sistema=${encodeURIComponent(herramienta.sistema)}&severidad=${severidad}`}>
+                    <Link key={severidad} to={ruta(`/fallas?sistema=${encodeURIComponent(herramienta.sistema)}&severidad=${severidad}`)}>
                         <Chip tono={SEVERIDADES[severidad].tono}>{n} {SEVERIDADES[severidad].texto.toLowerCase()} abierta(s)</Chip>
                     </Link>
                 ))}

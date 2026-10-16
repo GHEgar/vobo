@@ -1,8 +1,9 @@
 import { useRef } from 'react';
+import { AgregarFantasma } from '@/components/edicion/Editable';
 import { FilaSeccion } from '@/components/inicio/FilaSeccion';
 import { SelectorModo } from '@/components/inicio/SelectorModo';
 
-export const PestanasProyectos = ({ id, grupos, estados, elegido, onElegir, modos = {}, onCambiarModo, destacado }) => {
+export const PestanasSistemas = ({ id, grupos, estados, elegido, onElegir, modos = {}, onCambiarModo, destacado, edicion = null }) => {
     const pestanasRef = useRef([]);
     const indice = Math.max(0, grupos.findIndex((g) => g.clave === elegido));
     const activo = grupos[indice];
@@ -25,14 +26,14 @@ export const PestanasProyectos = ({ id, grupos, estados, elegido, onElegir, modo
     const lista = modo === 'tecnica' ? tecnicas : funcionales;
 
     return (
-        <section id={id} className="scroll-mt-28 rounded-2xl bg-white shadow-[0px_3px_12px_var(--color-sombra-tenue)]">
+        <section id={id} className="scroll-mt-40 rounded-2xl bg-white sm:scroll-mt-36 shadow-[0px_3px_12px_var(--color-sombra-tenue)]">
             <h2 className="px-4 pt-5 tipo-negrita text-lg text-texto md:px-6">
                 Secciones <span className="tipo-media text-sm text-texto-apagado">({grupos.reduce((n, g) => n + g.secciones.length, 0)})</span>
             </h2>
             <div className="md:grid md:grid-cols-[240px_minmax(0,1fr)] md:gap-4 md:px-6 md:pb-5">
                 <div
                     role="tablist"
-                    aria-label="Proyectos"
+                    aria-label="Sistemas"
                     aria-orientation="vertical"
                     className="flex gap-2 overflow-x-auto px-4 pt-4 pb-3 [scrollbar-width:none] [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)] md:max-h-[60dvh] md:flex-col md:overflow-x-visible md:overflow-y-auto md:px-0 md:py-4 md:[mask-image:linear-gradient(to_bottom,transparent,black_16px,black_calc(100%-16px),transparent)]"
                 >
@@ -60,7 +61,7 @@ export const PestanasProyectos = ({ id, grupos, estados, elegido, onElegir, modo
                 </div>
                 <div role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-tab-${activo.clave}`} tabIndex={0} className="px-4 pb-5 md:px-0 md:pt-4 md:pb-0">
                     {ambos && (
-                        <div className="mb-3">
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
                             <SelectorModo
                                 modo={modo}
                                 onCambiar={(valor) => onCambiarModo(activo.clave, valor)}
@@ -69,7 +70,21 @@ export const PestanasProyectos = ({ id, grupos, estados, elegido, onElegir, modo
                         </div>
                     )}
                     <ul className="flex flex-col gap-3">
-                        {lista.map((s) => <FilaSeccion key={`${activo.clave}-${modo}-${s.id}`} seccion={s} estados={estados} abiertoInicial={lista.length === 1 || s.casos.some((c) => c.id === destacado)} destacado={destacado} />)}
+                        {lista.map((s) => (
+                            <FilaSeccion
+                                key={`${activo.clave}-${modo}-${s.id}`}
+                                seccion={s}
+                                estados={estados}
+                                abiertoInicial={lista.length === 1 || s.casos.some((c) => c.id === destacado)}
+                                destacado={destacado}
+                                acciones={edicion?.acciones(s, lista)}
+                            />
+                        ))}
+                        {edicion && (
+                            <li>
+                                <AgregarFantasma texto="Agregar sección" onClick={() => edicion.onNueva(activo.clave, modo)} />
+                            </li>
+                        )}
                     </ul>
                 </div>
             </div>

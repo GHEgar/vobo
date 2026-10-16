@@ -14,10 +14,14 @@ def listar(
     ronda_id: int | None,
     caso_id: str | None = None,
     email: str | None = None,
+    proyecto_id: int | None = None,
 ) -> list[ComentarioResponse]:
     consulta = select(Resultado).order_by(Resultado.actualizado.desc())
     if ronda_id is not None:
         consulta = consulta.where(Resultado.ronda_id == ronda_id)
+    elif proyecto_id is not None:
+        del_proyecto = select(Ronda.id).where(Ronda.proyecto_id == proyecto_id)
+        consulta = consulta.where(Resultado.ronda_id.in_(del_proyecto))
     if caso_id is not None:
         consulta = consulta.where(Resultado.caso_id == caso_id)
     if email is not None:

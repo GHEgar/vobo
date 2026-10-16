@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
+import { ChipResultado } from '@/components/ChipResultado';
 import { AvisarFalla } from '@/components/avisos/AvisarFalla';
 import { MediaImagen } from '@/components/MediaImagen';
 import { Modal } from '@/components/Modal';
@@ -31,7 +32,7 @@ export const FallaCard = ({ falla, editable }) => {
                         <Chip tono={SEVERIDADES[falla.severidad].tono}>{SEVERIDADES[falla.severidad].texto}</Chip>
                         <Chip tono="marca">{falla.sistema || 'sin sistema'}</Chip>
                         {falla.seccion_completa && <Chip tono="aviso">Sección completa</Chip>}
-                        {falla.tipo === 'no_pude' && <Chip tono="neutro">No pude probarlo</Chip>}
+                        {falla.tipo === 'no_pude' && <ChipResultado estado="no_pude" />}
                     </div>
                     <h3 className="tipo-negrita text-base text-texto">
                         {falla.seccion_completa ? falla.seccion_titulo : falla.caso_titulo || falla.caso_id}

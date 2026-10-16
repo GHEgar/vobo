@@ -7,25 +7,41 @@ import {
     noLeidosSchema,
     personasAvisoSchema,
     presenciasSchema,
+    proyectosSchema,
     resultadosBusquedaSchema,
     sesionSchema,
 } from '@/services/esquemas';
 
-export const fetchInstancia = async () => instanciaSchema.parse(await solicitar('/instancia'));
+export const fetchInstancia = async (proyecto) => instanciaSchema.parse(await solicitar(`/instancia${consulta({ proyecto })}`));
+export const fetchVersion = () => solicitar('/version');
 export const fetchModo = () => solicitar('/auth/modo');
 export const fetchSesion = async () => sesionSchema.parse(await solicitar('/auth/me'));
 export const fetchUsuariosLocales = () => solicitar('/auth/usuarios-locales');
 export const entrarLocal = (clave) => solicitar('/auth/local', { method: 'POST', json: { clave } });
 export const salir = () => solicitar('/auth/logout', { method: 'POST' });
+export const entrarCuenta = (datos) => solicitar('/auth/entrar', { method: 'POST', json: datos });
+export const fetchInvitacion = (token) => solicitar(`/auth/invitacion/${encodeURIComponent(token)}`);
+export const aceptarInvitacion = ({ token, ...datos }) => solicitar(
+    `/auth/invitacion/${encodeURIComponent(token)}`,
+    { method: 'POST', json: datos },
+);
+export const fetchRestablecimiento = (token) => solicitar(`/auth/restablecer/${encodeURIComponent(token)}`);
+export const restablecer = ({ token, ...datos }) => solicitar(
+    `/auth/restablecer/${encodeURIComponent(token)}`,
+    { method: 'POST', json: datos },
+);
+export const cambiarContrasena = (datos) => solicitar('/auth/contrasena', { method: 'POST', json: datos });
 
-export const fetchContenido = async () => contenidoSchema.parse(await solicitar('/contenido'));
+export const fetchProyectos = async () => proyectosSchema.parse(await solicitar('/proyectos'));
 
-export const buscar = async (q, rondaId, signal) => resultadosBusquedaSchema.parse(await solicitar(
-    `/buscar${consulta({ q, ronda: rondaId })}`,
+export const fetchContenido = async (proyecto) => contenidoSchema.parse(await solicitar(`/contenido${consulta({ proyecto })}`));
+
+export const buscar = async (q, rondaId, proyecto, signal) => resultadosBusquedaSchema.parse(await solicitar(
+    `/buscar${consulta({ q, ronda: rondaId, proyecto })}`,
     { signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]) },
 ));
 
-export const fetchRondas = () => solicitar('/rondas');
+export const fetchRondas = (proyecto) => solicitar(`/rondas${consulta({ proyecto })}`);
 export const crearRonda = (datos) => solicitar('/rondas', { method: 'POST', json: datos });
 export const actualizarRonda = ({ id, ...cambios }) => solicitar(`/rondas/${id}`, { method: 'PATCH', json: cambios });
 export const borrarRonda = (id) => solicitar(`/rondas/${id}`, { method: 'DELETE' });
@@ -55,7 +71,7 @@ export const decidirHerramienta = ({ herramientaId, ...datos }) => solicitar(
     { method: 'PUT', json: datos },
 );
 
-export const fetchComentarios = (rondaId) => solicitar(`/comentarios${consulta({ ronda: rondaId })}`);
+export const fetchComentarios = (rondaId, proyecto) => solicitar(`/comentarios${consulta({ ronda: rondaId, proyecto })}`);
 export const fetchAccesos = () => solicitar('/accesos');
 export const guardarAccesos = (items) => solicitar('/accesos', { method: 'PUT', json: items });
 export const fetchComentariosCaso = (casoId, rondaId) => solicitar(
@@ -73,4 +89,4 @@ export const marcarAvisosLeidos = async () => noLeidosSchema.parse(await solicit
 export const crearAviso = async (datos) => avisosSchema.parse(await solicitar('/avisos', { method: 'POST', json: datos }));
 
 export const registrarPresencia = (datos) => solicitar('/presencia', { method: 'POST', json: datos });
-export const fetchPresencia = async () => presenciasSchema.parse(await solicitar('/presencia'));
+export const fetchPresencia = async (proyecto) => presenciasSchema.parse(await solicitar(`/presencia${consulta({ proyecto })}`));

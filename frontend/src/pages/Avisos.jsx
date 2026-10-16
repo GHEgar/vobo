@@ -9,10 +9,14 @@ import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 import { NuevoAviso } from '@/components/avisos/NuevoAviso';
 import { useAvisos, useMarcarAvisoLeido, useMarcarAvisosLeidos } from '@/hooks/useAvisos';
 import { useSesion } from '@/hooks/useSesion';
+import { useProyecto } from '@/hooks/useProyecto';
+import { claveDeEnlace, conProyecto } from '@/utils/enlaces';
 import { PERMISOS } from '@/utils/permisos';
 import { formatearFecha, formatearRelativa } from '@/utils/formato';
+import { Bell } from 'tesela/react';
 
 const AvisoItem = ({ aviso, onLeer }) => {
+    const { proyectos } = useProyecto();
     const [abierto, setAbierto] = useState(false);
     const nuevo = !aviso.leido;
     const leer = () => {
@@ -46,7 +50,7 @@ const AvisoItem = ({ aviso, onLeer }) => {
                 <TextoConEnlaces texto={aviso.mensaje} />
             </p>
             {aviso.caso_id && (
-                <Link to={`/caso/${encodeURIComponent(aviso.caso_id)}`} onClick={leer} className="mt-3 inline-flex tipo-negrita text-sm text-primario hover:underline">
+                <Link to={conProyecto(`/caso/${encodeURIComponent(aviso.caso_id)}`, claveDeEnlace(aviso.proyecto_clave, proyectos))} onClick={leer} className="mt-3 inline-flex tipo-negrita text-sm text-primario hover:underline">
                     Ir al caso {aviso.caso_id}
                 </Link>
             )}
@@ -87,7 +91,7 @@ const Avisos = () => {
             {isPending && <Spinner pantalla />}
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
             {data && !data.length && (
-                <EmptyState titulo="No tienes avisos" descripcion="Cuando coordinación atienda uno de tus reportes o quiera decirte algo, lo verás aquí." />
+                <EmptyState icono={Bell} titulo="No tienes avisos" descripcion="Cuando coordinación atienda uno de tus reportes o quiera decirte algo, lo verás aquí." />
             )}
             {data?.length > 0 && (
                 <ul className="flex flex-col gap-4">

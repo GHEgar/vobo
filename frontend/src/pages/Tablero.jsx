@@ -6,7 +6,7 @@ import { EmptyState, ErrorState } from '@/components/Estados';
 import { SinRonda } from '@/components/SinRonda';
 import { Tarjeta, Titulo } from '@/components/Tarjeta';
 import { MatrizProgreso } from '@/components/tablero/MatrizProgreso';
-import { MatrizProyectos } from '@/components/tablero/MatrizProyectos';
+import { MatrizSistemas } from '@/components/tablero/MatrizSistemas';
 import { FiltroAudiencia } from '@/components/FiltroAudiencia';
 import { SelectorRonda } from '@/components/SelectorRonda';
 import { Button } from '@/components/Button';
@@ -18,6 +18,7 @@ import { useSesion } from '@/hooks/useSesion';
 import { useTablero } from '@/hooks/useValidacion';
 import { SEVERIDADES } from '@/utils/etiquetas';
 import { PERMISOS } from '@/utils/permisos';
+import { LineChart } from 'tesela/react';
 
 const Tablero = () => {
     const { ronda, cargando: cargandoRonda } = useRonda();
@@ -65,21 +66,21 @@ const Tablero = () => {
             {(puede(PERMISOS.verTablero) || puede(PERMISOS.gestionarFallas)) && <EnLinea />}
             <Tarjeta>
                 <Titulo
-                    descripcion={vista === 'proyecto' ? 'Casos marcados por persona y proyecto; «—» es un proyecto que no tiene asignado.' : 'Casos marcados por persona y familia.'}
+                    descripcion={vista === 'proyecto' ? 'Casos marcados por persona y sistema; «—» es un sistema que no tiene asignado.' : 'Casos marcados por persona y familia.'}
                     accion={(
                         <div className="flex gap-1 rounded-full bg-fondo p-1" role="group" aria-label="Agrupar el equipo">
                             <Button label="Por familia" small variant={vista === 'familia' ? 'primary' : 'link'} pressed={vista === 'familia'} onClick={() => setVista('familia')} />
-                            <Button label="Por proyecto" small variant={vista === 'proyecto' ? 'primary' : 'link'} pressed={vista === 'proyecto'} onClick={() => setVista('proyecto')} />
+                            <Button label="Por sistema" small variant={vista === 'proyecto' ? 'primary' : 'link'} pressed={vista === 'proyecto'} onClick={() => setVista('proyecto')} />
                         </div>
                     )}
                 >
                     Equipo
                 </Titulo>
-                {vista === 'proyecto' && <MatrizProyectos tablero={data} />}
+                {vista === 'proyecto' && <MatrizSistemas tablero={data} />}
                 {vista !== 'proyecto' && (data.personas.length ? (
                     <MatrizProgreso familias={data.familias} personas={data.personas} />
                 ) : (
-                    <EmptyState titulo="Nadie ha marcado casos en esta ronda" />
+                    <EmptyState icono={LineChart} titulo="Nadie ha marcado casos en esta ronda" />
                 ))}
             </Tarjeta>
         </>

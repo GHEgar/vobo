@@ -53,12 +53,14 @@ def marcar_todos(db: Session, email: str) -> int:
 def crear(db: Session, datos: AvisoCreate, autor_email: str, autor_nombre: str) -> list[Aviso]:
     destinatarios = list(datos.destinatarios)
     caso_id = None
+    proyecto_id = None
     titulo = TITULO_LIBRE
     if datos.falla_id is not None:
         falla = db.get(Falla, datos.falla_id)
         if falla is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Falla no encontrada")
         caso_id = falla.caso_id
+        proyecto_id = falla.ronda.proyecto_id
         titulo = f"Tu reporte de {caso_id} fue atendido"
         destinatarios = destinatarios or [falla.usuario_email]
     if datos.titulo and datos.titulo.strip():
@@ -70,6 +72,7 @@ def crear(db: Session, datos: AvisoCreate, autor_email: str, autor_nombre: str) 
             mensaje=datos.mensaje,
             falla_id=datos.falla_id,
             caso_id=caso_id,
+            proyecto_id=proyecto_id,
             autor_email=autor_email,
             autor_nombre=autor_nombre,
         )

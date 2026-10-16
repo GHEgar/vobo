@@ -7,7 +7,7 @@ import { PestanasVerticales } from '@/components/PestanasVerticales';
 import { SinRonda } from '@/components/SinRonda';
 import { Tarjeta, Titulo } from '@/components/Tarjeta';
 import { TarjetaAprobacion } from '@/components/aprobaciones/TarjetaAprobacion';
-import { useProyectos } from '@/hooks/useInstancia';
+import { useSistemas } from '@/hooks/useInstancia';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useRonda } from '@/hooks/useRonda';
 import { useSesion } from '@/hooks/useSesion';
@@ -15,9 +15,12 @@ import { useAprobaciones, useContenido, useHerramientas, useRegistrarAprobacione
 import { FILTROS, agruparPorSistema, combinar, contar } from '@/utils/aprobaciones';
 import { PERMISOS } from '@/utils/permisos';
 import { indexarContenido } from '@/utils/progreso';
+import { useRuta } from '@/hooks/useProyecto';
+import { Filter } from 'tesela/react';
 
 const Aprobaciones = () => {
     const { ronda, cargando } = useRonda();
+    const ruta = useRuta();
     const { puede } = useSesion();
     const herramientas = useHerramientas(ronda?.id);
     const aprobaciones = useAprobaciones(ronda?.id);
@@ -26,7 +29,7 @@ const Aprobaciones = () => {
     const [filtro, setFiltro] = useLocalStorageState('validacion.aprobaciones.filtro', 'pendientes');
     const [pestana, setPestana] = useState(null);
     const puedeAprobar = puede(PERMISOS.aprobar);
-    const proyectos = useProyectos();
+    const sistemas = useSistemas();
 
     const items = useMemo(() => combinar(herramientas.data ?? [], aprobaciones.data), [herramientas.data, aprobaciones.data]);
     const indice = useMemo(() => (contenido.data ? indexarContenido(contenido.data) : null), [contenido.data]);
@@ -38,7 +41,7 @@ const Aprobaciones = () => {
 
     const cuentas = contar(items);
     const criterio = FILTROS.find((f) => f.clave === filtro) ?? FILTROS[0];
-    const grupos = agruparPorSistema(proyectos, items.filter((h) => criterio.acepta(h.aprobacion.estado)));
+    const grupos = agruparPorSistema(sistemas, items.filter((h) => criterio.acepta(h.aprobacion.estado)));
     const decidir = (tipo, objetivo, estado, comentario) => registrar.mutate({
         ronda_id: ronda.id,
         items: [{ tipo, objetivo_id: objetivo, estado, comentario }],
@@ -49,7 +52,7 @@ const Aprobaciones = () => {
             <Tarjeta>
                 <Titulo
                     descripcion={puedeAprobar ? 'Aprueba o rechaza cada herramienta o cada característica. Coordinación recomienda; tú decides qué sale a producción.' : 'Solo lectura: las decisiones las toma quien tiene el rol de aprobación.'}
-                    accion={<Link to={`/acta?ronda=${ronda.id}`} className="inline-flex h-[30px] items-center rounded-full border border-primario px-4 tipo-negrita text-xs text-primario hover:bg-primario-suave">Generar acta</Link>}
+                    accion={<Link to={ruta(`/acta?ronda=${ronda.id}`)} className="inline-flex h-[30px] items-center rounded-full border border-primario px-4 tipo-negrita text-xs text-primario hover:bg-primario-suave">Generar acta</Link>}
                 >
                     Aprobaciones
                 </Titulo>
@@ -76,7 +79,7 @@ const Aprobaciones = () => {
                     )}
                 </PestanasVerticales>
             ) : (
-                <EmptyState titulo="No hay herramientas con este filtro" />
+                <EmptyState icono={Filter} titulo="No hay herramientas con este filtro" />
             )}
         </>
     );

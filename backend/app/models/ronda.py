@@ -9,6 +9,7 @@ class Ronda(Base):
     __tablename__ = "rondas"
 
     id = Column(Integer, primary_key=True, index=True)
+    proyecto_id = Column(Integer, ForeignKey("proyectos.id"), nullable=False, index=True)
     nombre = Column(String(120), nullable=False)
     snapshot = Column(String(200), nullable=False, default="")
     abierta = Column(Boolean, nullable=False, default=True)

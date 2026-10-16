@@ -13,6 +13,7 @@ class PresenciaCreate(BaseModel):
     seccion_id: str | None = Field(default=None, max_length=120)
     accion: AccionPresencia = "viendo"
     ronda_id: int | None = Field(default=None, ge=1)
+    proyecto: str | None = Field(default=None, max_length=60)
 
 
 class PresenciaResponse(BaseModel):

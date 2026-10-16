@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.falla import Evidencia, Falla
+from app.models.ronda import Ronda
 from app.schemas.falla import EvidenciaResponse, FallaResponse, FallaUpdate
 from app.services import evidencias, resultados
 from app.services.contenido import Contenido, caso_o_404
@@ -30,6 +31,7 @@ class FiltroFallas:
     severidad: str | None = None
     estado: str | None = None
     tipo: str | None = None
+    proyecto_id: int | None = None
 
 
 def crear(
@@ -71,6 +73,9 @@ def listar(db: Session, contenido: Contenido, filtro: FiltroFallas) -> list[Fall
     consulta = select(Falla).options(selectinload(Falla.evidencias)).order_by(Falla.creada.desc())
     if filtro.ronda is not None:
         consulta = consulta.where(Falla.ronda_id == filtro.ronda)
+    elif filtro.proyecto_id is not None:
+        del_proyecto = select(Ronda.id).where(Ronda.proyecto_id == filtro.proyecto_id)
+        consulta = consulta.where(Falla.ronda_id.in_(del_proyecto))
     if filtro.severidad:
         consulta = consulta.where(Falla.severidad == filtro.severidad)
     if filtro.estado:

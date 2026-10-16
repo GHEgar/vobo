@@ -52,14 +52,46 @@ export const sesionSchema = z.object({
         nombre: z.string(),
         permisos: z.array(z.string()),
         paginas: z.array(z.string()).default([]),
+        origen: z.string().default('oidc'),
+        tiene_cuenta: z.boolean().default(false),
+        debe_cambiar: z.boolean().default(false),
     }),
 });
 
+const sistemaSchema = z.object({ clave: z.string(), nombre: z.string() });
+
+const proyectoPublicoSchema = z.object({
+    clave: z.string(),
+    nombre: z.string(),
+    color_nombre: z.string().nullable().default(null),
+    por_omision: z.boolean().default(false),
+});
+
 export const instanciaSchema = z.object({
+    producto: z.string().default(''),
     nombre: z.string().default(''),
     descripcion: z.string().default(''),
-    proyectos: z.array(z.object({ clave: z.string(), nombre: z.string() })).default([]),
+    logo: z.object({ claro: z.string(), oscuro: z.string(), alt: z.string() }).nullable().default(null),
+    favicon: z.string().default(''),
+    color_tema: z.string().default(''),
+    entrada: z.object({ titulo: z.string().default(''), mensaje: z.string().default('') }).default({ titulo: '', mensaje: '' }),
+    proyectos: z.array(sistemaSchema).default([]),
+    sistemas: z.array(sistemaSchema).optional(),
+    proyecto: proyectoPublicoSchema.nullable().default(null),
+}).transform(({ sistemas, ...resto }) => ({ ...resto, sistemas: sistemas ?? resto.proyectos }));
+
+export const proyectoSchema = z.object({
+    id: z.number(),
+    clave: z.string(),
+    nombre: z.string(),
+    descripcion: z.string().default(''),
+    color_nombre: z.string().nullable().default(null),
+    orden: z.number().default(0),
+    archivado: z.boolean().default(false),
+    por_omision: z.boolean().default(false),
 });
+
+export const proyectosSchema = z.array(proyectoSchema);
 
 export const avisoSchema = z.object({
     id: z.number(),
@@ -68,6 +100,7 @@ export const avisoSchema = z.object({
     mensaje: z.string(),
     falla_id: z.number().nullable(),
     caso_id: z.string().nullable(),
+    proyecto_clave: z.string().nullable().default(null),
     autor_email: z.string(),
     autor_nombre: z.string(),
     creado: z.string(),
