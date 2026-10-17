@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:26-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:26-alpine AS builder
 WORKDIR /app
 COPY frontend/package*.json ./
 COPY frontend/vendor/ vendor/

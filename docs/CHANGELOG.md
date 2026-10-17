@@ -29,6 +29,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Corregido
 
+- La imagen web compilaba el frontend una vez por arquitectura, y en arm64 (emulada) tardaba más de
+  una hora: ahora se compila una sola vez en la plataforma del build.
 - `make restaurar CON_CONFIG=1` fallaba si `secrets/` o `.env.production` eran enlaces simbólicos: ahora
   copia el contenido sobre las rutas existentes.
 - Las direcciones muy largas en comentarios desbordaban su contenedor.
