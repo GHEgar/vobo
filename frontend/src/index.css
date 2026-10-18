@@ -127,3 +127,37 @@
         --tesela-dir: -1;
     }
 }
+
+@keyframes pantalla-desliza {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes pantalla-flujo {
+    to { stroke-dashoffset: -24; }
+}
+
+@keyframes pantalla-pulso {
+    from { r: 6px; opacity: 0.9; }
+    to { r: 44px; opacity: 0; }
+}
+
+.pantalla-cinta {
+    animation: pantalla-desliza 40s linear infinite;
+}
+
+.pantalla-flujo {
+    animation: pantalla-flujo 1.2s linear infinite;
+}
+
+.pantalla-pulso {
+    animation: pantalla-pulso 1.6s ease-out 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pantalla-cinta,
+    .pantalla-flujo,
+    .pantalla-pulso {
+        animation: none !important;
+    }
+}

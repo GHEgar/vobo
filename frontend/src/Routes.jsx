@@ -23,6 +23,7 @@ const InformeFallas = lazy(() => import('@/pages/InformeFallas'));
 const Avisos = lazy(() => import('@/pages/Avisos'));
 const Invitacion = lazy(() => import('@/pages/Invitacion'));
 const Restablecer = lazy(() => import('@/pages/Restablecer'));
+const Pantalla = lazy(() => import('@/pages/Pantalla'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const Editor = lazy(() => import('@/pages/Editor'));
 
@@ -38,6 +39,7 @@ const RutasPublicas = () => (
         <Routes>
             <Route path="invitacion/:token" element={<Invitacion />} />
             <Route path="restablecer/:token" element={<Restablecer />} />
+            <Route path="pantalla/:token" element={<Pantalla />} />
         </Routes>
     </Diferida>
 );
@@ -46,8 +48,9 @@ const AppRoutes = () => {
     const { usuario, cargando, error, reintentar } = useSesion();
     const invitacion = useMatch('/invitacion/:token');
     const restablecimiento = useMatch('/restablecer/:token');
+    const pantalla = useMatch('/pantalla/:token');
 
-    if (invitacion || restablecimiento) return <RutasPublicas />;
+    if (invitacion || restablecimiento || pantalla) return <RutasPublicas />;
     if (cargando) return <Spinner pantalla />;
     if (error) return <ErrorState mensaje={error.message} onReintentar={reintentar} pantalla />;
     if (!usuario) return <Entrar />;

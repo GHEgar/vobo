@@ -37,7 +37,12 @@ def test_0004_sobre_0003_conserva_datos_y_crea_la_tabla_vacia(tmp_path, monkeypa
     inicializar.preparar_base()
     despues = volcado(motor)
     assert migraciones.revision_actual(motor) == migraciones.revision_head()
-    assert set(despues) == set(antes) | {"configuracion", "proyectos"}
+    assert set(despues) == set(antes) | {
+        "configuracion",
+        "proyectos",
+        "resultados_historial",
+        "pantallas",
+    }
     assert conserva(antes, despues)
     assert despues["configuracion"] == []
     motor.dispose()

@@ -7,6 +7,34 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Bitácora de resultados (`resultados_historial`, migración `0007`): cada vez que un resultado se
+  crea, cambia de estado, se limpia o cambia de pasos queda una fila con estado, paso y acción
+  (`crear`, `marcar`, `cambiar`, `limpiar`, `paso`), en la misma transacción que el cambio.
+- Hora de cierre de las rondas (`cerrada_en`, también en la respuesta de rondas): se guarda al
+  cerrarla y se limpia al reabrirla; las rondas cerradas antes de la migración quedan sin fecha.
+- `GET /api/historial/avance?ronda=&proyecto=&desde=&hasta=` (permiso de seguimiento): casos
+  marcados acumulados por día calculados desde la bitácora; lista vacía si aún no hay historial.
+- Pantallas para televisores (`pantallas`, migración `0008`): enlace firmado
+  `<FRONTEND_URL>/pantalla/<token>` que se ve sin sesión, a 1920×1080 escalado a cualquier pantalla,
+  rota entre sus vistas cada 10 a 300 segundos, refresca cada 15 y conserva lo último sin conexión.
+  Solo se guarda el SHA-256 del token; el enlace se muestra una vez.
+- Vista general de la pantalla: anillo por proyecto con pasa, falla y no pude, porcentaje, día de la
+  ronda abierta, fallas abiertas, personas en línea, reloj y cinta de actividad reciente; rota de
+  tres en tres proyectos.
+- Vista de grafo en vivo: proyectos, sistemas, secciones y casos por estado con simulación de
+  fuerzas propia en SVG; personas con tamaño por casos marcados, anillo de su avance, línea a su caso
+  actual y a cada proyecto en que participan; pulso al cambiar un caso. Con más de 120 casos, cada
+  sección es un nodo con minianillo de estados. Respeta `prefers-reduced-motion`.
+- Administración → Pantallas: crear (nombre, vistas y su orden, segundos, proyectos), activar o
+  desactivar, regenerar el enlace (invalida el anterior), borrar y abrir. API
+  `GET/POST /api/admin/pantallas`, `PATCH/DELETE /api/admin/pantallas/{id}` y
+  `POST /api/admin/pantallas/{id}/regenerar`.
+- `GET /api/pantalla/{token}` y `GET /api/pantalla/{token}/datos` públicos: solo nombre de pila e
+  iniciales, sin correos, comentarios ni evidencias; 404 genérico con token malo o inactivo, registro
+  de último uso y caché de 15 segundos por pantalla.
+
 ## [0.3.2] - 2026-10-16
 
 ### Agregado

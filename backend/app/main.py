@@ -24,7 +24,9 @@ from app.api.routes import (
     evidencias,
     fallas,
     herramientas,
+    historial,
     instancia,
+    pantallas,
     presencia,
     proyectos,
     rondas,
@@ -75,6 +77,8 @@ def create_app() -> FastAPI:
         buscar,
         presencia,
         actividad,
+        historial,
+        pantallas,
         version,
     ):
         aplicacion.include_router(modulo.router)

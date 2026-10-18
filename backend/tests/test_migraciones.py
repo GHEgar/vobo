@@ -146,6 +146,8 @@ NUEVAS = {
     "contenido_media",
     "configuracion",
     "proyectos",
+    "resultados_historial",
+    "pantallas",
 }
 
 

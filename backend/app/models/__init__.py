@@ -11,9 +11,10 @@ from app.models.contenido import (
 from app.models.cuenta import Cuenta, IntentoEntrada, Invitacion, Restablecimiento
 from app.models.decision import Decision
 from app.models.falla import Evidencia, Falla
+from app.models.pantalla import Pantalla
 from app.models.presencia import Presencia
 from app.models.proyecto import Proyecto
-from app.models.resultado import Resultado
+from app.models.resultado import Resultado, ResultadoHistorial
 from app.models.rol import Rol, UsuarioRol
 from app.models.ronda import Asignacion, Ronda
 from app.models.usuario import Sesion, Usuario
@@ -34,10 +35,12 @@ __all__ = [
     "Falla",
     "IntentoEntrada",
     "Invitacion",
+    "Pantalla",
     "Presencia",
     "Proyecto",
     "Restablecimiento",
     "Resultado",
+    "ResultadoHistorial",
     "Rol",
     "Ronda",
     "Sesion",
