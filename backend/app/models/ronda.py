@@ -14,9 +14,13 @@ class Ronda(Base):
     snapshot = Column(String(200), nullable=False, default="")
     abierta = Column(Boolean, nullable=False, default=True)
     creada = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    cerrada_en = Column(DateTime(timezone=True), nullable=True)
 
     asignaciones = relationship("Asignacion", back_populates="ronda", cascade="all, delete-orphan")
     resultados = relationship("Resultado", back_populates="ronda", cascade="all, delete-orphan")
+    historial = relationship(
+        "ResultadoHistorial", back_populates="ronda", cascade="all, delete-orphan"
+    )
     fallas = relationship("Falla", back_populates="ronda", cascade="all, delete-orphan")
     decisiones = relationship("Decision", back_populates="ronda", cascade="all, delete-orphan")
     aprobaciones = relationship("Aprobacion", back_populates="ronda", cascade="all, delete-orphan")

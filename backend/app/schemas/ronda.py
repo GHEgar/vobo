@@ -22,6 +22,7 @@ class RondaResponse(BaseModel):
     snapshot: str
     abierta: bool
     creada: datetime
+    cerrada_en: datetime | None = None
 
     model_config = {"from_attributes": True}
 

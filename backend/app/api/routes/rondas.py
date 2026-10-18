@@ -83,12 +83,7 @@ def actualizar_ronda(
     db: Session = Depends(get_db),
     _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> Ronda:
-    ronda = rondas.obtener_o_404(db, ronda_id)
-    for campo, valor in cambios.model_dump(exclude_none=True).items():
-        setattr(ronda, campo, valor.strip() if isinstance(valor, str) else valor)
-    db.commit()
-    db.refresh(ronda)
-    return ronda
+    return rondas.actualizar(db, rondas.obtener_o_404(db, ronda_id), cambios)
 
 
 @router.delete("/{ronda_id}", status_code=status.HTTP_204_NO_CONTENT)

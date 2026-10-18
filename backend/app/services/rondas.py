@@ -2,8 +2,9 @@ from fastapi import HTTPException, status
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from app.core.time import utcnow
 from app.models.ronda import Asignacion, Ronda
-from app.schemas.ronda import AsignacionItem
+from app.schemas.ronda import AsignacionItem, RondaUpdate
 from app.services import evidencias
 
 
@@ -21,6 +22,19 @@ def abierta_o_409(db: Session, ronda_id: int) -> Ronda:
             status_code=status.HTTP_409_CONFLICT,
             detail="La ronda está cerrada; ya no admite cambios",
         )
+    return ronda
+
+
+def actualizar(db: Session, ronda: Ronda, cambios: RondaUpdate) -> Ronda:
+    estaba_abierta = ronda.abierta
+    for campo, valor in cambios.model_dump(exclude_none=True).items():
+        setattr(ronda, campo, valor.strip() if isinstance(valor, str) else valor)
+    if estaba_abierta and not ronda.abierta:
+        ronda.cerrada_en = utcnow()
+    elif ronda.abierta:
+        ronda.cerrada_en = None
+    db.commit()
+    db.refresh(ronda)
     return ronda
 
 
