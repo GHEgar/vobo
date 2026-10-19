@@ -38,3 +38,10 @@ export const useDatosInforme = (claves, ronda, conComentarios) => {
         refetch: () => Promise.all(consultas.map((c) => c.refetch())),
     };
 };
+
+export const useParticipacion = (claves, ronda, activo) => useQuery({
+    queryKey: ['participacion', { claves, ronda }],
+    queryFn: () => api.fetchParticipacion({ proyectos: claves, ronda }),
+    enabled: activo && claves.length > 0,
+    staleTime: VIGENCIA,
+});

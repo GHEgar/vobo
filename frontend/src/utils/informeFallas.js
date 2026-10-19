@@ -7,6 +7,7 @@ export const pasoDeFalla = (falla) => (falla.paso === null ? 'Fuera de los pasos
 
 export const PARTES = [
     { valor: 'resumen', texto: 'Resumen' },
+    { valor: 'participacion', texto: 'Participación' },
     { valor: 'fallas', texto: 'Fallas' },
     { valor: 'no_pude', texto: '«No pude probarlo»' },
     { valor: 'comentarios', texto: 'Comentarios' },

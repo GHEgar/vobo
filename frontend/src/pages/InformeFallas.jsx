@@ -5,6 +5,7 @@ import { ErrorState } from '@/components/Estados';
 import { EncabezadoImpreso } from '@/components/EncabezadoImpreso';
 import { BOTON_IMPRESO as BOTON, HojaImpresa } from '@/components/HojaImpresa';
 import { OpcionesInforme } from '@/components/informe/OpcionesInforme';
+import { ParticipacionInforme } from '@/components/informe/ParticipacionInforme';
 import { ProyectoInforme } from '@/components/informe/ProyectoInforme';
 import { ResumenInforme } from '@/components/informe/ResumenInforme';
 import { useDatosInforme, useRondasDe } from '@/hooks/useInformeFallas';
@@ -106,6 +107,7 @@ const InformeFallas = () => {
             {!datos.isPending && !datos.error && (
                 <>
                     {opciones.incluir.has('resumen') && <ResumenInforme proyectos={secciones} incluir={opciones.incluir} />}
+                    {opciones.incluir.has('participacion') && <ParticipacionInforme claves={opciones.proyectos} ronda={opciones.ronda} archivo={`participacion-${hoyISO()}`} />}
                     {vacio ? (
                         <p className="mt-8 flex items-center gap-2 text-sm text-texto-tenue"><Filter size={16} className="shrink-0" />No hay fallas ni comentarios con estas opciones.</p>
                     ) : (
