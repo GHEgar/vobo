@@ -1,6 +1,6 @@
 {
     "name": "vobo",
-    "version": "0.9.0",
+    "version": "0.10.0",
     "description": "Guía para que un equipo valide un ciclo de cambios por casos guiados",
     "private": true,
     "type": "module",
@@ -15,7 +15,7 @@
         "@ghegar/lanzadera": "file:vendor/ghegar-lanzadera-0.1.0.tgz",
         "@ghegar/muestrario": "file:vendor/ghegar-muestrario-0.2.0.tgz",
         "@ghegar/plomada": "file:vendor/ghegar-plomada-0.2.0.tgz",
-        "@npmegar/tequio": "^0.6.0",
+        "@npmegar/tequio": "^0.7.0",
         "@tanstack/react-query": "^5.90.0",
         "react": "19.2.8",
         "react-dom": "19.2.8",

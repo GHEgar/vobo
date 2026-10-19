@@ -14,6 +14,7 @@ import { Expand, Opacity, ShareNodes } from 'tesela/react';
 
 const REFRESCO = 30 * 1000;
 const RECORRIDO = { idle: 8000, interval: 15000 };
+const RECORRIDO_TV = { idle: 8000, interval: 20000 };
 const AGRUPACIONES = [
     { valor: 'proyecto', texto: 'Proyecto', centro: 'los proyectos' },
     { valor: 'sistema', texto: 'Sistema', centro: 'los sistemas' },
@@ -91,7 +92,7 @@ const Participacion = () => {
                     ref={escenario}
                     className={`relative w-full overflow-hidden ${completa ? 'h-dvh bg-[#0d0d0d]' : 'aspect-video rounded-2xl bg-white shadow-[0px_3px_12px_var(--color-sombra-suave)]'}`}
                 >
-                    <Tequio data={data} theme={tema} locale="es" labels={ETIQUETAS} animated="always" tour={RECORRIDO} table />
+                    <Tequio data={data} theme={tema} locale="es" labels={ETIQUETAS} animated="always" tour={completa ? RECORRIDO_TV : RECORRIDO} infoScale={completa ? 1.25 : 1} table />
                 </div>
             )}
         </>
