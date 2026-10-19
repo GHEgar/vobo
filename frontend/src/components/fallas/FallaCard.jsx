@@ -6,6 +6,9 @@ import { AvisarFalla } from '@/components/avisos/AvisarFalla';
 import { MediaImagen } from '@/components/MediaImagen';
 import { Modal } from '@/components/Modal';
 import { SelectField, TextField } from '@/components/Field';
+import { PlazoCampo } from '@/components/fallas/PlazoCampo';
+import { Resolucion } from '@/components/fallas/Resolucion';
+import { Seguimiento } from '@/components/fallas/Seguimiento';
 import { useActualizarFalla } from '@/hooks/useValidacion';
 import { ESTADOS_FALLA, REPRODUCIBLE, SEVERIDADES, opciones } from '@/utils/etiquetas';
 import { describirNavegador, formatearFecha } from '@/utils/formato';
@@ -52,6 +55,17 @@ export const FallaCard = ({ falla, editable }) => {
                 )}
             </div>
             <p className="mt-3 whitespace-pre-line wrap-anywhere tipo-regular text-[15px]/6 text-texto">{falla.obtenido}</p>
+            <div className="mt-3 flex flex-col gap-2">
+                <PlazoCampo
+                    id={`falla-${falla.id}`}
+                    plazo={falla.plazo}
+                    responsable={falla.plazo_por_nombre || falla.plazo_por}
+                    resuelto={falla.estado === 'cerrada'}
+                    editable={editable}
+                    onCambiar={(plazo) => cambiar({ plazo })}
+                />
+                <Resolucion en={falla.resuelta_en} por={falla.resuelta_por_nombre || falla.resuelta_por} desde={falla.creada} />
+            </div>
             <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <Dato termino="Paso">{falla.paso === null ? 'Fuera de los pasos' : `${falla.paso + 1}. ${falla.paso_texto}`}</Dato>
                 {falla.tipo !== 'no_pude' && <Dato termino="Se repite">{REPRODUCIBLE[falla.reproducible]}</Dato>}
@@ -82,6 +96,7 @@ export const FallaCard = ({ falla, editable }) => {
                 <Button label="Guardar nota" variant="outline" disabled={nota === falla.nota_resolucion} loading={actualizar.isPending} onClick={() => cambiar({ nota_resolucion: nota })} />
             </div>}
             {editable && <div className="mt-4"><AvisarFalla falla={falla} /></div>}
+            <Seguimiento objeto="falla" id={falla.id} eventos={falla.seguimiento} estados={ESTADOS_FALLA} editable={editable} />
             {actualizar.error && <p className="mt-2 tipo-media text-xs text-error-fuerte">{actualizar.error.message}</p>}
             <Modal abierto={Boolean(ampliada)} titulo={`Falla #${falla.id}`} onCerrar={() => setAmpliada(null)} ancho="max-w-5xl">
                 {ampliada && <img src={ampliada.url} alt={`Captura de la falla ${falla.id}`} className="max-h-[75dvh] w-full rounded-xl object-contain" />}

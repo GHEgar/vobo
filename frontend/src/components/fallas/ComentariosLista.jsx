@@ -1,38 +1,10 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
-import { Alert, Check, Copy } from 'tesela/react';
-import { Chip } from '@/components/Chip';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
 import { Tarjeta, Titulo } from '@/components/Tarjeta';
-import { TextoConEnlaces } from '@/components/TextoConEnlaces';
+import { ComentarioItem } from '@/components/fallas/ComentarioItem';
 import { useComentarios } from '@/hooks/useValidacion';
-import { formatearFecha } from '@/utils/formato';
-import { copiarTexto } from '@/utils/portapapeles';
-import { useRuta } from '@/hooks/useProyecto';
 
-const paraTaiga = (c) => [
-    `[${c.caso_id}] ${c.caso_titulo} — ${c.tipo === 'no_pude' ? 'no pudo probarlo' : `paso ${c.paso + 1}`}`,
-    c.comentario,
-    `Ronda: ${c.ronda_nombre} · ${c.autor || c.usuario_email} · ${formatearFecha(c.actualizado)}`,
-].join('\n');
-
-const CopiarTaiga = ({ comentario }) => {
-    const [copiado, setCopiado] = useState(false);
-    return (
-        <button
-            type="button"
-            onClick={async () => setCopiado(await copiarTexto(paraTaiga(comentario)))}
-            className="ml-auto inline-flex shrink-0 items-center gap-1 bg-transparent p-0 tipo-negrita text-xs text-primario underline underline-offset-4 hover:text-primario-hover"
-        >
-            {copiado ? <Check size={14} stroke={2} /> : <Copy size={14} stroke={2} />}
-            {copiado ? 'Copiado' : 'Copiar para Taiga'}
-        </button>
-    );
-};
-
-export const ComentariosLista = ({ rondaId, sistema }) => {
-    const ruta = useRuta();
+export const ComentariosLista = ({ rondaId, sistema, editable = false }) => {
     const { data, isPending, error, refetch } = useComentarios(rondaId);
     const visibles = (data ?? []).filter((c) => !sistema || c.sistema === sistema);
 
@@ -44,23 +16,7 @@ export const ComentariosLista = ({ rondaId, sistema }) => {
             {data && !visibles.length && <p className="tipo-media text-sm text-texto-apagado">Sin comentarios con estos filtros.</p>}
             {visibles.length > 0 && (
                 <ul className="flex flex-col gap-2">
-                    {visibles.map((c) => (
-                        <li key={`${c.caso_id}-${c.usuario_email}-${c.tipo}-${c.paso}`} className="min-w-0 rounded-2xl bg-fondo px-5 py-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <Link to={ruta(`/caso/${encodeURIComponent(c.caso_id)}`)} className="min-w-0 wrap-anywhere tipo-negrita text-sm text-primario hover:underline">
-                                    {c.caso_id} · {c.caso_titulo}
-                                </Link>
-                                <Chip tono={c.tipo === 'no_pude' ? 'aviso' : 'marca'}>
-                                    {c.tipo === 'no_pude' && <Alert size={16} className="shrink-0" />}
-                                    {c.tipo === 'no_pude' ? 'No pudo probarlo' : `Paso ${c.paso + 1}`}
-                                </Chip>
-                                <CopiarTaiga comentario={c} />
-                            </div>
-                            {c.paso_texto && <p className="mt-1 wrap-anywhere tipo-media text-xs text-texto-apagado">{c.paso_texto}</p>}
-                            <p className="mt-1 whitespace-pre-line wrap-anywhere tipo-regular text-sm text-texto"><TextoConEnlaces texto={c.comentario} /></p>
-                            <p className="mt-1 tipo-media text-[11px] text-texto-apagado">{c.autor || c.usuario_email} · {formatearFecha(c.actualizado)}</p>
-                        </li>
-                    ))}
+                    {visibles.map((c) => <ComentarioItem key={c.id ?? `${c.caso_id}-${c.usuario_email}-${c.tipo}-${c.paso}`} comentario={c} editable={editable} />)}
                 </ul>
             )}
         </Tarjeta>

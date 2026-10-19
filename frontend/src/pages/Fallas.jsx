@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { Checkbox } from '@/components/Checkbox';
+import { Button } from '@/components/Button';
 import { SelectField } from '@/components/Field';
 import { Spinner } from '@/components/Spinner';
 import { EmptyState, ErrorState } from '@/components/Estados';
@@ -10,14 +10,11 @@ import { FallaCard } from '@/components/fallas/FallaCard';
 import { useRonda } from '@/hooks/useRonda';
 import { useClaveProyecto, useRuta } from '@/hooks/useProyecto';
 import { useSesion } from '@/hooks/useSesion';
-import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { PERMISOS } from '@/utils/permisos';
 import { useContenido, useFallas } from '@/hooks/useValidacion';
 import { consulta as aConsulta } from '@/services/api';
-import { urlInformeFallas } from '@/services/validacion';
-import { CLAVE_COMENTARIOS, zonaHoraria } from '@/utils/informeFallas';
 import { ESTADOS_FALLA, SEVERIDADES, opciones } from '@/utils/etiquetas';
-import { FileTable, FileText, Filter } from 'tesela/react';
+import { FileText, Filter } from 'tesela/react';
 
 const TIPOS = [
     { valor: 'falla', texto: 'Fallas' },
@@ -28,7 +25,7 @@ const ENLACE = 'inline-flex h-[30px] items-center gap-1.5 rounded-full border bo
 
 const Fallas = () => {
     const { puede } = useSesion();
-    const { ronda, rondas } = useRonda();
+    const { rondas } = useRonda();
     const ruta = useRuta();
     const proyecto = useClaveProyecto();
     const { data: contenido } = useContenido();
@@ -37,13 +34,12 @@ const Fallas = () => {
         sistema: params.get('sistema') ?? '',
         severidad: params.get('severidad') ?? '',
         estado: '',
-        tipo: 'falla',
-        ronda: null,
+        tipo: '',
+        ronda: '',
     }));
-    const [conComentarios, setConComentarios] = useLocalStorageState(CLAVE_COMENTARIOS, false);
-    const consulta = { ...filtros, ronda: filtros.ronda ?? ronda?.id ?? '' };
-    const informe = { ...consulta, comentarios: conComentarios ? 1 : '' };
-    const { data, isPending, error, refetch } = useFallas(consulta);
+    const [verFiltros, setVerFiltros] = useState(() => Boolean(filtros.sistema || filtros.severidad));
+    const activos = Object.values(filtros).filter(Boolean).length;
+    const { data, isPending, error, refetch } = useFallas(filtros);
     const sistemas = useMemo(
         () => [...new Set((contenido?.secciones ?? []).map((s) => s.sistema))].sort().map((s) => ({ valor: s, texto: s })),
         [contenido],
@@ -55,21 +51,26 @@ const Fallas = () => {
             <Tarjeta>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="tipo-negrita text-lg text-texto">Fallas reportadas</h1>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                        <Checkbox id="f-comentarios" checked={conComentarios} onChange={setConComentarios}>Incluir comentarios</Checkbox>
-                        <div className="flex flex-wrap gap-2">
-                            <a href={urlInformeFallas({ ...informe, proyecto, tz: zonaHoraria() })} download className={ENLACE}><FileTable size={16} className="shrink-0" />Descargar CSV</a>
-                            <Link to={ruta(`/informe-fallas${aConsulta(informe)}`)} title="Informe imprimible o PDF" className={ENLACE}><FileText size={16} className="shrink-0" />Informe</Link>
-                        </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            small
+                            variant={verFiltros ? 'primary' : 'outline'}
+                            pressed={verFiltros}
+                            aria-controls="filtros-fallas"
+                            onClick={() => setVerFiltros(!verFiltros)}
+                            icono={<Filter size={16} className="shrink-0" />}
+                            label={activos ? `Filtros (${activos})` : 'Filtros'}
+                        />
+                        <Link to={ruta(`/informe-fallas${aConsulta({ ...filtros, proyectos: proyecto })}`)} title="Informe imprimible, PDF o CSV" className={ENLACE}><FileText size={16} className="shrink-0" />Informe</Link>
                     </div>
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                    <SelectField id="f-ronda" label="Ronda" value={consulta.ronda} onChange={fijar('ronda')} placeholder="Todas" options={rondas.map((r) => ({ valor: r.id, texto: r.nombre }))} />
+                {verFiltros && <div id="filtros-fallas" className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                    <SelectField id="f-ronda" label="Ronda" value={filtros.ronda} onChange={fijar('ronda')} placeholder="Todas" options={rondas.map((r) => ({ valor: r.id, texto: r.nombre }))} />
                     <SelectField id="f-tipo" label="Tipo" value={filtros.tipo} onChange={fijar('tipo')} placeholder="Todos" options={TIPOS} />
                     <SelectField id="f-sistema" label="Sistema" value={filtros.sistema} onChange={fijar('sistema')} placeholder="Todos" options={sistemas} />
                     <SelectField id="f-severidad" label="Severidad" value={filtros.severidad} onChange={fijar('severidad')} placeholder="Todas" options={opciones(SEVERIDADES)} />
                     <SelectField id="f-estado" label="Estado" value={filtros.estado} onChange={fijar('estado')} placeholder="Todos" options={opciones(ESTADOS_FALLA)} />
-                </div>
+                </div>}
             </Tarjeta>
             {isPending && <Spinner pantalla />}
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
@@ -79,7 +80,7 @@ const Fallas = () => {
                     {data.map((f) => <FallaCard key={`${f.id}-${f.nota_resolucion}`} falla={f} editable={puede(PERMISOS.gestionarFallas)} />)}
                 </ul>
             )}
-            <ComentariosLista rondaId={consulta.ronda} sistema={filtros.sistema} />
+            <ComentariosLista rondaId={filtros.ronda} sistema={filtros.sistema} editable={puede(PERMISOS.gestionarFallas)} />
         </>
     );
 };

@@ -64,6 +64,9 @@ export const reportarFalla = (form) => solicitar('/fallas', { method: 'POST', fo
 export const fetchFallas = (filtros) => solicitar(`/fallas${consulta(filtros)}`);
 export const urlInformeFallas = (filtros) => `/api/fallas/informe.csv${consulta(filtros)}`;
 export const actualizarFalla = ({ id, ...cambios }) => solicitar(`/fallas/${id}`, { method: 'PATCH', json: cambios });
+export const actualizarComentario = ({ id, ...cambios }) => solicitar(`/comentarios/${id}`, { method: 'PATCH', json: cambios });
+const RUTAS_SEGUIMIENTO = { falla: 'fallas', comentario: 'comentarios' };
+export const responder = (objeto, { id, texto }) => solicitar(`/${RUTAS_SEGUIMIENTO[objeto]}/${id}/respuestas`, { method: 'POST', json: { texto } });
 
 export const fetchTablero = (rondaId, audiencia = 'todas') => solicitar(`/tablero${consulta({ ronda: rondaId, audiencia })}`);
 

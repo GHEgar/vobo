@@ -28,6 +28,12 @@ export const ESTADOS_FALLA = {
     cerrada: { texto: 'Cerrada', tono: 'exito' },
 };
 
+export const ESTADOS_COMENTARIO = {
+    nuevo: { texto: 'Nuevo', tono: 'error' },
+    en_curso: { texto: 'En curso', tono: 'aviso' },
+    resuelto: { texto: 'Resuelto', tono: 'exito' },
+};
+
 export const MODOS = {
     prod: { texto: 'Modo producción', tono: 'marca' },
     beta: { texto: 'Modo prueba', tono: 'aviso' },

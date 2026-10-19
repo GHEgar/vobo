@@ -121,6 +121,8 @@ const useMutacion = (mutationFn, claves) => {
 export const useGuardarResultado = () => useMutacion(api.guardarResultado, ['mis-casos', 'tablero', 'herramientas', 'comentarios']);
 export const useReportarFalla = () => useMutacion(api.reportarFalla, ['mis-casos', 'tablero', 'fallas', 'herramientas']);
 export const useActualizarFalla = () => useMutacion(api.actualizarFalla, ['fallas', 'tablero', 'herramientas']);
+export const useActualizarComentario = () => useMutacion(api.actualizarComentario, ['comentarios']);
+export const useResponder = (objeto) => useMutacion((datos) => api.responder(objeto, datos), ['fallas', 'comentarios']);
 export const useCrearRonda = () => {
     const proyecto = useClaveProyecto();
     return useMutacion((datos) => api.crearRonda({ ...datos, proyecto }), ['rondas']);
