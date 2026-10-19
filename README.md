@@ -379,7 +379,8 @@ Also `GET /api/tablero`, `/api/herramientas`, `/api/aprobaciones` and `/api/come
 in the [tequio](https://github.com/GHEgar/tequio) data format, ready for `<Tequio>`, `toSvg` or
 `npx @npmegar/tequio render`. Without `proyectos` it covers every active project; each one uses its
 open round (or its latest), and `ronda` applies when a single project is asked. People are identified
-by a keyed hash, never by email. The failure report prints it as its «Participación» section.
+by a keyed hash, never by email. The «Participación» page shows it live, and the failure report
+prints it as a section. Anyone who sees the board or the failures can read it.
 
 ## Development
 

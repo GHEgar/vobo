@@ -7,6 +7,17 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Página «Participación» (`/participacion`, junto a Tablero en el menú): el grafo de tequio en vivo
+  con los casos marcados por persona y proyecto, actualizado cada 30 s. Se eligen los proyectos (todos
+  los activos por omisión) y la ronda cuando hay uno solo; clic en un nodo para su tarjeta y foco;
+  recorrido automático, tema claro u oscuro y pantalla completa (oscura y con recorrido).
+
+### Cambiado
+
+- `GET /api/participacion` también responde a quien ve el tablero, no solo a quien ve fallas.
+
 ## [0.6.0] - 2026-10-19
 
 ### Agregado
