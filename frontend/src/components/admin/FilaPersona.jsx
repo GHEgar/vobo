@@ -3,7 +3,7 @@ import { Chip } from '@/components/Chip';
 import { useFijarCuentaActiva } from '@/hooks/useAdmin';
 import { formatearRelativa } from '@/utils/formato';
 
-export const FilaPersona = ({ persona, nombresDeRol, esYo, conCuentas, onRoles, onRestablecer }) => {
+export const FilaPersona = ({ persona, nombresDeRol, esYo, conCuentas, gestionaCuentas, onRoles, onRestablecer }) => {
     const fijarActiva = useFijarCuentaActiva();
     const { cuenta } = persona;
 
@@ -23,9 +23,9 @@ export const FilaPersona = ({ persona, nombresDeRol, esYo, conCuentas, onRoles, 
                 {fijarActiva.error && <p role="alert" className="tipo-media text-xs text-error-fuerte">{fijarActiva.error.message}</p>}
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
-                <Button label="Roles" small variant="ghost" onClick={onRoles} />
+                {onRoles && <Button label="Roles" small variant="ghost" onClick={onRoles} />}
                 {conCuentas && <Button label="Restablecer contraseña" small variant="ghost" onClick={onRestablecer} />}
-                {cuenta && !esYo && (
+                {cuenta && !esYo && gestionaCuentas && (
                     <Button
                         label={cuenta.activa ? 'Desactivar cuenta' : 'Activar cuenta'}
                         small

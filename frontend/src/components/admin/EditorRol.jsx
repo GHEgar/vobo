@@ -7,6 +7,12 @@ import { claveDesde } from '@/utils/claves';
 
 const CLAVE_ADMIN = 'administracion';
 
+const porArea = (catalogo) => {
+    const areas = new Map();
+    for (const p of catalogo) areas.set(p.area, [...(areas.get(p.area) ?? []), p]);
+    return [...areas];
+};
+
 export const EditorRol = ({ rol, onListo }) => {
     const catalogo = usePermisosCatalogo();
     const crear = useCrearRol();
@@ -50,16 +56,21 @@ export const EditorRol = ({ rol, onListo }) => {
             <fieldset className="mt-4 flex flex-col gap-3">
                 <legend className="mb-3 tipo-media text-sm text-texto">Permisos</legend>
                 {esAdmin && <p className="tipo-media text-xs text-texto-apagado">Administración incluye todos los permisos y no se puede cambiar.</p>}
-                {!esAdmin && (catalogo.data ?? []).map((p) => (
-                    <Checkbox
-                        key={p.clave}
-                        id={`rol-permiso-${p.clave}`}
-                        checked={permisos.includes(p.clave)}
-                        onChange={(marcado) => setPermisos(marcado ? [...permisos, p.clave] : permisos.filter((c) => c !== p.clave))}
-                    >
-                        {p.descripcion}
-                        <span className="block tipo-media text-[11px] text-texto-apagado">{p.clave}</span>
-                    </Checkbox>
+                {!esAdmin && porArea(catalogo.data ?? []).map(([area, lista]) => (
+                    <div key={area} className="flex flex-col gap-3">
+                        <p className="tipo-negrita text-xs uppercase tracking-wide text-texto-apagado">{area}</p>
+                        {lista.map((p) => (
+                            <Checkbox
+                                key={p.clave}
+                                id={`rol-permiso-${p.clave}`}
+                                checked={permisos.includes(p.clave)}
+                                onChange={(marcado) => setPermisos(marcado ? [...permisos, p.clave] : permisos.filter((c) => c !== p.clave))}
+                            >
+                                {p.descripcion}
+                                <span className="block tipo-media text-[11px] text-texto-apagado">{p.clave}</span>
+                            </Checkbox>
+                        ))}
+                    </div>
                 ))}
             </fieldset>
             {guardar.error && <p role="alert" className="mt-3 tipo-media text-xs text-error-fuerte">{guardar.error.message}</p>}

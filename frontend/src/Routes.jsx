@@ -12,6 +12,7 @@ import Caso from '@/pages/Caso';
 import Entrar from '@/pages/Entrar';
 import NoEncontrado from '@/pages/NoEncontrado';
 import { EdicionProvider } from '@/providers/EdicionProvider';
+import { paginaUnica } from '@/utils/paginas';
 
 const Tablero = lazy(() => import('@/pages/Tablero'));
 const Participacion = lazy(() => import('@/pages/Participacion'));
@@ -32,6 +33,12 @@ const Diferida = ({ children, pantalla = false }) => <Suspense fallback={<Spinne
 const ConPagina = ({ pagina, children }) => {
     const { ve } = useSesion();
     return ve(pagina) ? <Diferida>{children}</Diferida> : <Navigate to="/" replace />;
+};
+
+const InicioOUnica = () => {
+    const { puede, ve } = useSesion();
+    const unica = paginaUnica(puede, ve);
+    return unica ? <Navigate to={unica} replace /> : <Inicio />;
 };
 
 const RutasPublicas = () => (
@@ -61,7 +68,7 @@ const AppRoutes = () => {
                         <Route path="acta" element={<ConPagina pagina="aprobaciones"><Acta /></ConPagina>} />
                         <Route path="informe-fallas" element={<ConPagina pagina="fallas"><InformeFallas /></ConPagina>} />
                         <Route element={<MainLayout />}>
-                            <Route index element={<Inicio />} />
+                            <Route index element={<InicioOUnica />} />
                             <Route path="seccion/:seccionId" element={<Seccion />} />
                             <Route path="caso/:casoId" element={<Caso />} />
                             <Route path="avisos" element={<Diferida><Avisos /></Diferida>} />
@@ -71,7 +78,7 @@ const AppRoutes = () => {
                             />
                             <Route
                                 path="participacion"
-                                element={<ConPagina pagina="tablero"><Participacion /></ConPagina>}
+                                element={<ConPagina pagina="participacion"><Participacion /></ConPagina>}
                             />
                             <Route
                                 path="fallas"

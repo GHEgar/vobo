@@ -12,11 +12,12 @@ import { Marca } from '@/components/Marca';
 import { SelectorProyecto } from '@/components/SelectorProyecto';
 import { etiquetaInicio } from '@/utils/marca';
 import { puedeSeguir } from '@/utils/permisos';
+import { paginaUnica } from '@/utils/paginas';
 
 const ENLACES = [
     { to: '/', texto: 'Inicio', pagina: null },
     { to: '/tablero', texto: 'Tablero', pagina: 'tablero' },
-    { to: '/participacion', texto: 'Participación', pagina: 'tablero' },
+    { to: '/participacion', texto: 'Participación', pagina: 'participacion' },
     { to: '/fallas', texto: 'Fallas', pagina: 'fallas' },
     { to: '/herramientas', texto: 'Herramientas', pagina: 'herramientas' },
     { to: '/aprobaciones', texto: 'Aprobaciones', pagina: 'aprobaciones' },
@@ -41,7 +42,8 @@ const MenuPaginas = ({ enlaces, className }) => (
 
 export const MainLayout = () => {
     const { usuario, ve, puede, salir } = useSesion();
-    const enlaces = ENLACES.filter((e) => !e.pagina || ve(e.pagina));
+    const unica = paginaUnica(puede, ve);
+    const enlaces = ENLACES.filter((e) => (e.pagina ? ve(e.pagina) : !unica));
     const variasPaginas = enlaces.length > 1;
     const { pathname } = useLocation();
     const { producto, nombre } = useInstancia();
