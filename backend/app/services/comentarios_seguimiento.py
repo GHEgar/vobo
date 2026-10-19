@@ -6,7 +6,7 @@ from app.models.resultado import Resultado
 from app.models.seguimiento import PASO_NO_PUDE, ComentarioSeguimiento
 from app.schemas.resultado import normalizar_pasos
 from app.schemas.seguimiento import ComentarioUpdate
-from app.services import seguimiento
+from app.services import avisos_seguimiento, seguimiento
 
 OBJETO = "comentario"
 RESUELTO = "resuelto"
@@ -78,10 +78,13 @@ def actualizar(
     db: Session, comentario_id: int, cambios: ComentarioUpdate, actor: str
 ) -> ComentarioSeguimiento:
     fila = obtener_o_404(db, comentario_id)
+    estado_previo = fila.estado
     if cambios.estado is not None:
         seguimiento.cambiar_estado(db, OBJETO, fila, cambios.estado, actor, RESUELTO, CAMPOS)
     if "plazo" in cambios.model_fields_set:
         seguimiento.cambiar_plazo(db, OBJETO, fila, cambios.plazo, actor)
+    if fila.estado != estado_previo:
+        avisos_seguimiento.avisar_estado(db, OBJETO, fila, actor)
     db.commit()
     db.refresh(fila)
     return fila

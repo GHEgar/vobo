@@ -9,6 +9,7 @@ from app.models.falla import Falla
 from app.models.seguimiento import ComentarioSeguimiento, Seguimiento
 from app.models.usuario import Usuario
 from app.schemas.seguimiento import EventoSeguimiento
+from app.services import avisos_seguimiento
 
 
 def nombres(db: Session) -> dict[str, str]:
@@ -115,9 +116,10 @@ def cambiar_plazo(
 
 
 def responder(
-    db: Session, objeto: str, objeto_id: int, autor: str, texto: str
+    db: Session, objeto: str, registro: Falla | ComentarioSeguimiento, autor: str, texto: str
 ) -> EventoSeguimiento:
-    evento = registrar(db, objeto, objeto_id, autor, "respuesta", texto=texto)
+    evento = registrar(db, objeto, registro.id, autor, "respuesta", texto=texto)
+    avisos_seguimiento.avisar_respuesta(db, objeto, registro, autor, texto)
     db.commit()
     db.refresh(evento)
     return serializar(evento, nombres(db))

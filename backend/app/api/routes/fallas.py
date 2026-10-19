@@ -152,4 +152,4 @@ def responder_falla(
     actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> EventoSeguimiento:
     falla = fallas.obtener_o_404(db, falla_id)
-    return seguimiento.responder(db, "falla", falla.id, actor.email, datos.texto)
+    return seguimiento.responder(db, "falla", falla, actor.email, datos.texto)

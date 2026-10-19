@@ -8,7 +8,7 @@ from app.models.falla import Evidencia, Falla
 from app.models.ronda import Ronda
 from app.schemas.falla import EvidenciaResponse, FallaResponse, FallaUpdate
 from app.schemas.seguimiento import EventoSeguimiento
-from app.services import evidencias, resultados, seguimiento
+from app.services import avisos_seguimiento, evidencias, resultados, seguimiento
 from app.services.contenido import Contenido, caso_o_404
 
 
@@ -103,6 +103,7 @@ def obtener_o_404(db: Session, falla_id: int) -> Falla:
 
 def actualizar(db: Session, falla_id: int, cambios: FallaUpdate, actor_email: str) -> Falla:
     falla = obtener_o_404(db, falla_id)
+    estado_previo = falla.estado
     if cambios.estado is not None:
         seguimiento.cambiar_estado(
             db, OBJETO, falla, cambios.estado, actor_email, CERRADA, CAMPOS_RESUELTA
@@ -114,6 +115,8 @@ def actualizar(db: Session, falla_id: int, cambios: FallaUpdate, actor_email: st
             seguimiento.registrar(db, OBJETO, falla.id, actor_email, "nota", texto=nota)
     if "plazo" in cambios.model_fields_set:
         seguimiento.cambiar_plazo(db, OBJETO, falla, cambios.plazo, actor_email)
+    if falla.estado != estado_previo:
+        avisos_seguimiento.avisar_estado(db, OBJETO, falla, actor_email)
     db.commit()
     db.refresh(falla)
     return falla

@@ -78,5 +78,6 @@ def responder_comentario(
     db: Session = Depends(get_db),
     actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> EventoSeguimiento:
-    visible = _visible(db, comentario_id)
-    return seguimiento.responder(db, "comentario", visible.id, actor.email, datos.texto)
+    _visible(db, comentario_id)
+    fila = comentarios_seguimiento.obtener_o_404(db, comentario_id)
+    return seguimiento.responder(db, "comentario", fila, actor.email, datos.texto)
