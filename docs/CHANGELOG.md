@@ -7,6 +7,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- Página «Participación»: el texto que explicaba el grafo pasa al «?» junto a Proyecto · Sistema ·
+  Sección. Salen los botones «Animación» y «Recorrido»: el grafo siempre se anima y recorre los nodos;
+  un clic lo pausa y aparece «Reanudar recorrido». La tarjeta del recorrido muestra cuánto falta para
+  la siguiente y procura no tapar a los vecinos del nodo (`@npmegar/tequio` 0.6.0).
+
 ## [0.8.0] - 2026-10-19
 
 ### Agregado
