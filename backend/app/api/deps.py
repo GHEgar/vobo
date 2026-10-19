@@ -115,7 +115,12 @@ async def lectura_o_sesion(
     return await get_actor(request, db)
 
 
-def lectura_o_permiso(permiso: str, pagina: str | None = None) -> Callable[..., Awaitable[Actor]]:
+def lectura_o_permiso(
+    permiso: str | tuple[str, ...], pagina: str | tuple[str, ...] | None = None
+) -> Callable[..., Awaitable[Actor]]:
+    permisos = (permiso,) if isinstance(permiso, str) else permiso
+    paginas = (pagina,) if isinstance(pagina, str) else (pagina or ())
+
     async def dependencia(
         request: Request,
         credenciales: HTTPAuthorizationCredentials | None = Depends(_bearer),
@@ -124,8 +129,8 @@ def lectura_o_permiso(permiso: str, pagina: str | None = None) -> Callable[..., 
         if credenciales is not None:
             return _actor_de_token(credenciales)
         actor = await get_actor(request, db)
-        if not actor.puede(permiso) and not (pagina and actor.ve(pagina)):
-            raise _prohibido(permiso)
+        if not any(actor.puede(p) for p in permisos) and not any(actor.ve(p) for p in paginas):
+            raise _prohibido(permisos[0])
         return actor
 
     return dependencia

@@ -70,3 +70,9 @@ def test_filtros_y_permisos(cliente_de, ronda_id) -> None:
     assert lectura.json()["projects"][0]["id"] == "principal"
     falso = anonimo.get("/api/participacion", headers={"Authorization": "Bearer otro"})
     assert falso.status_code == 401
+
+
+def test_solo_quien_ve_tablero_o_fallas(cliente_de, ronda_id) -> None:
+    assert cliente_de("validador").get("/api/participacion").status_code == 403
+    assert cliente_de("aprobacion").get("/api/participacion").status_code == 200
+    assert cliente_de("coordinacion").get("/api/participacion").status_code == 200
