@@ -15,7 +15,7 @@ export const ComentariosLista = ({ rondaId, sistema, editable = false }) => {
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
             {data && !visibles.length && <p className="tipo-media text-sm text-texto-apagado">Sin comentarios con estos filtros.</p>}
             {visibles.length > 0 && (
-                <ul className="flex flex-col gap-2">
+                <ul className="flex flex-col gap-4">
                     {visibles.map((c) => <ComentarioItem key={c.id ?? `${c.caso_id}-${c.usuario_email}-${c.tipo}-${c.paso}`} comentario={c} editable={editable} />)}
                 </ul>
             )}

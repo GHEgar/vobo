@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/Button';
 import { TextField } from '@/components/Field';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
@@ -28,10 +28,21 @@ const Evento = ({ evento, estados, burbuja }) => {
 export const Seguimiento = ({ objeto, id, eventos = [], estados, editable = false, burbuja = 'bg-fondo' }) => {
     const responder = useResponder(objeto);
     const [texto, setTexto] = useState('');
+    const [abierto, setAbierto] = useState(false);
+    const boton = useRef(null);
     const campo = `respuesta-${objeto}-${id}`;
+    const cerrar = () => {
+        setTexto('');
+        setAbierto(false);
+        requestAnimationFrame(() => boton.current?.focus());
+    };
+    const abrir = () => {
+        setAbierto(true);
+        requestAnimationFrame(() => document.getElementById(campo)?.focus());
+    };
     const enviar = (e) => {
         e.preventDefault();
-        responder.mutate({ id, texto: texto.trim() }, { onSuccess: () => setTexto('') });
+        responder.mutate({ id, texto: texto.trim() }, { onSuccess: cerrar });
     };
 
     if (!eventos.length && !editable) return null;
@@ -45,12 +56,18 @@ export const Seguimiento = ({ objeto, id, eventos = [], estados, editable = fals
             ) : (
                 <p className="mt-1 tipo-media text-xs text-texto-apagado">Sin respuestas ni cambios todavía.</p>
             )}
-            {editable && (
-                <form onSubmit={enviar} className="flex flex-col gap-2 print:hidden sm:flex-row sm:items-end">
-                    <div className="min-w-0 grow">
-                        <TextField id={campo} label="Responder" multiline rows={2} maxLength={4000} value={texto} onChange={(e) => setTexto(e.target.value)} />
+            {editable && !abierto && (
+                <div className="mt-3 print:hidden">
+                    <Button ref={boton} label="Responder" variant="ghost" small onClick={abrir} />
+                </div>
+            )}
+            {editable && abierto && (
+                <form onSubmit={enviar} className="flex flex-col gap-2 print:hidden">
+                    <TextField id={campo} label="Respuesta" tooltip="Le llega en sus avisos a quien lo escribió." multiline rows={3} maxLength={4000} value={texto} onChange={(e) => setTexto(e.target.value)} />
+                    <div className="flex flex-wrap justify-end gap-2">
+                        <Button label="Cancelar" variant="secondary" small onClick={cerrar} />
+                        <Button type="submit" label="Enviar" variant="outline" small disabled={!texto.trim()} loading={responder.isPending} />
                     </div>
-                    <Button type="submit" label="Enviar" variant="outline" disabled={!texto.trim()} loading={responder.isPending} />
                 </form>
             )}
             {responder.error && <p className="mt-2 tipo-media text-xs text-error-fuerte">{responder.error.message}</p>}

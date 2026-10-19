@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Alert, Check, Copy } from 'tesela/react';
 import { Chip } from '@/components/Chip';
-import { SelectField } from '@/components/Field';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
+import { Dato, Detalles } from '@/components/fallas/Detalles';
+import { EstadoCampo, Franja } from '@/components/fallas/Franja';
 import { PlazoCampo } from '@/components/fallas/PlazoCampo';
 import { Resolucion } from '@/components/fallas/Resolucion';
 import { Seguimiento } from '@/components/fallas/Seguimiento';
 import { useActualizarComentario } from '@/hooks/useValidacion';
 import { useRuta } from '@/hooks/useProyecto';
-import { ESTADOS_COMENTARIO, opciones } from '@/utils/etiquetas';
+import { ESTADOS_COMENTARIO } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
 import { copiarTexto } from '@/utils/portapapeles';
 
@@ -38,49 +39,51 @@ export const ComentarioItem = ({ comentario: c, editable }) => {
     const actualizar = useActualizarComentario();
     const gestionable = editable && c.id !== null && c.id !== undefined;
     const cambiar = (cambios) => actualizar.mutate({ id: c.id, ...cambios });
-    const estado = ESTADOS_COMENTARIO[c.estado] ?? ESTADOS_COMENTARIO.nuevo;
 
     return (
-        <li className="min-w-0 rounded-2xl border border-borde bg-white px-5 py-3">
+        <li className="min-w-0 rounded-2xl border border-borde bg-white p-5">
             <div className="flex flex-wrap items-center gap-2">
-                <Link to={ruta(`/caso/${encodeURIComponent(c.caso_id)}`)} className="min-w-0 wrap-anywhere tipo-negrita text-sm text-primario hover:underline">
-                    {c.caso_id} · {c.caso_titulo}
-                </Link>
                 <Chip tono={c.tipo === 'no_pude' ? 'aviso' : 'marca'}>
                     {c.tipo === 'no_pude' && <Alert size={16} className="shrink-0" />}
                     {c.tipo === 'no_pude' ? 'No pudo probarlo' : `Paso ${c.paso + 1}`}
                 </Chip>
-                {!gestionable && <Chip tono={estado.tono}>{estado.texto}</Chip>}
+                {c.sistema && <Chip tono="marca">{c.sistema}</Chip>}
                 <CopiarTaiga comentario={c} />
             </div>
-            {c.paso_texto && <p className="mt-1 wrap-anywhere tipo-media text-xs text-texto-apagado">{c.paso_texto}</p>}
-            <p className="mt-1 whitespace-pre-line wrap-anywhere tipo-regular text-sm text-texto"><TextoConEnlaces texto={c.comentario} /></p>
-            <p className="mt-1 tipo-media text-[11px] text-texto-apagado">{c.autor || c.usuario_email} · {formatearFecha(c.actualizado)}</p>
-            <div className="mt-2 flex flex-wrap items-end gap-x-4 gap-y-2">
-                {gestionable && (
-                    <SelectField
-                        id={`estado-comentario-${c.id}`}
-                        aria-label="Estado del comentario"
-                        value={c.estado}
-                        onChange={(e) => cambiar({ estado: e.target.value })}
-                        options={opciones(ESTADOS_COMENTARIO)}
-                        className="w-full sm:w-[180px]"
-                    />
-                )}
-                {(gestionable || c.plazo) && (
-                    <PlazoCampo
-                        id={`comentario-${c.id}`}
-                        plazo={c.plazo}
-                        responsable={c.plazo_por_nombre || c.plazo_por}
-                        resuelto={c.estado === 'resuelto'}
-                        editable={gestionable}
-                        onCambiar={(plazo) => cambiar({ plazo })}
-                        textoVencido="Vencido"
-                    />
-                )}
-            </div>
-            <div className="mt-2"><Resolucion verbo="Resuelto" en={c.resuelto_en} por={c.resuelto_por_nombre || c.resuelto_por} desde={c.creado} /></div>
+            <h3 className="mt-2 wrap-anywhere tipo-negrita text-base">
+                <Link to={ruta(`/caso/${encodeURIComponent(c.caso_id)}`)} className="text-primario hover:underline">
+                    {c.caso_id} · {c.caso_titulo}
+                </Link>
+            </h3>
+            <p className="mt-2 whitespace-pre-line wrap-anywhere tipo-regular text-[15px]/6 text-texto"><TextoConEnlaces texto={c.comentario} /></p>
+            <Franja etiqueta={`Estado y plazo del comentario en ${c.caso_id}`}>
+                <EstadoCampo
+                    id={`estado-comentario-${c.id}`}
+                    valor={c.estado}
+                    estados={ESTADOS_COMENTARIO}
+                    editable={gestionable}
+                    etiqueta="Estado del comentario"
+                    onCambiar={(estado) => cambiar({ estado })}
+                >
+                    <Resolucion verbo="Resuelto" en={c.resuelto_en} por={c.resuelto_por_nombre || c.resuelto_por} desde={c.creado} />
+                </EstadoCampo>
+                <PlazoCampo
+                    id={`comentario-${c.id}`}
+                    plazo={c.plazo}
+                    responsable={c.plazo_por_nombre || c.plazo_por}
+                    resuelto={c.estado === 'resuelto'}
+                    editable={gestionable}
+                    onCambiar={(plazo) => cambiar({ plazo })}
+                    textoVencido="Vencido"
+                />
+            </Franja>
             {actualizar.error && <p className="mt-2 tipo-media text-xs text-error-fuerte">{actualizar.error.message}</p>}
+            <Detalles>
+                <Dato termino="Paso">{c.tipo === 'no_pude' ? 'No pudo probarlo' : `${c.paso + 1}. ${c.paso_texto || ''}`}</Dato>
+                <Dato termino="Escribió">{c.autor || c.usuario_email}</Dato>
+                <Dato termino="Fecha">{formatearFecha(c.actualizado)}</Dato>
+                <Dato termino="Ronda">{c.ronda_nombre}</Dato>
+            </Detalles>
             {c.id != null && <Seguimiento objeto="comentario" id={c.id} eventos={c.seguimiento} estados={ESTADOS_COMENTARIO} editable={gestionable} />}
         </li>
     );
