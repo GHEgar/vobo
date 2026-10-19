@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Actor, lectura_o_permiso
 from app.core.database import get_db
-from app.core.permisos import GESTIONAR_FALLAS, VER_TABLERO
+from app.core.permisos import VER_PARTICIPACION
 from app.schemas.participacion import Participacion
 from app.services import participacion
 from app.services.participacion_grupos import Agrupar
@@ -18,7 +18,7 @@ def obtener(
     agrupar: Agrupar = Query(default="proyecto"),
     db: Session = Depends(get_db),
     _actor: Actor = Depends(
-        lectura_o_permiso((VER_TABLERO, GESTIONAR_FALLAS), ("tablero", "fallas"))
+        lectura_o_permiso(VER_PARTICIPACION, ("participacion", "tablero", "fallas"))
     ),
 ) -> Participacion:
     claves = [c.strip() for c in proyectos.split(",") if c.strip()]

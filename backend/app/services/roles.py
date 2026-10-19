@@ -3,7 +3,12 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.permisos import CATALOGO, expandir
+from app.core.permisos import (
+    CATALOGO,
+    EDITAR_IDENTIDAD,
+    VER_PARTICIPACION,
+    expandir,
+)
 from app.models.rol import Rol, UsuarioRol
 from app.models.usuario import Usuario
 from app.schemas.admin import RolCambios, RolCrear
@@ -41,6 +46,21 @@ ROLES_SISTEMA = (
     },
 )
 
+ROLES_AGREGADOS = (
+    {
+        "clave": "pantalla",
+        "nombre": "Pantalla",
+        "descripcion": "Solo ve la página Participación; pensado para una TV.",
+        "permisos": [VER_PARTICIPACION],
+    },
+    {
+        "clave": "identidad",
+        "nombre": "Identidad visual",
+        "descripcion": "Edita nombre, textos de entrada, marca, colores y tipografía.",
+        "permisos": [EDITAR_IDENTIDAD],
+    },
+)
+
 
 def _conflicto(detalle: str) -> HTTPException:
     return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detalle)
@@ -48,7 +68,8 @@ def _conflicto(detalle: str) -> HTTPException:
 
 def sembrar_sistema(db: Session) -> None:
     existentes = set(db.scalars(select(Rol.clave)))
-    db.add_all(Rol(**r, sistema=True) for r in ROLES_SISTEMA if r["clave"] not in existentes)
+    sembrar = (*ROLES_SISTEMA, *ROLES_AGREGADOS)
+    db.add_all(Rol(**r, sistema=True) for r in sembrar if r["clave"] not in existentes)
     db.commit()
 
 
@@ -183,3 +204,16 @@ def efectivos(
     db: Session, usuario_id: int, del_proveedor: set[str], grupos: set[str]
 ) -> frozenset[str]:
     return expandir(del_proveedor | asignados(db, usuario_id) | por_grupos(db, grupos))
+
+
+def exigir_otorgables(otorgante: frozenset[str], permisos: set[str] | list[str]) -> None:
+    faltan = sorted(expandir(set(permisos)) - otorgante)
+    if faltan:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"No puedes otorgar permisos que no tienes: {', '.join(faltan)}",
+        )
+
+
+def permisos_de_claves(db: Session, claves: list[str] | set[str]) -> set[str]:
+    return _permisos_de(list(db.scalars(select(Rol).where(Rol.clave.in_(set(claves))))))

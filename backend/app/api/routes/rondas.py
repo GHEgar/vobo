@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Actor, get_actor, proyecto_actual, require_permission
 from app.core.database import get_db
-from app.core.permisos import GESTIONAR_FALLAS
+from app.core.permisos import GESTIONAR_RONDAS
 from app.models.proyecto import Proyecto
 from app.models.ronda import Asignacion, Ronda
 from app.models.usuario import Usuario
@@ -34,7 +34,7 @@ def listar_rondas(
 @router.get("/usuarios", response_model=list[UsuarioConocido])
 def listar_usuarios(
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    _actor: Actor = Depends(require_permission(GESTIONAR_RONDAS)),
 ) -> list[Usuario]:
     return list(db.scalars(select(Usuario).order_by(Usuario.nombre)))
 
@@ -43,7 +43,7 @@ def listar_usuarios(
 def listar_asignaciones(
     ronda_id: int,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    _actor: Actor = Depends(require_permission(GESTIONAR_RONDAS)),
 ) -> list[Asignacion]:
     rondas.obtener_o_404(db, ronda_id)
     consulta = select(Asignacion).where(Asignacion.ronda_id == ronda_id)
@@ -54,7 +54,7 @@ def listar_asignaciones(
 def crear_ronda(
     datos: RondaCreate,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    _actor: Actor = Depends(require_permission(GESTIONAR_RONDAS)),
 ) -> Ronda:
     destino = (
         proyectos.de_clave(db, datos.proyecto) if datos.proyecto else proyectos.por_omision(db)
@@ -81,7 +81,7 @@ def actualizar_ronda(
     ronda_id: int,
     cambios: RondaUpdate,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    _actor: Actor = Depends(require_permission(GESTIONAR_RONDAS)),
 ) -> Ronda:
     return rondas.actualizar(db, rondas.obtener_o_404(db, ronda_id), cambios)
 
@@ -90,7 +90,7 @@ def actualizar_ronda(
 def borrar_ronda(
     ronda_id: int,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    _actor: Actor = Depends(require_permission(GESTIONAR_RONDAS)),
 ) -> None:
     rondas.borrar(db, rondas.obtener_o_404(db, ronda_id))
 
@@ -100,7 +100,7 @@ def reemplazar_asignaciones(
     ronda_id: int,
     items: list[AsignacionItem],
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    _actor: Actor = Depends(require_permission(GESTIONAR_RONDAS)),
 ) -> list[Asignacion]:
     ronda = rondas.obtener_o_404(db, ronda_id)
     del_proyecto = contenido.obtener(proyectos.obtener_o_404(db, ronda.proyecto_id))

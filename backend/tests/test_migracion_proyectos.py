@@ -76,7 +76,7 @@ def test_todo_queda_en_el_proyecto_por_omision(tmp_path, subir) -> None:
         "comentarios_seguimiento",
         "seguimiento",
     }
-    assert conserva(antes, despues)
+    assert conserva(antes, despues, crecen=frozenset({"roles"}))
     [proyecto] = despues["proyectos"]
     assert proyecto["clave"] == "principal"
     assert proyecto["por_omision"] and not proyecto["archivado"]

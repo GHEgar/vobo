@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import Actor, require_permission
+from app.api.deps import Actor, require_alguno, require_permission
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.permisos import ADMINISTRAR, CATALOGO
+from app.core.permisos import AREA_DE, CATALOGO, GESTIONAR_PERSONAS, GESTIONAR_ROLES
 from app.models.cuenta import Cuenta
 from app.models.rol import Rol
 from app.models.usuario import Usuario
@@ -26,7 +26,9 @@ from app.services import cuentas_propias, roles
 
 router = APIRouter(prefix="/api/admin", tags=["administracion"])
 
-admin = require_permission(ADMINISTRAR)
+personas = require_permission(GESTIONAR_PERSONAS)
+roles_dep = require_permission(GESTIONAR_ROLES)
+personas_o_roles = require_alguno(GESTIONAR_PERSONAS, GESTIONAR_ROLES)
 
 
 def _con_cuentas() -> None:
@@ -57,37 +59,50 @@ def _persona(usuario: Usuario, claves: list[str], cuenta: Cuenta | None) -> Pers
 
 
 @router.get("/permisos", response_model=list[PermisoItem])
-def listar_permisos(_actor: Actor = Depends(admin)) -> list[PermisoItem]:
-    return [PermisoItem(clave=c, descripcion=d) for c, d in CATALOGO.items()]
+def listar_permisos(_actor: Actor = Depends(personas_o_roles)) -> list[PermisoItem]:
+    return [PermisoItem(clave=c, descripcion=d, area=AREA_DE[c]) for c, d in CATALOGO.items()]
 
 
 @router.get("/roles", response_model=list[RolItem])
-def listar_roles(db: Session = Depends(get_db), _actor: Actor = Depends(admin)) -> list[Rol]:
+def listar_roles(
+    db: Session = Depends(get_db), _actor: Actor = Depends(personas_o_roles)
+) -> list[Rol]:
     return roles.listar(db)
 
 
 @router.post("/roles", response_model=RolItem, status_code=status.HTTP_201_CREATED)
 def crear_rol(
-    datos: RolCrear, db: Session = Depends(get_db), _actor: Actor = Depends(admin)
+    datos: RolCrear, db: Session = Depends(get_db), actor: Actor = Depends(roles_dep)
 ) -> Rol:
+    roles.exigir_otorgables(actor.permisos, datos.permisos)
     return roles.crear(db, datos)
 
 
 @router.patch("/roles/{rol_id}", response_model=RolItem)
 def actualizar_rol(
-    rol_id: int, datos: RolCambios, db: Session = Depends(get_db), _actor: Actor = Depends(admin)
+    rol_id: int,
+    datos: RolCambios,
+    db: Session = Depends(get_db),
+    actor: Actor = Depends(roles_dep),
 ) -> Rol:
-    return roles.actualizar(db, roles.obtener_o_404(db, rol_id), datos)
+    rol = roles.obtener_o_404(db, rol_id)
+    if datos.permisos is not None:
+        roles.exigir_otorgables(actor.permisos, set(rol.permisos or []) ^ set(datos.permisos))
+    return roles.actualizar(db, rol, datos)
 
 
 @router.delete("/roles/{rol_id}", status_code=status.HTTP_204_NO_CONTENT)
-def borrar_rol(rol_id: int, db: Session = Depends(get_db), _actor: Actor = Depends(admin)) -> None:
-    roles.borrar(db, roles.obtener_o_404(db, rol_id))
+def borrar_rol(
+    rol_id: int, db: Session = Depends(get_db), actor: Actor = Depends(roles_dep)
+) -> None:
+    rol = roles.obtener_o_404(db, rol_id)
+    roles.exigir_otorgables(actor.permisos, rol.permisos or [])
+    roles.borrar(db, rol)
 
 
 @router.get("/personas", response_model=list[PersonaItem])
 def listar_personas(
-    response: Response, db: Session = Depends(get_db), _actor: Actor = Depends(admin)
+    response: Response, db: Session = Depends(get_db), _actor: Actor = Depends(personas_o_roles)
 ) -> list[PersonaItem]:
     response.headers["Cache-Control"] = "no-store"
     claves = roles.claves_por_usuario(db)
@@ -101,9 +116,12 @@ def asignar_roles(
     usuario_id: int,
     datos: RolesDePersona,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(admin),
+    actor: Actor = Depends(roles_dep),
 ) -> PersonaItem:
     usuario = _usuario_o_404(db, usuario_id)
+    actuales = set(roles.claves_por_usuario(db).get(usuario.id, []))
+    cambiados = actuales ^ set(datos.roles)
+    roles.exigir_otorgables(actor.permisos, roles.permisos_de_claves(db, cambiados))
     claves = roles.asignar(db, usuario, datos.roles)
     return _persona(usuario, claves, cuentas_propias.cuenta_de(db, usuario.id))
 
@@ -113,7 +131,7 @@ def cambiar_estado_cuenta(
     usuario_id: int,
     datos: EstadoCuenta,
     db: Session = Depends(get_db),
-    actor: Actor = Depends(admin),
+    actor: Actor = Depends(personas),
 ) -> PersonaItem:
     usuario = _usuario_o_404(db, usuario_id)
     if usuario.id == actor.usuario_id and not datos.activa:
@@ -126,7 +144,7 @@ def cambiar_estado_cuenta(
 
 @router.post("/personas/{usuario_id}/restablecer", response_model=EnlaceResponse)
 def restablecer_contrasena(
-    usuario_id: int, db: Session = Depends(get_db), actor: Actor = Depends(admin)
+    usuario_id: int, db: Session = Depends(get_db), actor: Actor = Depends(personas)
 ) -> EnlaceResponse:
     _con_cuentas()
     usuario = _usuario_o_404(db, usuario_id)
@@ -136,22 +154,23 @@ def restablecer_contrasena(
 
 @router.get("/invitaciones", response_model=list[InvitacionItem])
 def listar_invitaciones(
-    db: Session = Depends(get_db), _actor: Actor = Depends(admin)
+    db: Session = Depends(get_db), _actor: Actor = Depends(personas)
 ) -> list[InvitacionItem]:
     return cuentas_propias.pendientes(db)
 
 
 @router.post("/invitaciones", response_model=EnlaceResponse, status_code=status.HTTP_201_CREATED)
 def invitar(
-    datos: InvitacionCrear, db: Session = Depends(get_db), actor: Actor = Depends(admin)
+    datos: InvitacionCrear, db: Session = Depends(get_db), actor: Actor = Depends(personas)
 ) -> EnlaceResponse:
     _con_cuentas()
+    roles.exigir_otorgables(actor.permisos, roles.permisos_de_claves(db, datos.roles))
     invitacion, enlace = cuentas_propias.invitar(db, datos.email, datos.roles, actor.email)
     return EnlaceResponse(enlace=enlace, expira=invitacion.expira)
 
 
 @router.delete("/invitaciones/{invitacion_id}", status_code=status.HTTP_204_NO_CONTENT)
 def revocar_invitacion(
-    invitacion_id: int, db: Session = Depends(get_db), _actor: Actor = Depends(admin)
+    invitacion_id: int, db: Session = Depends(get_db), _actor: Actor = Depends(personas)
 ) -> None:
     cuentas_propias.revocar_invitacion(db, invitacion_id)
