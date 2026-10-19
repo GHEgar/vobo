@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.6.0] - 2026-10-19
+
 ### Agregado
 
 - Esfuerzo estimado en fallas y comentarios (`esfuerzo_horas`, de 0 a 1000 horas; `null` es «sin
