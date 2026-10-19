@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.8.0] - 2026-10-19
+
 ### Agregado
 
 - La participación se agrupa por proyecto, sistema o sección (`GET /api/participacion?agrupar=`,

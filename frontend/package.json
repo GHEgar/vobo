@@ -1,6 +1,6 @@
 {
     "name": "vobo",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "Guía para que un equipo valide un ciclo de cambios por casos guiados",
     "private": true,
     "type": "module",
