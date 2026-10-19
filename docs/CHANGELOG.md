@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.7.0] - 2026-10-19
+
 ### Agregado
 
 - Página «Participación» (`/participacion`, junto a Tablero en el menú): el grafo de tequio en vivo
