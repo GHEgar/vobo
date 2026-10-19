@@ -7,6 +7,27 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Avisos automáticos a quien reportó una falla o escribió un comentario: al responderle y cuando
+  coordinación pasa la falla a `en_curso`, `lista_para_revalidar` o `cerrada` (con la nota de
+  resolución) o el comentario a `en_curso` o `resuelto`. Llevan el plazo si existe, salen en la misma
+  transacción que el cambio, uno solo por petición aunque cambien estado y plazo, y no se envían a
+  quien actúa ni al volver a `nueva`. `services/avisos_seguimiento.py` expone `avisar_respuesta()` y
+  `avisar_estado()` para usarlas fuera de la API.
+
+### Cambiado
+
+- Tarjetas de falla y de comentario: estado, plazo con responsable y capturas agrupados en una
+  franja; paso, se repite, autor, fecha, navegador, versión y dirección en «Detalles», cerrados por
+  omisión; la nota de resolución se muestra como texto con «Agregar nota» o «Editar nota», y
+  «Responder» abre el campo solo cuando se pide.
+
+### Eliminado
+
+- Botón manual «Avisar a quien reportó» de cada falla. `POST /api/avisos` sigue para los avisos de
+  la página de Avisos.
+
 ## [0.4.0] - 2026-10-19
 
 ### Agregado
