@@ -34,6 +34,35 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - `GET /api/pantalla/{token}` y `GET /api/pantalla/{token}/datos` públicos: solo nombre de pila e
   iniciales, sin correos, comentarios ni evidencias; 404 genérico con token malo o inactivo, registro
   de último uso y caché de 15 segundos por pantalla.
+- Seguimiento de fallas y comentarios (migración `0009`): tabla `comentarios_seguimiento` con estado
+  (nuevo, en curso, resuelto), plazo y resolución de cada comentario de paso o «No pude probarlo»,
+  sembrada con los comentarios existentes; tabla `seguimiento` de solo inserción con respuestas y
+  cambios de estado, plazo y nota, con autor y hora.
+- Fallas con `plazo` (fecha compromiso), `plazo_por` (quien lo fijó, mostrado como responsable),
+  `resuelta_en` y `resuelta_por`: se fijan al cerrar y se limpian al reabrir. Las cerradas antes de
+  la migración quedan sin fecha.
+- `POST /api/fallas/{id}/respuestas`, `PATCH /api/comentarios/{id}` (estado y plazo) y
+  `POST /api/comentarios/{id}/respuestas`, con permiso de gestionar fallas. Las respuestas de fallas
+  y comentarios traen su hilo en `seguimiento`, cargado en una sola consulta.
+- Un comentario resuelto vuelve a «Nuevo» si quien lo escribió cambia el texto; uno borrado conserva
+  su seguimiento y deja de listarse.
+- En Fallas: plazo con responsable, marca «Vencida», «Resuelta por … · tardó …» e hilo con respuestas
+  y cambios en cada falla y comentario; los comentarios ganan estado editable.
+- CSV de fallas: columnas plazo, responsable, resuelta, resolvió, tiempo de solución (horas) y
+  respuestas al final, sin mover las existentes.
+
+### Cambiado
+
+- El informe imprimible se organiza por proyecto, herramienta y fallas y comentarios, de todos los
+  proyectos o de los elegidos, con resumen por proyecto (abiertas, resueltas, vencidas, tiempo
+  medio de solución) y opciones para incluir o no resumen, fallas, «No pude probarlo», comentarios,
+  respuestas e historial, evidencias y tiempos, filtrar por herramienta, estado y severidad. Todo
+  queda en la dirección para reproducir el informe; los enlaces anteriores siguen funcionando.
+  Por omisión incluye todo.
+- «Descargar CSV» pasa de Fallas al informe, junto a «Imprimir / guardar PDF», y descarga lo mismo
+  que muestra el informe: una fila por falla o comentario con proyecto y herramienta.
+- Fallas muestra al entrar todas las rondas y tipos; los filtros se abren con el botón «Filtros»,
+  que cuenta los activos. Se quita la casilla «Incluir comentarios».
 
 ## [0.3.2] - 2026-10-16
 
