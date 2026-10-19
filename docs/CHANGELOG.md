@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.4.0] - 2026-10-19
+
 ### Agregado
 
 - Bitácora de resultados (`resultados_historial`, migración `0007`): cada vez que un resultado se
