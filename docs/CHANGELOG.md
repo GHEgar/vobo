@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.9.0] - 2026-10-19
+
 ### Agregado
 
 - Permisos atómicos agrupados por área: `participacion.ver`, `fallas.ver`, `rondas.gestionar` y
