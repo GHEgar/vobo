@@ -58,11 +58,3 @@ export const useCrearProyecto = () => useMutacion(api.crearProyecto, CON_PROYECT
 export const useActualizarProyecto = () => useMutacion(api.actualizarProyecto, CON_PROYECTOS);
 export const useOrdenarProyectos = () => useMutacion(api.ordenarProyectos, CON_PROYECTOS);
 export const useBorrarProyecto = () => useMutacion(api.borrarProyecto, CON_PROYECTOS);
-
-const PANTALLAS = ['admin', 'pantallas'];
-
-export const usePantallas = () => useQuery({ queryKey: PANTALLAS, queryFn: api.fetchPantallas });
-export const useCrearPantalla = () => useMutacion(api.crearPantalla, [PANTALLAS]);
-export const useActualizarPantalla = () => useMutacion(api.actualizarPantalla, [PANTALLAS]);
-export const useRegenerarPantalla = () => useMutacion(api.regenerarPantalla, [PANTALLAS]);
-export const useBorrarPantalla = () => useMutacion(api.borrarPantalla, [PANTALLAS]);

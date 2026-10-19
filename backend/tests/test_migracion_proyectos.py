@@ -73,7 +73,6 @@ def test_todo_queda_en_el_proyecto_por_omision(tmp_path, subir) -> None:
     assert set(despues) == set(antes) | {
         "proyectos",
         "resultados_historial",
-        "pantallas",
         "comentarios_seguimiento",
         "seguimiento",
     }

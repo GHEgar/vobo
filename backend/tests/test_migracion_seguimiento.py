@@ -76,7 +76,8 @@ def test_baja_a_0008_y_vuelve(tmp_path) -> None:
     assert volcado(motor) == antes
     assert _esquema_fallas(motor).count("CHECK") == checks > 0
     _migrar(motor, "head")
-    assert conserva(antes, volcado(motor))
+    sin_pantallas = {k: v for k, v in antes.items() if k != "pantallas"}
+    assert conserva(sin_pantallas, volcado(motor))
     assert len(volcado(motor)["comentarios_seguimiento"]) == 3
-    assert migraciones.revision_actual(motor) == migraciones.revision_head() == "0009"
+    assert migraciones.revision_actual(motor) == migraciones.revision_head() == "0010"
     motor.dispose()

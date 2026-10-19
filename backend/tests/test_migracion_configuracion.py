@@ -41,7 +41,6 @@ def test_0004_sobre_0003_conserva_datos_y_crea_la_tabla_vacia(tmp_path, monkeypa
         "configuracion",
         "proyectos",
         "resultados_historial",
-        "pantallas",
         "comentarios_seguimiento",
         "seguimiento",
     }

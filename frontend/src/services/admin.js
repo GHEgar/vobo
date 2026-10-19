@@ -36,11 +36,3 @@ export const crearProyecto = (datos) => solicitar(PROYECTOS, { method: 'POST', j
 export const actualizarProyecto = ({ id, ...cambios }) => solicitar(`${PROYECTOS}/${id}`, { method: 'PATCH', json: cambios });
 export const ordenarProyectos = (ids) => solicitar(`${PROYECTOS}/orden`, { method: 'PUT', json: { ids } });
 export const borrarProyecto = (id) => solicitar(`${PROYECTOS}/${id}`, { method: 'DELETE' });
-
-const PANTALLAS = '/admin/pantallas';
-
-export const fetchPantallas = () => solicitar(PANTALLAS);
-export const crearPantalla = (datos) => solicitar(PANTALLAS, { method: 'POST', json: datos });
-export const actualizarPantalla = ({ id, ...cambios }) => solicitar(`${PANTALLAS}/${id}`, { method: 'PATCH', json: cambios });
-export const regenerarPantalla = (id) => solicitar(`${PANTALLAS}/${id}/regenerar`, { method: 'POST' });
-export const borrarPantalla = (id) => solicitar(`${PANTALLAS}/${id}`, { method: 'DELETE' });

@@ -16,24 +16,6 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   cerrarla y se limpia al reabrirla; las rondas cerradas antes de la migración quedan sin fecha.
 - `GET /api/historial/avance?ronda=&proyecto=&desde=&hasta=` (permiso de seguimiento): casos
   marcados acumulados por día calculados desde la bitácora; lista vacía si aún no hay historial.
-- Pantallas para televisores (`pantallas`, migración `0008`): enlace firmado
-  `<FRONTEND_URL>/pantalla/<token>` que se ve sin sesión, a 1920×1080 escalado a cualquier pantalla,
-  rota entre sus vistas cada 10 a 300 segundos, refresca cada 15 y conserva lo último sin conexión.
-  Solo se guarda el SHA-256 del token; el enlace se muestra una vez.
-- Vista general de la pantalla: anillo por proyecto con pasa, falla y no pude, porcentaje, día de la
-  ronda abierta, fallas abiertas, personas en línea, reloj y cinta de actividad reciente; rota de
-  tres en tres proyectos.
-- Vista de grafo en vivo: proyectos, sistemas, secciones y casos por estado con simulación de
-  fuerzas propia en SVG; personas con tamaño por casos marcados, anillo de su avance, línea a su caso
-  actual y a cada proyecto en que participan; pulso al cambiar un caso. Con más de 120 casos, cada
-  sección es un nodo con minianillo de estados. Respeta `prefers-reduced-motion`.
-- Administración → Pantallas: crear (nombre, vistas y su orden, segundos, proyectos), activar o
-  desactivar, regenerar el enlace (invalida el anterior), borrar y abrir. API
-  `GET/POST /api/admin/pantallas`, `PATCH/DELETE /api/admin/pantallas/{id}` y
-  `POST /api/admin/pantallas/{id}/regenerar`.
-- `GET /api/pantalla/{token}` y `GET /api/pantalla/{token}/datos` públicos: solo nombre de pila e
-  iniciales, sin correos, comentarios ni evidencias; 404 genérico con token malo o inactivo, registro
-  de último uso y caché de 15 segundos por pantalla.
 - Seguimiento de fallas y comentarios (migración `0009`): tabla `comentarios_seguimiento` con estado
   (nuevo, en curso, resuelto), plazo y resolución de cada comentario de paso o «No pude probarlo»,
   sembrada con los comentarios existentes; tabla `seguimiento` de solo inserción con respuestas y
@@ -61,6 +43,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
   Por omisión incluye todo.
 - «Descargar CSV» pasa de Fallas al informe, junto a «Imprimir / guardar PDF», y descarga lo mismo
   que muestra el informe: una fila por falla o comentario con proyecto y herramienta.
+- Las migraciones `0008` y `0010` crean y quitan la tabla `pantallas` de un modo pantalla que no
+  llegó a publicarse; al actualizar desde 0.3.2 no queda rastro.
 - Fallas muestra al entrar todas las rondas y tipos; los filtros se abren con el botón «Filtros»,
   que cuenta los activos. Se quita la casilla «Incluir comentarios».
 

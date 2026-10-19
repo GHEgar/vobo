@@ -365,32 +365,6 @@ OIDC_ROLES_MAPA='{"qa-leads": "coordinacion", "release-managers": "aprobacion"}'
 
 Unmapped groups are ignored; an invalid `OIDC_ROLES_MAPA` stops the backend at startup.
 
-## Screens
-
-A screen is a signed link for a TV in a meeting room or hallway: it shows the progress of the
-projects live, without a session, at 1920×1080 scaled to fill any display. It rotates between the
-views it was given, every 10 to 300 seconds, refreshes every 15 seconds and keeps the last data with
-a discreet "sin conexión" dot if the network drops.
-
-- **General**: one ring per project (pass, fail and could-not-test), percentage marked, day of the
-  open round, open failures, people online, clock and a ticker of recent activity. Up to three
-  projects at a time; more rotate in groups of three.
-- **Graph**: a live force graph of projects → systems → sections → cases colored by state, and the
-  people validating: size by cases marked, ring by their own progress, a dashed line to the case
-  they are on and a line to every project they take part in. Cases pulse when they change. Projects
-  with more than about 120 cases show each section as one node with a small ring of states.
-
-Administration → Pantallas creates them (name, views and their order, seconds per view, projects;
-none means every active project), activates or deactivates them, regenerates the link and deletes
-them. The link `<FRONTEND_URL>/pantalla/<token>` is shown once with a copy button: only a SHA-256 of
-the token is stored.
-
-**Privacy.** The public endpoints (`GET /api/pantalla/<token>` and `/datos`) return first names and
-initials only, a color derived from the address, counts, case ids and short activity lines: never
-email addresses, comments, failure details or evidence paths. A wrong, regenerated or deactivated
-token gets a plain 404. To revoke a screen, deactivate it or regenerate its link; the old link stops
-working on the next refresh. Data is cached for 15 seconds per screen, so many TVs cost one query.
-
 ## Read-only access
 
 ```bash

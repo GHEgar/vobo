@@ -54,7 +54,6 @@ def test_0003_sobre_0002_conserva_datos_y_con_archivos_no_importa(tmp_path, monk
     assert set(despues) == set(antes) | NUEVAS | {
         "proyectos",
         "resultados_historial",
-        "pantallas",
         "comentarios_seguimiento",
         "seguimiento",
     }
