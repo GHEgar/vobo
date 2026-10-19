@@ -7,6 +7,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- El CSV y el PDF del informe se llaman `informe-fallas-<proyecto>-<fecha>` (o `varios-proyectos`
+  si hay más de uno): el PDF toma ese nombre del título que la página pone al imprimir.
+- `theme-color` ya no viene fijo en el HTML: la app crea la etiqueta con el color de la instancia,
+  así que no se ve un azul ajeno antes de cargar.
+
 ## [0.4.2] - 2026-10-19
 
 ### Cambiado

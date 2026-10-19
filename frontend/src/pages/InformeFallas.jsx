@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Spinner } from '@/components/Spinner';
 import { ErrorState } from '@/components/Estados';
@@ -22,7 +22,7 @@ import {
     resumenProyecto,
 } from '@/utils/informeFallas';
 import { nombreSistema } from '@/utils/sistemas';
-import { csvInforme, descargarCsv } from '@/utils/csvInforme';
+import { csvInforme, descargarCsv, nombreArchivo } from '@/utils/csvInforme';
 import { hoyISO } from '@/utils/seguimiento';
 import { ArrowLeft, Document, FileTable, Filter } from 'tesela/react';
 
@@ -56,12 +56,30 @@ const InformeFallas = () => {
     });
     const vacio = secciones.every((s) => !s.fallas.length && !s.comentarios.length);
     const nombres = secciones.map((s) => s.nombre).join(', ');
+    const archivo = nombreArchivo(secciones.map((s) => s.nombre), hoyISO());
+
+    useEffect(() => {
+        let previo = document.title;
+        const antes = () => {
+            previo = document.title;
+            document.title = archivo;
+        };
+        const despues = () => {
+            document.title = previo;
+        };
+        window.addEventListener('beforeprint', antes);
+        window.addEventListener('afterprint', despues);
+        return () => {
+            window.removeEventListener('beforeprint', antes);
+            window.removeEventListener('afterprint', despues);
+        };
+    }, [archivo]);
 
     const acciones = (
         <div className="flex flex-wrap gap-2">
             <Link to={`/fallas?${params}`} className={`${BOTON} bg-borde text-texto-tenue`}><ArrowLeft size={18} className="shrink-0" />Volver</Link>
             <button type="button" onClick={() => window.print()} className={`${BOTON} bg-primario text-white`}><Document size={18} className="shrink-0" />Imprimir / guardar PDF</button>
-            <button type="button" disabled={datos.isPending || vacio} onClick={() => descargarCsv(csvInforme(secciones), `informe-${hoyISO()}.csv`)} className={`${BOTON} border border-primario bg-white text-primario disabled:opacity-50`}><FileTable size={18} className="shrink-0" />Descargar CSV</button>
+            <button type="button" disabled={datos.isPending || vacio} onClick={() => descargarCsv(csvInforme(secciones), `${archivo}.csv`)} className={`${BOTON} border border-primario bg-white text-primario disabled:opacity-50`}><FileTable size={18} className="shrink-0" />Descargar CSV</button>
         </div>
     );
 

@@ -41,13 +41,24 @@ const fijarAtributo = (selector, atributo, valor) => {
     if (elemento && valor) elemento.setAttribute(atributo, valor);
 };
 
+const fijarMeta = (nombre, valor) => {
+    if (!valor) return;
+    let meta = document.querySelector(`meta[name="${nombre}"]`);
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', nombre);
+        document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', valor);
+};
+
 export const useMetaInstancia = () => {
     const { producto, nombre, descripcion, favicon, color_tema: colorTema } = useInstancia();
     useEffect(() => {
         const titulo = tituloDocumento(producto, nombre);
         if (titulo) document.title = titulo;
         fijarAtributo('meta[name="description"]', 'content', descripcion);
-        fijarAtributo('meta[name="theme-color"]', 'content', colorTema);
+        fijarMeta('theme-color', colorTema);
         const icono = document.querySelector('link[rel="icon"]');
         if (icono && favicon && icono.getAttribute('href') !== favicon) {
             icono.removeAttribute('type');

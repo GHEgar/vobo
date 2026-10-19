@@ -47,6 +47,15 @@ const celda = (valor) => {
     return /[",\n\r]/.test(seguro) ? `"${seguro.replaceAll('"', '""')}"` : seguro;
 };
 
+const SIN_LETRAS = /[^a-z0-9]+/g;
+
+export const nombreArchivo = (proyectos, fecha) => {
+    const parte = proyectos.length === 1
+        ? proyectos[0].normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().replace(SIN_LETRAS, '-').replace(/^-|-$/g, '')
+        : 'varios-proyectos';
+    return ['informe-fallas', parte, fecha].filter(Boolean).join('-');
+};
+
 export const csvInforme = (secciones) => {
     const filas = secciones.flatMap((s) => s.grupos.flatMap((g) => [
         ...g.fallas.map((f) => filaFalla(s.nombre, g.nombre, f)),
