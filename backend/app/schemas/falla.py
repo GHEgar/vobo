@@ -3,7 +3,12 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from app.schemas.seguimiento import EventoSeguimiento
+from app.schemas.seguimiento import (
+    ESFUERZO_MAXIMO,
+    EventoSeguimiento,
+    PrincipalRef,
+    PrincipalResponse,
+)
 
 EstadoFalla = Literal["nueva", "en_curso", "lista_para_revalidar", "cerrada"]
 Reproducible = Literal["siempre", "a_veces", "una_vez"]
@@ -41,11 +46,16 @@ class FallaResponse(BaseModel):
     nota_resolucion: str
     evidencias: list[EvidenciaResponse]
     plazo: date | None = None
+    esfuerzo_horas: float | None = Field(default=None, ge=0, le=ESFUERZO_MAXIMO)
+    principal: PrincipalRef | None = None
     plazo_por: str | None = None
     plazo_por_nombre: str = ""
     resuelta_en: datetime | None = None
     resuelta_por: str | None = None
     resuelta_por_nombre: str = ""
+    esfuerzo_horas: float | None = None
+    principal: PrincipalResponse | None = None
+    seguidores: int = 0
     seguimiento: list[EventoSeguimiento] = Field(default_factory=list)
 
 
@@ -53,3 +63,5 @@ class FallaUpdate(BaseModel):
     estado: EstadoFalla | None = None
     nota_resolucion: str | None = Field(default=None, max_length=4000)
     plazo: date | None = None
+    esfuerzo_horas: float | None = Field(default=None, ge=0, le=ESFUERZO_MAXIMO)
+    principal: PrincipalRef | None = None

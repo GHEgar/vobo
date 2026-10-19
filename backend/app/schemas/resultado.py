@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.schemas.seguimiento import EstadoComentario, EventoSeguimiento
+from app.schemas.seguimiento import EstadoComentario, EventoSeguimiento, PrincipalResponse
 
 EstadoResultado = Literal["pendiente", "pasa", "falla", "no_pude"]
 EstadoPaso = Literal["pasa", "falla", "comentario", "no_pude"]
@@ -72,4 +72,7 @@ class ComentarioResponse(BaseModel):
     resuelto_en: datetime | None = None
     resuelto_por: str | None = None
     resuelto_por_nombre: str = ""
+    esfuerzo_horas: float | None = None
+    principal: PrincipalResponse | None = None
+    seguidores: int = 0
     seguimiento: list[EventoSeguimiento] = Field(default_factory=list)

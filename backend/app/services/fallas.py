@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.falla import Evidencia, Falla
 from app.models.ronda import Ronda
 from app.schemas.falla import EvidenciaResponse, FallaResponse, FallaUpdate
-from app.schemas.seguimiento import EventoSeguimiento
-from app.services import avisos_seguimiento, evidencias, resultados, seguimiento
+from app.schemas.seguimiento import EventoSeguimiento, PrincipalRef
+from app.services import avisos_seguimiento, evidencias, resultados, seguimiento, vinculos
 from app.services.contenido import Contenido, caso_o_404
 
 
@@ -94,6 +94,10 @@ CERRADA = "cerrada"
 CAMPOS_RESUELTA = ("resuelta_en", "resuelta_por")
 
 
+def referencia(principal: PrincipalRef | None) -> vinculos.Referencia | None:
+    return None if principal is None else (principal.objeto, principal.id)
+
+
 def obtener_o_404(db: Session, falla_id: int) -> Falla:
     falla = db.get(Falla, falla_id)
     if falla is None:
@@ -103,7 +107,10 @@ def obtener_o_404(db: Session, falla_id: int) -> Falla:
 
 def actualizar(db: Session, falla_id: int, cambios: FallaUpdate, actor_email: str) -> Falla:
     falla = obtener_o_404(db, falla_id)
-    estado_previo = falla.estado
+    estado_previo, plazo_previo = falla.estado, falla.plazo
+    campos = cambios.model_fields_set
+    if "principal" in campos:
+        vinculos.vincular(db, OBJETO, falla, referencia(cambios.principal), actor_email)
     if cambios.estado is not None:
         seguimiento.cambiar_estado(
             db, OBJETO, falla, cambios.estado, actor_email, CERRADA, CAMPOS_RESUELTA
@@ -113,10 +120,15 @@ def actualizar(db: Session, falla_id: int, cambios: FallaUpdate, actor_email: st
         if nota != falla.nota_resolucion:
             falla.nota_resolucion = nota
             seguimiento.registrar(db, OBJETO, falla.id, actor_email, "nota", texto=nota)
-    if "plazo" in cambios.model_fields_set:
+    if "plazo" in campos:
         seguimiento.cambiar_plazo(db, OBJETO, falla, cambios.plazo, actor_email)
+    if "esfuerzo_horas" in campos:
+        seguimiento.cambiar_esfuerzo(db, OBJETO, falla, cambios.esfuerzo_horas, actor_email)
     if falla.estado != estado_previo:
         avisos_seguimiento.avisar_estado(db, OBJETO, falla, actor_email)
+    vinculos.propagar(
+        db, OBJETO, falla, actor_email, falla.estado != estado_previo, falla.plazo != plazo_previo
+    )
     db.commit()
     db.refresh(falla)
     return falla
@@ -135,6 +147,7 @@ def serializar(
     contenido: Contenido,
     conocidos: dict[str, str] | None = None,
     eventos: list[EventoSeguimiento] | None = None,
+    vinculo: dict | None = None,
 ) -> FallaResponse:
     conocidos = conocidos or {}
     ubicado = contenido.casos.get(falla.caso_id)
@@ -178,13 +191,17 @@ def serializar(
         resuelta_por=falla.resuelta_por,
         resuelta_por_nombre=_nombre(conocidos, falla.resuelta_por),
         seguimiento=eventos or [],
+        **(vinculo or {"esfuerzo_horas": falla.esfuerzo_horas}),
     )
 
 
 def serializar_todas(db: Session, lista: list[Falla], contenido: Contenido) -> list[FallaResponse]:
     conocidos = seguimiento.nombres(db)
     eventos = seguimiento.de_objetos(db, OBJETO, [f.id for f in lista], conocidos)
-    return [serializar(f, contenido, conocidos, eventos.get(f.id)) for f in lista]
+    resumen = vinculos.resumen(db, OBJETO, lista)
+    return [
+        serializar(f, contenido, conocidos, eventos.get(f.id), resumen.get(f.id)) for f in lista
+    ]
 
 
 def serializar_una(db: Session, falla: Falla, contenido: Contenido) -> FallaResponse:

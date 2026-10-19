@@ -77,6 +77,7 @@ def cambiar_estado(
     actor: str,
     final: str,
     campos: tuple[str, str],
+    texto: str = "",
 ) -> None:
     anterior = registro.estado
     if nuevo == anterior:
@@ -89,7 +90,7 @@ def cambiar_estado(
     elif anterior == final:
         setattr(registro, en, None)
         setattr(registro, por, None)
-    registrar(db, objeto, registro.id, actor, "estado", anterior=anterior, nuevo=nuevo)
+    registrar(db, objeto, registro.id, actor, "estado", texto, anterior=anterior, nuevo=nuevo)
 
 
 def cambiar_plazo(
@@ -98,21 +99,58 @@ def cambiar_plazo(
     registro: Falla | ComentarioSeguimiento,
     plazo: date | None,
     actor: str,
+    texto: str = "",
 ) -> None:
     anterior = registro.plazo
     if plazo == anterior:
         return
     registro.plazo = plazo
-    registro.plazo_por = actor if plazo is not None else None
+    if plazo is not None:
+        registro.plazo_por = actor
+    elif registro.esfuerzo_horas is None:
+        registro.plazo_por = None
     registrar(
         db,
         objeto,
         registro.id,
         actor,
         "plazo",
+        texto,
         anterior=anterior.isoformat() if anterior else None,
         nuevo=plazo.isoformat() if plazo else None,
     )
+
+
+def horas_texto(horas: float | None) -> str | None:
+    return None if horas is None else f"{horas:g}"
+
+
+def cambiar_esfuerzo(
+    db: Session,
+    objeto: str,
+    registro: Falla | ComentarioSeguimiento,
+    horas: float | None,
+    actor: str,
+) -> bool:
+    nuevo = None if horas is None else round(float(horas), 2)
+    anterior = registro.esfuerzo_horas
+    if nuevo == anterior:
+        return False
+    registro.esfuerzo_horas = nuevo
+    if nuevo is not None:
+        registro.plazo_por = actor
+    elif registro.plazo is None:
+        registro.plazo_por = None
+    registrar(
+        db,
+        objeto,
+        registro.id,
+        actor,
+        "esfuerzo",
+        anterior=horas_texto(anterior),
+        nuevo=horas_texto(nuevo),
+    )
+    return True
 
 
 def responder(

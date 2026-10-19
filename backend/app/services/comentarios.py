@@ -5,7 +5,7 @@ from app.models.resultado import Resultado
 from app.models.ronda import Ronda
 from app.models.seguimiento import PASO_NO_PUDE
 from app.schemas.resultado import ComentarioResponse, normalizar_pasos
-from app.services import comentarios_seguimiento, seguimiento
+from app.services import comentarios_seguimiento, seguimiento, vinculos
 from app.services.contenido import Contenido
 
 
@@ -29,9 +29,9 @@ def _con_seguimiento(
 ) -> list[ComentarioResponse]:
     filas = comentarios_seguimiento.de_resultados(db, {c.ronda_id for c in comentarios})
     propias = {id(c): filas.get(_clave(c)) for c in comentarios}
-    eventos = seguimiento.de_objetos(
-        db, "comentario", [f.id for f in propias.values() if f is not None], conocidos
-    )
+    existentes = [f for f in propias.values() if f is not None]
+    eventos = seguimiento.de_objetos(db, "comentario", [f.id for f in existentes], conocidos)
+    resumen = vinculos.resumen(db, "comentario", existentes)
     enriquecidos = []
     for c in comentarios:
         fila = propias[id(c)]
@@ -51,6 +51,7 @@ def _con_seguimiento(
                     "resuelto_por": fila.resuelto_por,
                     "resuelto_por_nombre": _nombre(conocidos, fila.resuelto_por),
                     "seguimiento": eventos.get(fila.id, []),
+                    **resumen[fila.id],
                 }
             )
         )

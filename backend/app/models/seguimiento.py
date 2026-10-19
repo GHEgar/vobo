@@ -3,6 +3,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     Enum,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -17,13 +18,16 @@ from app.core.time import utcnow
 ESTADOS_COMENTARIO = ("nuevo", "en_curso", "resuelto")
 TIPOS_COMENTARIO = ("paso", "no_pude")
 OBJETOS_SEGUIMIENTO = ("falla", "comentario")
-ACCIONES_SEGUIMIENTO = ("respuesta", "estado", "plazo", "nota")
+ACCIONES_SEGUIMIENTO = ("respuesta", "estado", "plazo", "nota", "esfuerzo", "vinculo")
 PASO_NO_PUDE = -1
 
 
 class ComentarioSeguimiento(Base):
     __tablename__ = "comentarios_seguimiento"
-    __table_args__ = (UniqueConstraint("ronda_id", "caso_id", "usuario_email", "paso", "tipo"),)
+    __table_args__ = (
+        UniqueConstraint("ronda_id", "caso_id", "usuario_email", "paso", "tipo"),
+        Index("ix_comentarios_seguimiento_principal", "principal_objeto", "principal_id"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     ronda_id = Column(
@@ -45,6 +49,9 @@ class ComentarioSeguimiento(Base):
     creado = Column(DateTime(timezone=True), nullable=False, default=utcnow)
     resuelto_en = Column(DateTime(timezone=True), nullable=True)
     resuelto_por = Column(String(200), nullable=True)
+    esfuerzo_horas = Column(Float, nullable=True)
+    principal_objeto = Column(String(10), nullable=True)
+    principal_id = Column(Integer, nullable=True)
 
 
 class Seguimiento(Base):

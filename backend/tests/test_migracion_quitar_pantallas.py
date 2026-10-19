@@ -32,7 +32,7 @@ def test_0010_quita_pantallas_y_conserva_lo_demas(tmp_path) -> None:
     assert "pantallas" not in _tablas(motor)
     despues = volcado(motor)
     assert conserva({k: v for k, v in antes.items() if k != "pantallas"}, despues)
-    assert migraciones.revision_actual(motor) == migraciones.revision_head() == "0010"
+    assert migraciones.revision_actual(motor) == "0010"
     motor.dispose()
 
 

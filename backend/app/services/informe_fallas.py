@@ -42,6 +42,8 @@ COLUMNAS = (
     "resolvió",
     "tiempo de solución (horas)",
     "respuestas",
+    "esfuerzo (h)",
+    "se resuelve con",
 )
 TIPOS = {"falla": "Falla", "no_pude": "No pude probarlo"}
 SEVERIDADES = {"critica": "Crítica", "alta": "Alta", "media": "Media", "baja": "Baja"}
@@ -164,6 +166,8 @@ def generar(
             _persona(nombres, f.resuelta_por),
             horas(f),
             respuestas_de(f, tz),
+            "" if f.esfuerzo_horas is None else f"{f.esfuerzo_horas:g}",
+            f.principal.etiqueta if f.principal else "",
         )
         if comentarios is not None:
             fila = (*fila, comentarios_de(f, comentarios, tz))

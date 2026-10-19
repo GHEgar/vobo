@@ -4,7 +4,9 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 EstadoComentario = Literal["nuevo", "en_curso", "resuelto"]
-AccionSeguimiento = Literal["respuesta", "estado", "plazo", "nota"]
+AccionSeguimiento = Literal["respuesta", "estado", "plazo", "nota", "esfuerzo", "vinculo"]
+ObjetoSeguimiento = Literal["falla", "comentario"]
+ESFUERZO_MAXIMO = 1000
 
 
 class EventoSeguimiento(BaseModel):
@@ -30,6 +32,17 @@ class RespuestaCreate(BaseModel):
         return limpio
 
 
+class PrincipalRef(BaseModel):
+    objeto: ObjetoSeguimiento
+    id: int
+
+
+class PrincipalResponse(PrincipalRef):
+    etiqueta: str = ""
+
+
 class ComentarioUpdate(BaseModel):
     estado: EstadoComentario | None = None
     plazo: date | None = None
+    esfuerzo_horas: float | None = Field(default=None, ge=0, le=ESFUERZO_MAXIMO)
+    principal: PrincipalRef | None = None

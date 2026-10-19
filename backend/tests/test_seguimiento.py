@@ -192,6 +192,8 @@ def test_csv_con_plazo_resolucion_y_respuestas(cliente_de, ronda_id) -> None:
         "resolvió",
         "tiempo de solución (horas)",
         "respuestas",
+        "esfuerzo (h)",
+        "se resuelve con",
     ]
     assert fila["plazo"] == "2026-11-05"
     assert fila["responsable"] == "Carlos Coordinación"
