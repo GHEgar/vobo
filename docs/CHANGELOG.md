@@ -26,6 +26,10 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - Administración muestra solo las pestañas que la persona puede usar y Configuración solo sus partes
   (Identidad, Marca y Colores con `identidad.editar`; Sistemas y Cuentas con `configuracion.editar`).
   Quien no ejecuta casos y ve una sola página entra directo a ella, sin «Inicio» en el menú.
+- Página «Participación»: el texto que explicaba el grafo pasa al «?» junto a Proyecto · Sistema ·
+  Sección. Salen los botones «Animación» y «Recorrido»: el grafo siempre se anima y recorre los nodos;
+  un clic lo pausa y aparece «Reanudar recorrido». La tarjeta del recorrido muestra cuánto falta para
+  la siguiente y procura no tapar a los vecinos del nodo (`@npmegar/tequio` 0.6.0).
 
 ## [0.8.0] - 2026-10-19
 
