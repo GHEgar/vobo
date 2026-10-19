@@ -7,6 +7,16 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- `GET /api/participacion`: quién marcó casos en qué proyecto, en el formato de datos de tequio
+  (estados con tono, proyectos con avance y conteos, personas con su métrica y enlaces con el peso).
+  Filtra por `proyectos` y `ronda`, acepta el token de lectura y nunca expone correos: cada persona va
+  con un hash con clave.
+- Sección «Participación» en el informe de fallas (activa por omisión, como las demás partes): el grafo
+  de tequio en tema claro, una tabla por proyecto con avance y estados, otra por persona con sus casos
+  marcados y botones para descargar el grafo en PNG o SVG.
+
 ## [0.4.3] - 2026-10-19
 
 ### Cambiado
