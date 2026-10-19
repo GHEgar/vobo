@@ -16,6 +16,7 @@ import { puedeSeguir } from '@/utils/permisos';
 const ENLACES = [
     { to: '/', texto: 'Inicio', pagina: null },
     { to: '/tablero', texto: 'Tablero', pagina: 'tablero' },
+    { to: '/participacion', texto: 'Participación', pagina: 'tablero' },
     { to: '/fallas', texto: 'Fallas', pagina: 'fallas' },
     { to: '/herramientas', texto: 'Herramientas', pagina: 'herramientas' },
     { to: '/aprobaciones', texto: 'Aprobaciones', pagina: 'aprobaciones' },

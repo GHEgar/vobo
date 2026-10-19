@@ -14,6 +14,7 @@ import NoEncontrado from '@/pages/NoEncontrado';
 import { EdicionProvider } from '@/providers/EdicionProvider';
 
 const Tablero = lazy(() => import('@/pages/Tablero'));
+const Participacion = lazy(() => import('@/pages/Participacion'));
 const Fallas = lazy(() => import('@/pages/Fallas'));
 const Rondas = lazy(() => import('@/pages/Rondas'));
 const Herramientas = lazy(() => import('@/pages/Herramientas'));
@@ -67,6 +68,10 @@ const AppRoutes = () => {
                             <Route
                                 path="tablero"
                                 element={<ConPagina pagina="tablero"><Tablero /></ConPagina>}
+                            />
+                            <Route
+                                path="participacion"
+                                element={<ConPagina pagina="tablero"><Participacion /></ConPagina>}
                             />
                             <Route
                                 path="fallas"

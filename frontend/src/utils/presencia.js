@@ -1,6 +1,7 @@
 const PAGINAS = {
     '/': 'Inicio',
     '/tablero': 'Tablero',
+    '/participacion': 'Participación',
     '/fallas': 'Fallas',
     '/herramientas': 'Herramientas',
     '/aprobaciones': 'Aprobaciones',
