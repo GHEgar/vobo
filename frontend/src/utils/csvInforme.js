@@ -9,7 +9,10 @@ const COLUMNAS = [
     'proyecto', 'herramienta', 'tipo', 'id', 'ronda', 'caso', 'título del caso', 'sección', 'paso',
     'severidad', 'reproducible', 'estado', 'reportó', 'correo', 'fecha', 'texto', 'nota de resolución',
     'plazo', 'responsable', 'resuelto', 'resolvió', 'tiempo de solución', 'respuestas', 'capturas',
+    'esfuerzo (h)', 'se resuelve con',
 ];
+
+const vinculo = (item) => [item.esfuerzo_horas ?? '', item.principal?.etiqueta ?? ''];
 
 const fecha = (valor) => {
     if (!valor) return '';
@@ -31,6 +34,7 @@ const filaFalla = (proyecto, herramienta, f) => [
     ESTADOS_FALLA[f.estado]?.texto ?? f.estado, f.usuario_nombre ?? '', f.usuario_email, fecha(f.creada), f.obtenido,
     f.nota_resolucion, f.plazo ?? '', f.plazo_por_nombre || f.plazo_por || '', fecha(f.resuelta_en),
     f.resuelta_por_nombre || f.resuelta_por || '', duracion(f.creada, f.resuelta_en), respuestas(f), f.evidencias.length,
+    ...vinculo(f),
 ];
 
 const filaComentario = (proyecto, herramienta, c) => [
@@ -39,6 +43,7 @@ const filaComentario = (proyecto, herramienta, c) => [
     ESTADOS_COMENTARIO[c.estado]?.texto ?? c.estado ?? '', c.autor, c.usuario_email, fecha(c.creado ?? c.actualizado),
     c.comentario, '', c.plazo ?? '', c.plazo_por_nombre || c.plazo_por || '', fecha(c.resuelto_en),
     c.resuelto_por_nombre || c.resuelto_por || '', duracion(c.creado, c.resuelto_en), respuestas(c), '',
+    ...vinculo(c),
 ];
 
 const celda = (valor) => {

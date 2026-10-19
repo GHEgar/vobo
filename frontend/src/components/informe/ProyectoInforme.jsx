@@ -1,11 +1,13 @@
 import { ComentarioInforme } from '@/components/informe/ComentarioInforme';
 import { FallaInforme } from '@/components/informe/FallaInforme';
+import { subtotalEsfuerzo } from '@/utils/informeFallas';
 
 const cuenta = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
 
 const conteo = (fallas, comentarios) => [
     fallas.length && cuenta(fallas.length, 'falla', 'fallas'),
     comentarios.length && cuenta(comentarios.length, 'comentario', 'comentarios'),
+    subtotalEsfuerzo([...fallas, ...comentarios]),
 ].filter(Boolean).join(' · ');
 
 export const ProyectoInforme = ({ proyecto, incluir }) => (

@@ -1,6 +1,6 @@
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 import { Seguimiento } from '@/components/fallas/Seguimiento';
-import { Dato } from '@/components/informe/Dato';
+import { Dato, DatosVinculo } from '@/components/informe/Dato';
 import { TiemposInforme } from '@/components/informe/TiemposInforme';
 import { ESTADOS_COMENTARIO } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
@@ -17,6 +17,7 @@ export const ComentarioInforme = ({ comentario: c, incluir }) => (
             <Dato termino="Fecha">{formatearFecha(c.actualizado)}</Dato>
             <Dato termino="Estado">{ESTADOS_COMENTARIO[c.estado]?.texto}</Dato>
             <Dato termino="Ronda">{c.ronda_nombre}</Dato>
+            <DatosVinculo registro={c} />
             {incluir.has('tiempos') && (
                 <TiemposInforme
                     plazo={c.plazo}

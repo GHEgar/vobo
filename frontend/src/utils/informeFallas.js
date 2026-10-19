@@ -1,5 +1,5 @@
 import { ESTADOS_FALLA, SEVERIDADES } from '@/utils/etiquetas';
-import { formatearDuracion, milisegundos, vencido } from '@/utils/seguimiento';
+import { formatearDuracion, formatearEsfuerzo, milisegundos, sumarEsfuerzo, vencido } from '@/utils/seguimiento';
 
 export const zonaHoraria = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -111,6 +111,7 @@ export const resumenProyecto = (fallas, comentarios) => {
     const resueltas = fallas.filter(fallaResuelta);
     const tiempos = resueltas.map((f) => milisegundos(f.creada, f.resuelta_en)).filter((t) => t !== null);
     const comentariosResueltos = comentarios.filter(comentarioResuelto);
+    const esfuerzo = sumarEsfuerzo([...fallas, ...comentarios]);
     return {
         fallasAbiertas: fallas.length - resueltas.length,
         fallasResueltas: resueltas.length,
@@ -119,7 +120,15 @@ export const resumenProyecto = (fallas, comentarios) => {
         comentariosAbiertos: comentarios.length - comentariosResueltos.length,
         comentariosResueltos: comentariosResueltos.length,
         comentariosVencidos: comentarios.filter((c) => vencido(c.plazo, comentarioResuelto(c))).length,
+        esfuerzoTotal: formatearEsfuerzo(esfuerzo.total) || '0 h',
+        esfuerzoPendiente: formatearEsfuerzo(esfuerzo.pendiente) || '0 h',
     };
+};
+
+export const subtotalEsfuerzo = (registros) => {
+    const { total, pendiente } = sumarEsfuerzo(registros);
+    if (!total) return '';
+    return `Esfuerzo ${formatearEsfuerzo(total)}${pendiente ? `, pendiente ${formatearEsfuerzo(pendiente)}` : ''}`;
 };
 
 export const describirOpciones = (o, nombreSistema) => [

@@ -8,11 +8,11 @@ export const ResumenInforme = ({ proyectos, incluir }) => {
     const comentarios = incluir.has('comentarios');
     const columnas = [
         ['Proyecto', (p) => p.nombre],
-        ['Fallas abiertas', (p) => p.resumen.fallasAbiertas],
-        ['Resueltas', (p) => p.resumen.fallasResueltas],
-        ...(tiempos ? [['Vencidas', (p) => p.resumen.fallasVencidas], ['Tiempo medio', (p) => p.resumen.tiempoMedio || '—']] : []),
-        ...(comentarios ? [['Comentarios abiertos', (p) => p.resumen.comentariosAbiertos], ['Resueltos', (p) => p.resumen.comentariosResueltos]] : []),
-        ...(comentarios && tiempos ? [['Vencidos', (p) => p.resumen.comentariosVencidos]] : []),
+        [tiempos ? 'Fallas abiertas / resueltas / vencidas' : 'Fallas abiertas / resueltas', (p) => [p.resumen.fallasAbiertas, p.resumen.fallasResueltas, ...(tiempos ? [p.resumen.fallasVencidas] : [])].join(' / ')],
+        ...(tiempos ? [['Tiempo medio', (p) => p.resumen.tiempoMedio || '—']] : []),
+        ...(comentarios ? [[tiempos ? 'Comentarios abiertos / resueltos / vencidos' : 'Comentarios abiertos / resueltos', (p) => [p.resumen.comentariosAbiertos, p.resumen.comentariosResueltos, ...(tiempos ? [p.resumen.comentariosVencidos] : [])].join(' / ')]] : []),
+        ['Esfuerzo total', (p) => p.resumen.esfuerzoTotal],
+        ['Esfuerzo pendiente', (p) => p.resumen.esfuerzoPendiente],
     ];
     return (
         <section className="mt-8 break-inside-avoid-page">

@@ -1,7 +1,7 @@
 import { MediaImagen } from '@/components/MediaImagen';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 import { Seguimiento } from '@/components/fallas/Seguimiento';
-import { Dato } from '@/components/informe/Dato';
+import { Dato, DatosVinculo } from '@/components/informe/Dato';
 import { TiemposInforme } from '@/components/informe/TiemposInforme';
 import { ESTADOS_FALLA, REPRODUCIBLE, SEVERIDADES } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
@@ -22,6 +22,7 @@ export const FallaInforme = ({ falla, incluir }) => (
             <Dato termino="Fecha">{formatearFecha(falla.creada)}</Dato>
             <Dato termino="Versión visible">{falla.version_visible}</Dato>
             <Dato termino="Dirección">{falla.url}</Dato>
+            <DatosVinculo registro={falla} />
             {incluir.has('tiempos') && (
                 <TiemposInforme
                     plazo={falla.plazo}
