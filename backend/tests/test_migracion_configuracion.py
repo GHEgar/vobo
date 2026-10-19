@@ -42,6 +42,8 @@ def test_0004_sobre_0003_conserva_datos_y_crea_la_tabla_vacia(tmp_path, monkeypa
         "proyectos",
         "resultados_historial",
         "pantallas",
+        "comentarios_seguimiento",
+        "seguimiento",
     }
     assert conserva(antes, despues)
     assert despues["configuracion"] == []

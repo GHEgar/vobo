@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, Date, DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -40,6 +40,10 @@ class Falla(Base):
         index=True,
     )
     nota_resolucion = Column(Text, nullable=False, default="")
+    plazo = Column(Date, nullable=True)
+    plazo_por = Column(String(200), nullable=True)
+    resuelta_en = Column(DateTime(timezone=True), nullable=True)
+    resuelta_por = Column(String(200), nullable=True)
 
     ronda = relationship("Ronda", back_populates="fallas")
     evidencias = relationship("Evidencia", back_populates="falla", cascade="all, delete-orphan")

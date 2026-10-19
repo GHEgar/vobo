@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
+
+from app.schemas.seguimiento import EventoSeguimiento
 
 EstadoFalla = Literal["nueva", "en_curso", "lista_para_revalidar", "cerrada"]
 Reproducible = Literal["siempre", "a_veces", "una_vez"]
@@ -38,8 +40,16 @@ class FallaResponse(BaseModel):
     estado: EstadoFalla
     nota_resolucion: str
     evidencias: list[EvidenciaResponse]
+    plazo: date | None = None
+    plazo_por: str | None = None
+    plazo_por_nombre: str = ""
+    resuelta_en: datetime | None = None
+    resuelta_por: str | None = None
+    resuelta_por_nombre: str = ""
+    seguimiento: list[EventoSeguimiento] = Field(default_factory=list)
 
 
 class FallaUpdate(BaseModel):
     estado: EstadoFalla | None = None
     nota_resolucion: str | None = Field(default=None, max_length=4000)
+    plazo: date | None = None

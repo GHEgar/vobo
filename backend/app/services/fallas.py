@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.falla import Evidencia, Falla
 from app.models.ronda import Ronda
 from app.schemas.falla import EvidenciaResponse, FallaResponse, FallaUpdate
-from app.services import evidencias, resultados
+from app.schemas.seguimiento import EventoSeguimiento
+from app.services import evidencias, resultados, seguimiento
 from app.services.contenido import Contenido, caso_o_404
 
 
@@ -88,24 +89,51 @@ def listar(db: Session, contenido: Contenido, filtro: FiltroFallas) -> list[Fall
     return list(db.scalars(consulta).all())
 
 
-def actualizar(db: Session, falla_id: int, cambios: FallaUpdate) -> Falla:
+OBJETO = "falla"
+CERRADA = "cerrada"
+CAMPOS_RESUELTA = ("resuelta_en", "resuelta_por")
+
+
+def obtener_o_404(db: Session, falla_id: int) -> Falla:
     falla = db.get(Falla, falla_id)
     if falla is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Falla no encontrada")
+    return falla
+
+
+def actualizar(db: Session, falla_id: int, cambios: FallaUpdate, actor_email: str) -> Falla:
+    falla = obtener_o_404(db, falla_id)
     if cambios.estado is not None:
-        falla.estado = cambios.estado
+        seguimiento.cambiar_estado(
+            db, OBJETO, falla, cambios.estado, actor_email, CERRADA, CAMPOS_RESUELTA
+        )
     if cambios.nota_resolucion is not None:
-        falla.nota_resolucion = cambios.nota_resolucion.strip()
+        nota = cambios.nota_resolucion.strip()
+        if nota != falla.nota_resolucion:
+            falla.nota_resolucion = nota
+            seguimiento.registrar(db, OBJETO, falla.id, actor_email, "nota", texto=nota)
+    if "plazo" in cambios.model_fields_set:
+        seguimiento.cambiar_plazo(db, OBJETO, falla, cambios.plazo, actor_email)
     db.commit()
     db.refresh(falla)
     return falla
+
+
+def _nombre(conocidos: dict[str, str], email: str | None) -> str:
+    return conocidos.get(email, email) if email else ""
 
 
 def _titulo_seccion(contenido: Contenido, seccion_id: str) -> str:
     return next((s.titulo for s in contenido.respuesta.secciones if s.id == seccion_id), "")
 
 
-def serializar(falla: Falla, contenido: Contenido) -> FallaResponse:
+def serializar(
+    falla: Falla,
+    contenido: Contenido,
+    conocidos: dict[str, str] | None = None,
+    eventos: list[EventoSeguimiento] | None = None,
+) -> FallaResponse:
+    conocidos = conocidos or {}
     ubicado = contenido.casos.get(falla.caso_id)
     caso = ubicado.caso if ubicado else None
     paso_texto = ""
@@ -140,4 +168,21 @@ def serializar(falla: Falla, contenido: Contenido) -> FallaResponse:
             EvidenciaResponse(id=e.id, mime=e.mime, url=f"/api/evidencias/{e.id}")
             for e in falla.evidencias
         ],
+        plazo=falla.plazo,
+        plazo_por=falla.plazo_por,
+        plazo_por_nombre=_nombre(conocidos, falla.plazo_por),
+        resuelta_en=falla.resuelta_en,
+        resuelta_por=falla.resuelta_por,
+        resuelta_por_nombre=_nombre(conocidos, falla.resuelta_por),
+        seguimiento=eventos or [],
     )
+
+
+def serializar_todas(db: Session, lista: list[Falla], contenido: Contenido) -> list[FallaResponse]:
+    conocidos = seguimiento.nombres(db)
+    eventos = seguimiento.de_objetos(db, OBJETO, [f.id for f in lista], conocidos)
+    return [serializar(f, contenido, conocidos, eventos.get(f.id)) for f in lista]
+
+
+def serializar_una(db: Session, falla: Falla, contenido: Contenido) -> FallaResponse:
+    return serializar_todas(db, [falla], contenido)[0]

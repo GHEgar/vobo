@@ -19,6 +19,7 @@ from app.core.permisos import EJECUTAR_CASOS, GESTIONAR_FALLAS
 from app.core.time import utcnow
 from app.models.proyecto import Proyecto
 from app.schemas.falla import EstadoFalla, FallaResponse, FallaUpdate, Reproducible, TipoFalla
+from app.schemas.seguimiento import EventoSeguimiento, RespuestaCreate
 from app.services import (
     comentarios,
     contenido,
@@ -27,6 +28,7 @@ from app.services import (
     informe_fallas,
     proyectos,
     rondas,
+    seguimiento,
 )
 
 router = APIRouter(prefix="/api/fallas", tags=["fallas"])
@@ -60,7 +62,7 @@ def listar_fallas(
     _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
 ) -> list[FallaResponse]:
     actual = contenido.obtener(proyecto)
-    return [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
+    return fallas.serializar_todas(db, fallas.listar(db, actual, filtro), actual)
 
 
 @router.get("/informe.csv")
@@ -74,7 +76,7 @@ def informe_csv(
 ) -> Response:
     actual = contenido.obtener(proyecto)
     zona = informe_fallas.zona(tz)
-    serializadas = [fallas.serializar(f, actual) for f in fallas.listar(db, actual, filtro)]
+    serializadas = fallas.serializar_todas(db, fallas.listar(db, actual, filtro), actual)
     nombre = informe_fallas.nombre_archivo(filtro.ronda, zona, utcnow())
     notas = (
         comentarios.listar(db, actual, filtro.ronda, proyecto_id=proyecto.id) if incluir else None
@@ -123,7 +125,7 @@ async def reportar_falla(
         version_visible=version_visible,
     )
     falla = fallas.crear(db, actual, actor.email, datos, leidas)
-    return fallas.serializar(falla, actual)
+    return fallas.serializar_una(db, falla, actual)
 
 
 @router.patch("/{falla_id}", response_model=FallaResponse)
@@ -131,7 +133,23 @@ def actualizar_falla(
     falla_id: int,
     cambios: FallaUpdate,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+    actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
 ) -> FallaResponse:
-    falla = fallas.actualizar(db, falla_id, cambios)
-    return fallas.serializar(falla, contenido.obtener(proyectos.de_ronda(db, falla.ronda_id)))
+    falla = fallas.actualizar(db, falla_id, cambios, actor.email)
+    actual = contenido.obtener(proyectos.de_ronda(db, falla.ronda_id))
+    return fallas.serializar_una(db, falla, actual)
+
+
+@router.post(
+    "/{falla_id}/respuestas",
+    response_model=EventoSeguimiento,
+    status_code=status.HTTP_201_CREATED,
+)
+def responder_falla(
+    falla_id: int,
+    datos: RespuestaCreate,
+    db: Session = Depends(get_db),
+    actor: Actor = Depends(require_permission(GESTIONAR_FALLAS)),
+) -> EventoSeguimiento:
+    falla = fallas.obtener_o_404(db, falla_id)
+    return seguimiento.responder(db, "falla", falla.id, actor.email, datos.texto)

@@ -148,6 +148,8 @@ NUEVAS = {
     "proyectos",
     "resultados_historial",
     "pantallas",
+    "comentarios_seguimiento",
+    "seguimiento",
 }
 
 

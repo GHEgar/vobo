@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
+
+from app.schemas.seguimiento import EstadoComentario, EventoSeguimiento
 
 EstadoResultado = Literal["pendiente", "pasa", "falla", "no_pude"]
 EstadoPaso = Literal["pasa", "falla", "comentario", "no_pude"]
@@ -49,6 +51,7 @@ class MisCasosResponse(BaseModel):
 
 
 class ComentarioResponse(BaseModel):
+    id: int | None = None
     ronda_id: int
     caso_id: str
     caso_titulo: str
@@ -61,3 +64,12 @@ class ComentarioResponse(BaseModel):
     tipo: Literal["paso", "no_pude"]
     comentario: str
     actualizado: datetime
+    estado: EstadoComentario = "nuevo"
+    plazo: date | None = None
+    plazo_por: str | None = None
+    plazo_por_nombre: str = ""
+    creado: datetime | None = None
+    resuelto_en: datetime | None = None
+    resuelto_por: str | None = None
+    resuelto_por_nombre: str = ""
+    seguimiento: list[EventoSeguimiento] = Field(default_factory=list)

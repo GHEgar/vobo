@@ -51,7 +51,13 @@ def test_0003_sobre_0002_conserva_datos_y_con_archivos_no_importa(tmp_path, monk
     inicializar.preparar_base()
     despues = volcado(motor)
     assert migraciones.revision_actual(motor) == migraciones.revision_head()
-    assert set(despues) == set(antes) | NUEVAS | {"proyectos", "resultados_historial", "pantallas"}
+    assert set(despues) == set(antes) | NUEVAS | {
+        "proyectos",
+        "resultados_historial",
+        "pantallas",
+        "comentarios_seguimiento",
+        "seguimiento",
+    }
     assert conserva(antes, despues)
     assert all(despues[t] == [] for t in NUEVAS)
     motor.dispose()

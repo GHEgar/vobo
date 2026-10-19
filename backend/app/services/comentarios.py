@@ -3,9 +3,58 @@ from sqlalchemy.orm import Session
 
 from app.models.resultado import Resultado
 from app.models.ronda import Ronda
-from app.models.usuario import Usuario
+from app.models.seguimiento import PASO_NO_PUDE
 from app.schemas.resultado import ComentarioResponse, normalizar_pasos
+from app.services import comentarios_seguimiento, seguimiento
 from app.services.contenido import Contenido
+
+
+def _clave(comentario: ComentarioResponse) -> tuple:
+    paso = PASO_NO_PUDE if comentario.paso is None else comentario.paso
+    return (
+        comentario.ronda_id,
+        comentario.caso_id,
+        comentario.usuario_email,
+        paso,
+        comentario.tipo,
+    )
+
+
+def _nombre(conocidos: dict[str, str], email: str | None) -> str:
+    return conocidos.get(email, email) if email else ""
+
+
+def _con_seguimiento(
+    db: Session, comentarios: list[ComentarioResponse], conocidos: dict[str, str]
+) -> list[ComentarioResponse]:
+    filas = comentarios_seguimiento.de_resultados(db, {c.ronda_id for c in comentarios})
+    propias = {id(c): filas.get(_clave(c)) for c in comentarios}
+    eventos = seguimiento.de_objetos(
+        db, "comentario", [f.id for f in propias.values() if f is not None], conocidos
+    )
+    enriquecidos = []
+    for c in comentarios:
+        fila = propias[id(c)]
+        if fila is None:
+            enriquecidos.append(c)
+            continue
+        enriquecidos.append(
+            c.model_copy(
+                update={
+                    "id": fila.id,
+                    "estado": fila.estado,
+                    "plazo": fila.plazo,
+                    "plazo_por": fila.plazo_por,
+                    "plazo_por_nombre": _nombre(conocidos, fila.plazo_por),
+                    "creado": fila.creado,
+                    "resuelto_en": fila.resuelto_en,
+                    "resuelto_por": fila.resuelto_por,
+                    "resuelto_por_nombre": _nombre(conocidos, fila.resuelto_por),
+                    "seguimiento": eventos.get(fila.id, []),
+                }
+            )
+        )
+    return enriquecidos
 
 
 def listar(
@@ -26,7 +75,7 @@ def listar(
         consulta = consulta.where(Resultado.caso_id == caso_id)
     if email is not None:
         consulta = consulta.where(Resultado.usuario_email == email)
-    nombres = {u.email: u.nombre for u in db.scalars(select(Usuario))}
+    nombres = seguimiento.nombres(db)
     rondas = {r.id: r.nombre for r in db.scalars(select(Ronda))}
     comentarios = []
     for resultado in db.scalars(consulta):
@@ -63,4 +112,5 @@ def listar(
                     comentario=resultado.comentario,
                 )
             )
-    return sorted(comentarios, key=lambda c: c.actualizado, reverse=True)
+    ordenados = sorted(comentarios, key=lambda c: c.actualizado, reverse=True)
+    return _con_seguimiento(db, ordenados, nombres)

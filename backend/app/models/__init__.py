@@ -17,6 +17,7 @@ from app.models.proyecto import Proyecto
 from app.models.resultado import Resultado, ResultadoHistorial
 from app.models.rol import Rol, UsuarioRol
 from app.models.ronda import Asignacion, Ronda
+from app.models.seguimiento import ComentarioSeguimiento, Seguimiento
 from app.models.usuario import Sesion, Usuario
 
 __all__ = [
@@ -29,6 +30,7 @@ __all__ = [
     "ContenidoSeccion",
     "ContenidoVersion",
     "Configuracion",
+    "ComentarioSeguimiento",
     "Cuenta",
     "Decision",
     "Evidencia",
@@ -43,6 +45,7 @@ __all__ = [
     "ResultadoHistorial",
     "Rol",
     "Ronda",
+    "Seguimiento",
     "Sesion",
     "Usuario",
     "UsuarioRol",

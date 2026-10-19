@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.time import utcnow
 from app.models.resultado import Resultado, ResultadoHistorial
 from app.schemas.resultado import PasoMarcado, normalizar_pasos
+from app.services import comentarios_seguimiento
 
 
 def limpiar_pasos(pasos: list[PasoMarcado], total: int) -> list[dict]:
@@ -76,6 +77,11 @@ def guardar(
     )
     previo = None if resultado is None else resultado.estado
     pasos_previos = [] if resultado is None else resultado.pasos_marcados
+    antes = (
+        {}
+        if resultado is None
+        else comentarios_seguimiento.textos(previo, pasos_previos, resultado.comentario)
+    )
     if resultado is None:
         resultado = Resultado(ronda_id=ronda_id, caso_id=caso_id, usuario_email=email)
         db.add(resultado)
@@ -85,6 +91,7 @@ def guardar(
         resultado.comentario = (comentario or "").strip() or None
     resultado.actualizado = utcnow()
     _registrar(db, resultado, previo, pasos_previos)
+    comentarios_seguimiento.sincronizar(db, resultado, antes)
     db.flush()
     return resultado
 

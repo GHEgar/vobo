@@ -70,7 +70,13 @@ def test_todo_queda_en_el_proyecto_por_omision(tmp_path, subir) -> None:
     antes = volcado(motor)
     despues = subir(motor)
     assert migraciones.revision_actual(motor) == migraciones.revision_head()
-    assert set(despues) == set(antes) | {"proyectos", "resultados_historial", "pantallas"}
+    assert set(despues) == set(antes) | {
+        "proyectos",
+        "resultados_historial",
+        "pantallas",
+        "comentarios_seguimiento",
+        "seguimiento",
+    }
     assert conserva(antes, despues)
     [proyecto] = despues["proyectos"]
     assert proyecto["clave"] == "principal"

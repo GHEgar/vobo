@@ -54,5 +54,5 @@ def test_baja_a_0007_y_vuelve(tmp_path) -> None:
     assert volcado(motor) == antes
     _migrar(motor, "head")
     assert conserva(antes, volcado(motor))
-    assert migraciones.revision_actual(motor) == migraciones.revision_head() == "0008"
+    assert migraciones.revision_actual(motor) == migraciones.revision_head() == "0009"
     motor.dispose()

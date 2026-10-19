@@ -36,6 +36,12 @@ COLUMNAS = (
     "versión visible",
     "navegador",
     "capturas",
+    "plazo",
+    "responsable",
+    "resuelta",
+    "resolvió",
+    "tiempo de solución (horas)",
+    "respuestas",
 )
 TIPOS = {"falla": "Falla", "no_pude": "No pude probarlo"}
 SEVERIDADES = {"critica": "Crítica", "alta": "Alta", "media": "Media", "baja": "Baja"}
@@ -98,6 +104,26 @@ def comentarios_de(
     )
 
 
+def horas(falla: FallaResponse) -> str:
+    if falla.resuelta_en is None:
+        return ""
+    inicio = como_utc(falla.creada) or falla.creada
+    fin = como_utc(falla.resuelta_en) or falla.resuelta_en
+    return f"{max((fin - inicio).total_seconds(), 0) / 3600:.1f}"
+
+
+def respuestas_de(falla: FallaResponse, tz: ZoneInfo) -> str:
+    return "\n".join(
+        f"{fecha_local(e.creado, tz)} · {e.autor or e.autor_email}: {e.texto}"
+        for e in falla.seguimiento
+        if e.accion == "respuesta"
+    )
+
+
+def _persona(nombres: dict[str, str], email: str | None) -> str:
+    return nombres.get(email, email) if email else ""
+
+
 def generar(
     db: Session,
     contenido: Contenido,
@@ -132,6 +158,12 @@ def generar(
             f.version_visible,
             f.navegador,
             len(f.evidencias),
+            f.plazo.isoformat() if f.plazo else "",
+            _persona(nombres, f.plazo_por),
+            fecha_local(f.resuelta_en, tz) if f.resuelta_en else "",
+            _persona(nombres, f.resuelta_por),
+            horas(f),
+            respuestas_de(f, tz),
         )
         if comentarios is not None:
             fila = (*fila, comentarios_de(f, comentarios, tz))
