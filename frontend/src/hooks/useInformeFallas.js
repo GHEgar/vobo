@@ -39,9 +39,9 @@ export const useDatosInforme = (claves, ronda, conComentarios) => {
     };
 };
 
-export const useParticipacion = (claves, ronda, activo, intervalo = false) => useQuery({
-    queryKey: ['participacion', { claves, ronda }],
-    queryFn: () => api.fetchParticipacion({ proyectos: claves, ronda }),
+export const useParticipacion = (claves, ronda, activo, intervalo = false, agrupar = 'proyecto') => useQuery({
+    queryKey: ['participacion', { claves, ronda, agrupar }],
+    queryFn: () => api.fetchParticipacion({ proyectos: claves, ronda, agrupar }),
     enabled: activo && claves.length > 0,
     staleTime: VIGENCIA,
     refetchInterval: intervalo,

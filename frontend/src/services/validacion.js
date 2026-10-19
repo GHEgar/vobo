@@ -63,7 +63,7 @@ export const guardarResultado = ({ casoId, ...datos }) => solicitar(
 export const reportarFalla = (form) => solicitar('/fallas', { method: 'POST', form });
 export const fetchFallas = (filtros) => solicitar(`/fallas${consulta(filtros)}`);
 export const urlInformeFallas = (filtros) => `/api/fallas/informe.csv${consulta(filtros)}`;
-export const fetchParticipacion = ({ proyectos, ronda }) => solicitar(`/participacion${consulta({ proyectos: proyectos.join(','), ronda })}`);
+export const fetchParticipacion = ({ proyectos, ronda, agrupar }) => solicitar(`/participacion${consulta({ proyectos: proyectos.join(','), ronda, agrupar })}`);
 export const actualizarFalla = ({ id, ...cambios }) => solicitar(`/fallas/${id}`, { method: 'PATCH', json: cambios });
 export const actualizarComentario = ({ id, ...cambios }) => solicitar(`/comentarios/${id}`, { method: 'PATCH', json: cambios });
 const RUTAS_SEGUIMIENTO = { falla: 'fallas', comentario: 'comentarios' };
