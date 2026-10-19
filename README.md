@@ -375,7 +375,7 @@ curl -H "Authorization: Bearer $(cat secrets/validacion_lectura_token)" \
 Also `GET /api/tablero`, `/api/herramientas`, `/api/aprobaciones` and `/api/comentarios`, each with
 `?ronda=`. Without a round, lists use the default project; add `?proyecto=<clave>` for another one.
 
-`GET /api/participacion?proyectos=<clave>,<clave>&ronda=<id>` returns who marked cases in which project
+`GET /api/participacion?proyectos=<clave>,<clave>&ronda=<id>&agrupar=proyecto|sistema|seccion` returns who marked cases in which project
 in the [tequio](https://github.com/GHEgar/tequio) data format, ready for `<Tequio>`, `toSvg` or
 `npx @npmegar/tequio render`. Without `proyectos` it covers every active project; each one uses its
 open round (or its latest), and `ronda` applies when a single project is asked. People are identified

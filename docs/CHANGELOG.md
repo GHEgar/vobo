@@ -7,6 +7,19 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- La participación se agrupa por proyecto, sistema o sección (`GET /api/participacion?agrupar=`,
+  `proyecto` por omisión). Con varios proyectos, sistemas y secciones llevan el proyecto en la clave y
+  en el nombre. Cada grupo trae sus fallas abiertas; los sistemas, cuántas secciones abarcan.
+- Página «Participación»: selector Proyecto · Sistema · Sección (Sistema por omisión) y botón
+  «Animación», encendido por omisión, que mueve el grafo aunque el sistema pida reducir movimiento.
+
+### Cambiado
+
+- `@npmegar/tequio` 0.5.0: el foco sin recuadro al hacer clic viene de la librería, así que sale la
+  regla propia de `index.css`.
+
 ## [0.7.0] - 2026-10-19
 
 ### Agregado
