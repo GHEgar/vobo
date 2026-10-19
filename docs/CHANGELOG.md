@@ -7,6 +7,29 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Esfuerzo estimado en fallas y comentarios (`esfuerzo_horas`, de 0 a 1000 horas; `null` es «sin
+  estimar»). Se fija en la ventana de estado y plazo, queda en el seguimiento y quien lo fija pasa a
+  ser responsable. No avisa a nadie.
+- «Se resuelve con»: una falla o un comentario puede seguir a otro reporte principal del mismo
+  proyecto (`principal: {objeto, id}` en el `PATCH`). Toma su plazo al vincularse y, desde entonces,
+  sus cambios de estado y de plazo, con aviso a quien lo reportó; entre falla y comentario el estado se
+  traduce (`lista_para_revalidar` pasa a `en_curso`, `cerrada` a `resuelto`). Sin cadenas: un
+  seguidor no puede ser principal ni al revés (409).
+- Las respuestas de fallas y comentarios traen `esfuerzo_horas`, `principal` (con un texto corto como
+  `#2 · C-CAT-01`) y `seguidores`.
+- Cabecera de cada tarjeta con el esfuerzo («6 h», «1.5 d» en días de 8 h), «Sigue a #N», que lleva
+  al principal, y «+N reportes» en el principal. Línea de totales arriba de la lista de Fallas.
+- Informe: «Esfuerzo total» y «Esfuerzo pendiente» en el resumen, subtotal por herramienta y el
+  esfuerzo y «Se resuelve con» de cada reporte. Los seguidores cuentan 0 en las sumas; el tiempo de
+  solución sigue aparte, de creada a resuelta.
+- Columnas «esfuerzo (h)» y «se resuelve con» al final de los dos CSV.
+- `seguimiento.cambiar_esfuerzo` y `vinculos.vincular`, `vinculos.propagar` y
+  `vinculos.sumar_esfuerzo` para usarlos desde un script, sin commit adentro.
+- Migración `0011`: columnas `esfuerzo_horas`, `principal_objeto` y `principal_id` en `fallas` y
+  `comentarios_seguimiento`, y acciones `esfuerzo` y `vinculo` en `seguimiento`.
+
 ## [0.5.0] - 2026-10-19
 
 ### Agregado
