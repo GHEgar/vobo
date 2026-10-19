@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.4.2] - 2026-10-19
+
 ### Cambiado
 
 - Tarjetas de falla y comentario más legibles: estado, plazo, responsable y resolución pasan a un
