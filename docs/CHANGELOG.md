@@ -7,6 +7,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.10.0] - 2026-10-19
+
+### Cambiado
+
+- Participación usa tequio 0.7.0: la tarjeta del recorrido viaja de un nodo al siguiente, su contorno
+  marca el tiempo que le queda y, si no cabe, se desplaza sola y dura más.
+- En pantalla completa cada tarjeta dura 20 s y se ve 1.25 veces más grande.
+
 ## [0.9.0] - 2026-10-19
 
 ### Agregado
