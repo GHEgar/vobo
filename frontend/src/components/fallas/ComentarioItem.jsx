@@ -5,6 +5,7 @@ import { Chip } from '@/components/Chip';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 import { Dato, Detalles } from '@/components/fallas/Detalles';
 import { BotonIcono } from '@/components/fallas/BotonIcono';
+import { ChipsVinculo } from '@/components/fallas/ChipsVinculo';
 import { ChipPlazo, EstadoEmergente } from '@/components/fallas/EstadoEmergente';
 import { Seguimiento } from '@/components/fallas/Seguimiento';
 import { useActualizarComentario } from '@/hooks/useValidacion';
@@ -12,6 +13,7 @@ import { useRuta } from '@/hooks/useProyecto';
 import { ESTADOS_COMENTARIO } from '@/utils/etiquetas';
 import { formatearFecha } from '@/utils/formato';
 import { copiarTexto } from '@/utils/portapapeles';
+import { idRegistro } from '@/utils/seguimiento';
 
 const paraTaiga = (c) => [
     `[${c.caso_id}] ${c.caso_titulo} — ${c.tipo === 'no_pude' ? 'no pudo probarlo' : `paso ${c.paso + 1}`}`,
@@ -40,7 +42,7 @@ export const ComentarioItem = ({ comentario: c, editable }) => {
     const cambiar = (cambios) => actualizar.mutate({ id: c.id, ...cambios });
 
     return (
-        <li className="min-w-0 rounded-2xl border border-borde bg-white p-5">
+        <li id={c.id != null ? idRegistro('comentario', c.id) : undefined} tabIndex={-1} className="min-w-0 scroll-mt-24 rounded-2xl border border-borde bg-white p-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primario">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <Chip tono={c.tipo === 'no_pude' ? 'aviso' : 'marca'}>
@@ -49,20 +51,23 @@ export const ComentarioItem = ({ comentario: c, editable }) => {
                     </Chip>
                     {c.sistema && <Chip tono="marca">{c.sistema}</Chip>}
                     <ChipPlazo plazo={c.plazo} resuelto={c.estado === 'resuelto'} textoVencido="Vencido" />
+                    <ChipsVinculo registro={c} />
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 print:hidden">
                     {c.id != null && (
                         <EstadoEmergente
                             id={`comentario-${c.id}`}
+                            objeto="comentario"
                             registro={c}
                             estados={ESTADOS_COMENTARIO}
                             final="resuelto"
                             editable={gestionable}
-                            etiqueta="Estado y plazo del comentario"
+                            etiqueta="Estado, plazo y esfuerzo del comentario"
                             verbo="Resuelto"
                             resolucion={{ en: c.resuelto_en, por: c.resuelto_por_nombre || c.resuelto_por, desde: c.creado }}
                             onCambiar={cambiar}
                             textoVencido="Vencido"
+                            error={actualizar.error?.message}
                         />
                     )}
                     <CopiarTaiga comentario={c} />

@@ -7,11 +7,12 @@ import { EmptyState, ErrorState } from '@/components/Estados';
 import { Tarjeta } from '@/components/Tarjeta';
 import { ComentariosLista } from '@/components/fallas/ComentariosLista';
 import { FallaCard } from '@/components/fallas/FallaCard';
+import { TotalesEsfuerzo } from '@/components/fallas/TotalesEsfuerzo';
 import { useRonda } from '@/hooks/useRonda';
 import { useClaveProyecto, useRuta } from '@/hooks/useProyecto';
 import { useSesion } from '@/hooks/useSesion';
 import { PERMISOS } from '@/utils/permisos';
-import { useContenido, useFallas } from '@/hooks/useValidacion';
+import { useComentarios, useContenido, useFallas } from '@/hooks/useValidacion';
 import { consulta as aConsulta } from '@/services/api';
 import { ESTADOS_FALLA, SEVERIDADES, opciones } from '@/utils/etiquetas';
 import { FileText, Filter } from 'tesela/react';
@@ -40,6 +41,11 @@ const Fallas = () => {
     const [verFiltros, setVerFiltros] = useState(() => Boolean(filtros.sistema || filtros.severidad));
     const activos = Object.values(filtros).filter(Boolean).length;
     const { data, isPending, error, refetch } = useFallas(filtros);
+    const { data: comentarios } = useComentarios(filtros.ronda);
+    const visibles = useMemo(
+        () => [...(data ?? []), ...(comentarios ?? []).filter((c) => c.id != null && (!filtros.sistema || c.sistema === filtros.sistema))],
+        [data, comentarios, filtros.sistema],
+    );
     const sistemas = useMemo(
         () => [...new Set((contenido?.secciones ?? []).map((s) => s.sistema))].sort().map((s) => ({ valor: s, texto: s })),
         [contenido],
@@ -72,6 +78,7 @@ const Fallas = () => {
                     <SelectField id="f-estado" label="Estado" value={filtros.estado} onChange={fijar('estado')} placeholder="Todos" options={opciones(ESTADOS_FALLA)} />
                 </div>}
             </Tarjeta>
+            {data && <TotalesEsfuerzo registros={visibles} />}
             {isPending && <Spinner pantalla />}
             {error && <ErrorState mensaje={error.message} onReintentar={refetch} />}
             {data && !data.length && <EmptyState icono={Filter} titulo="No hay fallas con estos filtros" />}

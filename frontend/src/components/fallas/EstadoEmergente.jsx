@@ -1,9 +1,11 @@
 import { Alert, Chat, CheckCircle, Eye, Refresh } from 'tesela/react';
 import { BotonEmergente } from '@/components/fallas/BotonIcono';
+import { EsfuerzoCampo } from '@/components/fallas/EsfuerzoCampo';
 import { EstadoCampo } from '@/components/fallas/EstadoCampo';
 import { PlazoCampo } from '@/components/fallas/PlazoCampo';
 import { Resolucion } from '@/components/fallas/Resolucion';
-import { formatearDia, vencido } from '@/utils/seguimiento';
+import { VinculoCampo } from '@/components/fallas/VinculoCampo';
+import { formatearDia, formatearEsfuerzo, vencido } from '@/utils/seguimiento';
 
 const ICONOS = {
     nueva: Alert,
@@ -14,14 +16,15 @@ const ICONOS = {
     resuelto: CheckCircle,
 };
 
-export const EstadoEmergente = ({ id, registro, estados, final, editable, etiqueta, resolucion, verbo, onCambiar, textoVencido }) => {
+export const EstadoEmergente = ({ id, objeto, registro, estados, final, editable, etiqueta, resolucion, verbo, onCambiar, textoVencido, error }) => {
     const estado = estados[registro.estado] ?? Object.values(estados)[0];
     const resuelto = registro.estado === final;
     const atrasado = vencido(registro.plazo, resuelto);
     const plazo = registro.plazo ? `, plazo ${formatearDia(registro.plazo)}${atrasado ? `, ${textoVencido.toLowerCase()}` : ''}` : '';
+    const esfuerzo = registro.esfuerzo_horas != null ? `, esfuerzo ${formatearEsfuerzo(registro.esfuerzo_horas)}` : '';
     return (
         <BotonEmergente
-            etiqueta={`Estado: ${estado.texto}${plazo}`}
+            etiqueta={`Estado: ${estado.texto}${plazo}${esfuerzo}`}
             titulo={etiqueta}
             icono={ICONOS[registro.estado] ?? Alert}
             tono={estado.tono}
@@ -46,6 +49,14 @@ export const EstadoEmergente = ({ id, registro, estados, final, editable, etique
                 onCambiar={(valor) => onCambiar({ plazo: valor })}
                 textoVencido={textoVencido}
             />
+            <EsfuerzoCampo
+                id={id}
+                horas={registro.esfuerzo_horas}
+                editable={editable}
+                onCambiar={(valor) => onCambiar({ esfuerzo_horas: valor })}
+            />
+            <VinculoCampo objeto={objeto} registro={registro} editable={editable} onCambiar={onCambiar} />
+            {error && <p role="alert" className="tipo-media text-xs text-error-fuerte">{error}</p>}
         </BotonEmergente>
     );
 };

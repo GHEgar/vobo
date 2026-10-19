@@ -4,6 +4,7 @@ import { Chip } from '@/components/Chip';
 import { ChipResultado } from '@/components/ChipResultado';
 import { BotonIcono } from '@/components/fallas/BotonIcono';
 import { Capturas } from '@/components/fallas/Capturas';
+import { ChipsVinculo } from '@/components/fallas/ChipsVinculo';
 import { Dato, Detalles } from '@/components/fallas/Detalles';
 import { ChipPlazo, EstadoEmergente } from '@/components/fallas/EstadoEmergente';
 import { NotaResolucion } from '@/components/fallas/NotaResolucion';
@@ -11,6 +12,7 @@ import { Seguimiento } from '@/components/fallas/Seguimiento';
 import { useActualizarFalla } from '@/hooks/useValidacion';
 import { ESTADOS_FALLA, REPRODUCIBLE, SEVERIDADES } from '@/utils/etiquetas';
 import { describirNavegador, formatearFecha } from '@/utils/formato';
+import { idRegistro } from '@/utils/seguimiento';
 
 export const FallaCard = ({ falla, editable }) => {
     const actualizar = useActualizarFalla();
@@ -25,7 +27,7 @@ export const FallaCard = ({ falla, editable }) => {
     };
 
     return (
-        <li className="min-w-0 rounded-2xl bg-white p-5 shadow-[0px_3px_12px_var(--color-sombra-tenue)]">
+        <li id={idRegistro('falla', falla.id)} tabIndex={-1} className="min-w-0 scroll-mt-24 rounded-2xl bg-white p-5 shadow-[0px_3px_12px_var(--color-sombra-tenue)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primario">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <span className="tipo-media text-xs text-texto-apagado">#{falla.id} · {falla.caso_id}</span>
@@ -34,18 +36,21 @@ export const FallaCard = ({ falla, editable }) => {
                     {falla.seccion_completa && <Chip tono="aviso">Sección completa</Chip>}
                     {falla.tipo === 'no_pude' && <ChipResultado estado="no_pude" />}
                     <ChipPlazo plazo={falla.plazo} resuelto={falla.estado === 'cerrada'} textoVencido="Vencida" />
+                    <ChipsVinculo registro={falla} />
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 print:hidden">
                     <EstadoEmergente
                         id={`falla-${falla.id}`}
+                        objeto="falla"
                         registro={falla}
                         estados={ESTADOS_FALLA}
                         final="cerrada"
                         editable={editable}
-                        etiqueta="Estado y plazo de la falla"
+                        etiqueta="Estado, plazo y esfuerzo de la falla"
                         resolucion={{ en: falla.resuelta_en, por: falla.resuelta_por_nombre || falla.resuelta_por, desde: falla.creada }}
                         onCambiar={(cambios) => cambiar(cambios)}
                         textoVencido="Vencida"
+                        error={actualizar.error?.message}
                     />
                     {editable && (
                         <BotonIcono

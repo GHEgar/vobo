@@ -32,10 +32,12 @@ export const BotonEmergente = ({ etiqueta, titulo, icono, tono, marca, children 
     useEffect(() => {
         if (!abierto) return undefined;
         const fuera = (e) => {
+            if (e.target.closest?.('[data-emergente-anidado]')) return;
             if (!panel.current?.contains(e.target) && !boton.current?.contains(e.target)) setAbierto(false);
         };
         const tecla = (e) => {
             if (e.key !== 'Escape') return;
+            if (e.target.getAttribute?.('role') === 'combobox' && e.target.getAttribute('aria-expanded') === 'true') return;
             setAbierto(false);
             boton.current?.focus();
         };
