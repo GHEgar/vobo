@@ -7,6 +7,26 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Agregado
+
+- Permisos atómicos agrupados por área: `participacion.ver`, `fallas.ver`, `rondas.gestionar` y
+  `accesos.gestionar` en Validación; `personas.gestionar`, `roles.gestionar`, `proyectos.gestionar`,
+  `identidad.editar` y `configuracion.editar` en Administración. El editor de roles los muestra por
+  área.
+- Roles de sistema «Pantalla» (solo Participación) e «Identidad visual» (nombre, textos de entrada,
+  marca, colores y tipografía). El arranque agrega los roles de sistema que falten.
+- Nadie otorga lo que no tiene: crear o editar roles, asignarlos e invitar se comprueban contra los
+  permisos de quien lo hace.
+
+### Cambiado
+
+- Los permisos gruesos siguen funcionando e implican los nuevos: `fallas.gestionar` incluye ver
+  fallas, rondas, accesos y Participación; `tablero.ver` incluye Participación; `admin`, todo. La
+  sesión devuelve los permisos ya expandidos.
+- Administración muestra solo las pestañas que la persona puede usar y Configuración solo sus partes
+  (Identidad, Marca y Colores con `identidad.editar`; Sistemas y Cuentas con `configuracion.editar`).
+  Quien no ejecuta casos y ve una sola página entra directo a ella, sin «Inicio» en el menú.
+
 ## [0.8.0] - 2026-10-19
 
 ### Agregado
