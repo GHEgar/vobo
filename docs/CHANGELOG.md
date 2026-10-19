@@ -7,6 +7,14 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- Tarjetas de falla y comentario más legibles: estado, plazo, responsable y resolución pasan a un
+  botón de ícono con ventana emergente (con un punto rojo si el plazo venció), y el plazo queda como
+  chip junto a la severidad. Nota de resolución, detalles y «Copiar para Taiga» son botones de ícono
+  en la esquina. Las capturas van a la derecha del título, sin recuadro, y el seguimiento es un
+  bloque gris con las respuestas en blanco.
+
 ## [0.4.1] - 2026-10-19
 
 ### Agregado

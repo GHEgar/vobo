@@ -25,7 +25,7 @@ const Evento = ({ evento, estados, burbuja }) => {
     );
 };
 
-export const Seguimiento = ({ objeto, id, eventos = [], estados, editable = false, burbuja = 'bg-fondo' }) => {
+export const Seguimiento = ({ objeto, id, eventos = [], estados, editable = false, burbuja = 'bg-white' }) => {
     const responder = useResponder(objeto);
     const [texto, setTexto] = useState('');
     const [abierto, setAbierto] = useState(false);
@@ -47,7 +47,7 @@ export const Seguimiento = ({ objeto, id, eventos = [], estados, editable = fals
 
     if (!eventos.length && !editable) return null;
     return (
-        <section aria-label="Seguimiento" className="mt-4 min-w-0 border-t border-borde pt-3">
+        <section aria-label="Seguimiento" className="mt-4 min-w-0 rounded-xl bg-fondo p-3">
             <p className="tipo-negrita text-xs text-texto-tenue">Seguimiento</p>
             {eventos.length > 0 ? (
                 <ol className="mt-2 flex flex-col gap-2">

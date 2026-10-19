@@ -3,16 +3,10 @@ import { SelectField } from '@/components/Field';
 import { Label } from '@/components/Label';
 import { opciones } from '@/utils/etiquetas';
 
-export const Franja = ({ etiqueta, children }) => (
-    <div role="group" aria-label={etiqueta} className="mt-4 flex flex-col gap-4 rounded-xl border border-borde p-4 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-8">
-        {children}
-    </div>
-);
-
 export const EstadoCampo = ({ id, valor, estados, editable, etiqueta, onCambiar, children }) => {
     const estado = estados[valor] ?? Object.values(estados)[0];
     return (
-        <div className="min-w-0 sm:w-[220px]">
+        <div className="min-w-0 [&>div]:mt-0">
             {editable ? (
                 <SelectField
                     id={id}
