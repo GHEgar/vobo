@@ -76,3 +76,42 @@ def test_solo_quien_ve_tablero_o_fallas(cliente_de, ronda_id) -> None:
     assert cliente_de("validador").get("/api/participacion").status_code == 403
     assert cliente_de("aprobacion").get("/api/participacion").status_code == 200
     assert cliente_de("coordinacion").get("/api/participacion").status_code == 200
+
+
+def test_agrupar_por_sistema_y_por_seccion(cliente_de, ronda_id) -> None:
+    validador = cliente_de("validador")
+    _marcar(validador, ronda_id, "A-GEN-01", "pasa")
+    _marcar(validador, ronda_id, "C-CAT-01", "falla")
+    _marcar(validador, ronda_id, "C-CAT-02", "pasa")
+    validador.post(
+        "/api/fallas",
+        data={
+            "ronda_id": ronda_id,
+            "caso_id": "C-CAT-01",
+            "obtenido": "No filtra",
+            "tipo": "falla",
+            "reproducible": "siempre",
+        },
+    )
+    coordinacion = cliente_de("coordinacion")
+    por_proyecto = coordinacion.get("/api/participacion").json()
+    total = sum(por_proyecto["projects"][0]["counts"].values())
+
+    sistemas = coordinacion.get("/api/participacion?agrupar=sistema").json()
+    assert len(sistemas["projects"]) > 1
+    assert sum(sum(p["counts"].values()) for p in sistemas["projects"]) == total
+    catalogo = next(p for p in sistemas["projects"] if p["id"] == "catalogo")
+    assert catalogo["counts"]["falla"] == 1
+    assert catalogo["counts"]["pasa"] == 1
+    assert {"label": "Fallas abiertas", "value": 1} in catalogo["details"]
+    assert any(d["label"] == "Secciones" for d in catalogo["details"])
+    [persona] = sistemas["people"]
+    pesos = {e["project"]: e["weight"] for e in sistemas["links"]}
+    assert pesos["catalogo"] == 2
+    assert persona["metric"] == 3
+
+    secciones = coordinacion.get("/api/participacion?agrupar=seccion").json()
+    nombres = {p["name"] for p in secciones["projects"]}
+    assert "Catálogo y búsqueda" in nombres
+    assert sum(sum(p["counts"].values()) for p in secciones["projects"]) == total
+    assert coordinacion.get("/api/participacion?agrupar=otra").status_code == 422

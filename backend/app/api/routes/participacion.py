@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.core.permisos import GESTIONAR_FALLAS, VER_TABLERO
 from app.schemas.participacion import Participacion
 from app.services import participacion
+from app.services.participacion_grupos import Agrupar
 
 router = APIRouter(prefix="/api/participacion", tags=["participacion"])
 
@@ -14,10 +15,11 @@ router = APIRouter(prefix="/api/participacion", tags=["participacion"])
 def obtener(
     proyectos: str = Query(default="", max_length=2000),
     ronda: int | None = Query(default=None),
+    agrupar: Agrupar = Query(default="proyecto"),
     db: Session = Depends(get_db),
     _actor: Actor = Depends(
         lectura_o_permiso((VER_TABLERO, GESTIONAR_FALLAS), ("tablero", "fallas"))
     ),
 ) -> Participacion:
     claves = [c.strip() for c in proyectos.split(",") if c.strip()]
-    return participacion.calcular(db, claves, ronda)
+    return participacion.calcular(db, claves, ronda, agrupar)
