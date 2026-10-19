@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Actor, lectura_o_permiso, proyecto_actual, require_permission
 from app.core.database import get_db
-from app.core.permisos import EJECUTAR_CASOS, GESTIONAR_FALLAS
+from app.core.permisos import EJECUTAR_CASOS, GESTIONAR_FALLAS, VER_FALLAS
 from app.core.time import utcnow
 from app.models.proyecto import Proyecto
 from app.schemas.falla import EstadoFalla, FallaResponse, FallaUpdate, Reproducible, TipoFalla
@@ -59,7 +59,7 @@ def listar_fallas(
     filtro: fallas.FiltroFallas = Depends(filtro_fallas),
     db: Session = Depends(get_db),
     proyecto: Proyecto = Depends(proyecto_actual),
-    _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
+    _actor: Actor = Depends(lectura_o_permiso(VER_FALLAS, "fallas")),
 ) -> list[FallaResponse]:
     actual = contenido.obtener(proyecto)
     return fallas.serializar_todas(db, fallas.listar(db, actual, filtro), actual)
@@ -72,7 +72,7 @@ def informe_csv(
     incluir: bool = Query(default=False, alias="comentarios"),
     db: Session = Depends(get_db),
     proyecto: Proyecto = Depends(proyecto_actual),
-    _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
+    _actor: Actor = Depends(lectura_o_permiso(VER_FALLAS, "fallas")),
 ) -> Response:
     actual = contenido.obtener(proyecto)
     zona = informe_fallas.zona(tz)

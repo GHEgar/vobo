@@ -207,7 +207,7 @@ def test_adopta_la_base_vieja_sin_perder_datos(motor_de: Callable[..., Engine]) 
     despues = _datos(motor)
     assert set(despues) == set(antes) | NUEVAS
     assert all(despues[t] == [] for t in NUEVAS - {"roles", "proyectos"})
-    assert len(despues["roles"]) == 4
+    assert len(despues["roles"]) == 6
     assert [p["clave"] for p in despues["proyectos"]] == ["principal"]
     assert {r["proyecto_id"] for r in despues["rondas"]} == {despues["proyectos"][0]["id"]}
     for tabla, filas in antes.items():

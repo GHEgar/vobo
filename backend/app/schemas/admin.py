@@ -13,6 +13,7 @@ def correo_normalizado(valor: str) -> str:
 class PermisoItem(BaseModel):
     clave: str
     descripcion: str
+    area: str
 
 
 class RolItem(BaseModel):

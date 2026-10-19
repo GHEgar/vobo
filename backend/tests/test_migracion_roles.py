@@ -57,7 +57,8 @@ def test_0002_sobre_una_base_en_0001_conserva_los_datos(tmp_path: Path, monkeypa
     motor.dispose()
     assert origenes == {"s-oidc": "oidc", "s-local": "local"}
     assert [{k: r[k] for k in ("clave", "nombre", "descripcion")} for r in sembrados] == [
-        {k: r[k] for k in ("clave", "nombre", "descripcion")} for r in roles.ROLES_SISTEMA
+        {k: r[k] for k in ("clave", "nombre", "descripcion")}
+        for r in (*roles.ROLES_SISTEMA, *roles.ROLES_AGREGADOS)
     ]
     assert all(r["sistema"] == 1 for r in sembrados)
 

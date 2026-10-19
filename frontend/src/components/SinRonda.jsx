@@ -11,7 +11,7 @@ export const SinRonda = () => {
             icono={Refresh}
             titulo="Todavía no hay una ronda abierta"
             descripcion="Cuando coordinación abra la primera ronda aparecerán aquí tus casos."
-            accion={puede(PERMISOS.gestionarFallas) && (
+            accion={puede(PERMISOS.gestionarRondas) && (
                 <Link to="/rondas" className="tipo-negrita text-sm text-primario hover:underline">Abrir una ronda</Link>
             )}
         />

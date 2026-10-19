@@ -8,7 +8,7 @@ import app.models  # noqa: F401
 from app.core.config import settings
 from app.core.database import engine
 from app.core.migraciones import EsquemaIncompatible, migrar
-from app.services import proyectos
+from app.services import proyectos, roles
 from app.services.contenido_importacion import importar_inicial
 
 
@@ -17,6 +17,7 @@ def preparar_base(motor: Engine | None = None) -> None:
     Path(settings.evidencias_dir).mkdir(parents=True, exist_ok=True)
     with Session(motor or engine) as db:
         proyectos.asegurar_por_omision(db)
+        roles.sembrar_sistema(db)
     if settings.contenido_en_base:
         importar_inicial(motor or engine)
 

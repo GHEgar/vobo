@@ -9,7 +9,8 @@ export const rolesDe = (permisos = []) => {
 
 export const PAGINAS_OTORGABLES = [
     { pagina: 'tablero', texto: 'Tablero', permiso: PERMISOS.verTablero },
-    { pagina: 'fallas', texto: 'Fallas', permiso: PERMISOS.gestionarFallas },
+    { pagina: 'participacion', texto: 'Participación', permiso: PERMISOS.verParticipacion },
+    { pagina: 'fallas', texto: 'Fallas', permiso: PERMISOS.verFallas },
     { pagina: 'herramientas', texto: 'Herramientas', permiso: PERMISOS.gestionarFallas },
     { pagina: 'tecnico', texto: 'Técnico', permiso: PERMISOS.gestionarFallas },
 ];

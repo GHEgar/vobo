@@ -313,12 +313,33 @@ take effect on the next `make deploy`.
 
 ### Roles and permissions
 
-Permissions: `validacion.casos.ejecutar`, `validacion.tablero.ver`, `validacion.fallas.gestionar`,
-`validacion.herramientas.aprobar`, `validacion.contenido.editar` and `validacion.admin`, which implies
-all the others and opens **Administración**. A person's permissions are the union of what the provider
-grants, the roles assigned in the app, and roles mapped from provider groups. Four system roles ship:
-Validador, Coordinación, Aprobación and Administración; own roles are managed in Administración → Roles,
-and a role's key is fixed once created.
+Permissions are atomic and grouped by area:
+
+| Area | Permission | Lets you |
+|---|---|---|
+| Validación | `casos.ejecutar` | Run assigned cases and report failures |
+| | `tablero.ver` | See the round board (implies `participacion.ver`) |
+| | `participacion.ver` | See the Participación page only |
+| | `fallas.ver` | See failures, comments and the report without changing them |
+| | `fallas.gestionar` | Manage failures (implies `fallas.ver`, `rondas.gestionar`, `accesos.gestionar`, `participacion.ver`) |
+| | `rondas.gestionar` | Create, close and delete rounds and assign sections |
+| | `accesos.gestionar` | Grant pages to people |
+| | `herramientas.aprobar` | Approve or reject tools and features |
+| Contenido | `contenido.editar` | Edit sections, cases, procedures and animations |
+| Administración | `personas.gestionar` | Invite people and manage their accounts |
+| | `roles.gestionar` | Create roles and assign them |
+| | `proyectos.gestionar` | Create, order, edit and archive projects |
+| | `identidad.editar` | Name, sign-in texts, logos, colors and typography |
+| | `configuracion.editar` | Systems and test accounts |
+
+All keys start with `validacion.`; `validacion.admin` implies every permission. A person's permissions
+are the union of what the provider grants, the roles assigned in the app, and roles mapped from
+provider groups. System roles: Validador, Coordinación, Aprobación, Administración, **Pantalla** (only
+Participación, for a wall screen) and **Identidad visual**; missing ones are added on startup. Own roles
+are managed in Administración → Roles, and a role's key is fixed once created. Nobody can grant a
+permission they do not hold: creating or editing roles, assigning them and inviting people are checked
+against the actor's own permissions. Administración shows only the tabs, and Configuración only the
+parts, that the person can use; someone who cannot run cases and sees a single page lands on it.
 
 Anyone with `validacion.tablero.ver` or `validacion.fallas.gestionar` gets an **Actividad** button in
 the header with the number of people active right now. It shows who is online (what they are doing,

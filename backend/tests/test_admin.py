@@ -41,17 +41,29 @@ def test_lista_los_roles_de_sistema_y_el_catalogo(admin) -> None:
         "coordinacion",
         "aprobacion",
         "administracion",
+        "pantalla",
+        "identidad",
     ]
     assert all(r["sistema"] for r in roles)
     catalogo = admin.get("/api/admin/permisos").json()
     assert {p["clave"] for p in catalogo} == {
         "validacion.casos.ejecutar",
         "validacion.tablero.ver",
+        "validacion.participacion.ver",
+        "validacion.fallas.ver",
         "validacion.fallas.gestionar",
+        "validacion.rondas.gestionar",
+        "validacion.accesos.gestionar",
         "validacion.herramientas.aprobar",
         "validacion.contenido.editar",
+        "validacion.personas.gestionar",
+        "validacion.roles.gestionar",
+        "validacion.proyectos.gestionar",
+        "validacion.identidad.editar",
+        "validacion.configuracion.editar",
     }
-    assert all(p["descripcion"] for p in catalogo)
+    assert all(p["descripcion"] and p["area"] for p in catalogo)
+    assert {p["area"] for p in catalogo} == {"Validación", "Contenido", "Administración"}
 
 
 def test_crea_edita_y_borra_un_rol_propio(admin) -> None:

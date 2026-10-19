@@ -9,19 +9,23 @@ import { Cuentas, Sistemas } from '@/components/admin/configuracion/Listas';
 import { EstadoGuardado } from '@/components/admin/configuracion/Comun';
 import { useConfiguracion } from '@/hooks/useAdmin';
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
+import { useSesion } from '@/hooks/useSesion';
+import { PERMISOS } from '@/utils/permisos';
 
 const PARTES = [
-    { clave: 'identidad', nombre: 'Identidad', Componente: Identidad, firma: (e) => [e.efectiva.producto, e.efectiva.nombre, e.efectiva.descripcion, e.efectiva.entrada] },
-    { clave: 'marca', nombre: 'Marca', Componente: Marca, firma: () => [] },
-    { clave: 'colores', nombre: 'Colores', Componente: Colores, firma: (e) => [e.colores, e.fuente] },
-    { clave: 'sistemas', nombre: 'Sistemas', Componente: Sistemas, firma: (e) => [e.efectiva.proyectos] },
-    { clave: 'cuentas', nombre: 'Cuentas de prueba', Componente: Cuentas, firma: (e) => [e.guardada.cuentas ?? e.archivos.cuentas] },
+    { clave: 'identidad', nombre: 'Identidad', permiso: PERMISOS.editarIdentidad, Componente: Identidad, firma: (e) => [e.efectiva.producto, e.efectiva.nombre, e.efectiva.descripcion, e.efectiva.entrada] },
+    { clave: 'marca', nombre: 'Marca', permiso: PERMISOS.editarIdentidad, Componente: Marca, firma: () => [] },
+    { clave: 'colores', nombre: 'Colores', permiso: PERMISOS.editarIdentidad, Componente: Colores, firma: (e) => [e.colores, e.fuente] },
+    { clave: 'sistemas', nombre: 'Sistemas', permiso: PERMISOS.editarConfiguracion, Componente: Sistemas, firma: (e) => [e.efectiva.proyectos] },
+    { clave: 'cuentas', nombre: 'Cuentas de prueba', permiso: PERMISOS.editarConfiguracion, Componente: Cuentas, firma: (e) => [e.guardada.cuentas ?? e.archivos.cuentas] },
 ];
 
 export const Configuracion = () => {
     const configuracion = useConfiguracion();
+    const { puede } = useSesion();
+    const partes = PARTES.filter((p) => puede(p.permiso));
     const [elegida, setElegida] = useLocalStorageState('validacion.admin.configuracion', 'identidad');
-    const parte = PARTES.find((p) => p.clave === elegida) ?? PARTES[0];
+    const parte = partes.find((p) => p.clave === elegida) ?? partes[0];
 
     if (configuracion.isPending) return <Spinner />;
     if (configuracion.error) return <ErrorState mensaje={configuracion.error.message} onReintentar={configuracion.refetch} />;
@@ -33,7 +37,7 @@ export const Configuracion = () => {
                 Configuración
             </Titulo>
             <div role="group" aria-label="Partes de la configuración" className="mb-5 flex flex-wrap gap-2">
-                {PARTES.map((p) => (
+                {partes.map((p) => (
                     <Chip key={p.clave} tono={p.clave === parte.clave ? 'marca' : 'neutro'} activo={p.clave === parte.clave} onClick={() => setElegida(p.clave)}>
                         {p.nombre}
                     </Chip>

@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from app.core.config import Settings, settings
 from app.core.database import SessionLocal
-from app.core.permisos import TODOS_CON_ADMIN
+from app.core.permisos import TODOS_CON_ADMIN, expandir
 from app.models import Rol, Usuario, UsuarioRol
 
 COORDINACION = [
@@ -35,10 +35,21 @@ def _asignar(email: str, clave: str) -> None:
     ("permisos", "paginas"),
     [
         (["validacion.casos.ejecutar"], []),
-        (COORDINACION, ["aprobaciones", "fallas", "herramientas", "rondas", "tablero", "tecnico"]),
+        (
+            COORDINACION,
+            [
+                "aprobaciones",
+                "fallas",
+                "herramientas",
+                "participacion",
+                "rondas",
+                "tablero",
+                "tecnico",
+            ],
+        ),
         (
             ["validacion.herramientas.aprobar"],
-            ["aprobaciones", "fallas", "herramientas", "tablero"],
+            ["aprobaciones", "fallas", "herramientas", "participacion", "tablero"],
         ),
     ],
 )
@@ -46,12 +57,12 @@ def test_sin_configuracion_nueva_queda_igual_que_hoy(cliente_de, idp, permisos, 
     idp.permisos = permisos
     idp.claims = {"groups": ["equipo-coordinacion"]}
     usuario = _entrar_oidc(cliente_de, idp).get("/api/auth/me").json()["usuario"]
-    assert usuario["permisos"] == sorted(permisos)
+    assert usuario["permisos"] == sorted(expandir(set(permisos)))
     assert usuario["paginas"] == paginas
     assert usuario["origen"] == "oidc"
     assert usuario["tiene_cuenta"] is False
     with SessionLocal() as db:
-        assert db.query(Usuario).one().permisos == sorted(permisos)
+        assert db.query(Usuario).one().permisos == sorted(expandir(set(permisos)))
 
 
 def test_los_roles_asignados_se_suman_a_los_del_proveedor(cliente_de, idp) -> None:
@@ -71,7 +82,7 @@ def test_los_grupos_mapeados_dan_los_permisos_del_rol(cliente_de, idp, monkeypat
     idp.permisos = []
     idp.claims = {"groups": ["equipo-coordinacion", "otro", "sin-mapa"]}
     usuario = _entrar_oidc(cliente_de, idp).get("/api/auth/me").json()["usuario"]
-    assert usuario["permisos"] == COORDINACION
+    assert usuario["permisos"] == sorted(expandir(set(COORDINACION)))
     assert "rondas" in usuario["paginas"]
 
 

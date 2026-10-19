@@ -9,7 +9,7 @@ from app.api.deps import (
     require_permission,
 )
 from app.core.database import get_db
-from app.core.permisos import GESTIONAR_FALLAS
+from app.core.permisos import GESTIONAR_FALLAS, VER_FALLAS
 from app.models.proyecto import Proyecto
 from app.schemas.resultado import ComentarioResponse
 from app.schemas.seguimiento import ComentarioUpdate, EventoSeguimiento, RespuestaCreate
@@ -23,7 +23,7 @@ def listar_comentarios(
     ronda: int | None = Query(default=None),
     db: Session = Depends(get_db),
     proyecto: Proyecto = Depends(proyecto_actual),
-    _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
+    _actor: Actor = Depends(lectura_o_permiso(VER_FALLAS, "fallas")),
 ) -> list[ComentarioResponse]:
     return comentarios.listar(db, contenido.obtener(proyecto), ronda, proyecto_id=proyecto.id)
 

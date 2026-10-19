@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Actor, lectura_o_permiso
 from app.core.database import get_db
-from app.core.permisos import GESTIONAR_FALLAS
+from app.core.permisos import VER_FALLAS
 from app.models.falla import Evidencia
 from app.services import evidencias
 
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/evidencias", tags=["evidencias"])
 def obtener_evidencia(
     evidencia_id: int,
     db: Session = Depends(get_db),
-    _actor: Actor = Depends(lectura_o_permiso(GESTIONAR_FALLAS, "fallas")),
+    _actor: Actor = Depends(lectura_o_permiso(VER_FALLAS, "fallas")),
 ) -> FileResponse:
     evidencia = db.get(Evidencia, evidencia_id)
     ruta = evidencias.ruta_absoluta(evidencia.ruta) if evidencia else None

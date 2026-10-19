@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Actor, get_actor, require_permission
 from app.core.database import get_db
-from app.core.permisos import ADMINISTRAR
+from app.core.permisos import GESTIONAR_PROYECTOS
 from app.models.proyecto import Proyecto
 from app.schemas.proyecto import (
     OrdenProyectos,
@@ -17,7 +17,7 @@ from app.services import proyectos_admin as gestion
 
 router = APIRouter(tags=["proyectos"])
 
-admin = require_permission(ADMINISTRAR)
+admin = require_permission(GESTIONAR_PROYECTOS)
 
 
 @router.get("/api/proyectos", response_model=list[ProyectoItem])

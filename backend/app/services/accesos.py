@@ -2,24 +2,28 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.permisos import (
-    ADMINISTRAR,
+    ADMINISTRACION,
     APROBAR,
     EDITAR_CONTENIDO,
     GESTIONAR_FALLAS,
+    GESTIONAR_RONDAS,
+    VER_FALLAS,
+    VER_PARTICIPACION,
     VER_TABLERO,
 )
 from app.models.acceso import Acceso
 from app.schemas.acceso import AccesoItem
 
-PAGINAS_OTORGABLES = ("tablero", "fallas", "herramientas", "tecnico")
+PAGINAS_OTORGABLES = ("tablero", "participacion", "fallas", "herramientas", "tecnico")
 PERMISO_DE_PAGINA = {
     "tablero": (VER_TABLERO, APROBAR),
-    "fallas": (GESTIONAR_FALLAS, APROBAR),
+    "participacion": (VER_PARTICIPACION, APROBAR),
+    "fallas": (VER_FALLAS, APROBAR),
     "herramientas": (GESTIONAR_FALLAS, APROBAR),
     "aprobaciones": (APROBAR, GESTIONAR_FALLAS),
-    "rondas": (GESTIONAR_FALLAS,),
+    "rondas": (GESTIONAR_RONDAS,),
     "tecnico": (GESTIONAR_FALLAS,),
-    "admin": (ADMINISTRAR,),
+    "admin": tuple(sorted(ADMINISTRACION)),
     "editor": (EDITAR_CONTENIDO,),
 }
 

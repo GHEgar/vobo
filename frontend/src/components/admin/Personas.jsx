@@ -13,6 +13,7 @@ import { useCrearRestablecimiento, useInvitaciones, usePersonas, useRevocarInvit
 import { useModo } from '@/hooks/useModo';
 import { useSesion } from '@/hooks/useSesion';
 import { formatearFecha } from '@/utils/formato';
+import { PERMISOS } from '@/utils/permisos';
 
 const Invitaciones = ({ nombresDeRol }) => {
     const { data = [] } = useInvitaciones();
@@ -40,8 +41,10 @@ export const Personas = () => {
     const personas = usePersonas();
     const roles = useRoles();
     const restablecer = useCrearRestablecimiento();
-    const { conCuentas } = useModo();
-    const { usuario } = useSesion();
+    const { conCuentas: cuentasActivas } = useModo();
+    const { usuario, puede } = useSesion();
+    const conCuentas = cuentasActivas && puede(PERMISOS.gestionarPersonas);
+    const asignaRoles = puede(PERMISOS.gestionarRoles);
     const [modal, setModal] = useState(null);
     const cerrar = () => {
         setModal(null);
@@ -70,7 +73,8 @@ export const Personas = () => {
                         nombresDeRol={nombresDeRol}
                         esYo={p.email === usuario.email}
                         conCuentas={conCuentas}
-                        onRoles={() => setModal({ tipo: 'roles', persona: p })}
+                        gestionaCuentas={puede(PERMISOS.gestionarPersonas)}
+                        onRoles={asignaRoles ? () => setModal({ tipo: 'roles', persona: p }) : undefined}
                         onRestablecer={() => {
                             setModal({ tipo: 'restablecer', persona: p });
                             restablecer.mutate(p.id);

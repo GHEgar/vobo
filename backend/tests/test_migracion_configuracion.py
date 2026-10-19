@@ -44,7 +44,7 @@ def test_0004_sobre_0003_conserva_datos_y_crea_la_tabla_vacia(tmp_path, monkeypa
         "comentarios_seguimiento",
         "seguimiento",
     }
-    assert conserva(antes, despues)
+    assert conserva(antes, despues, crecen=frozenset({"roles"}))
     assert despues["configuracion"] == []
     motor.dispose()
 

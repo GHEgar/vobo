@@ -57,7 +57,7 @@ def test_0003_sobre_0002_conserva_datos_y_con_archivos_no_importa(tmp_path, monk
         "comentarios_seguimiento",
         "seguimiento",
     }
-    assert conserva(antes, despues)
+    assert conserva(antes, despues, crecen=frozenset({"roles"}))
     assert all(despues[t] == [] for t in NUEVAS)
     motor.dispose()
 
