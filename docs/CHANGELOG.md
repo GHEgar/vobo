@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.4.3] - 2026-10-19
+
 ### Cambiado
 
 - El CSV y el PDF del informe se llaman `informe-fallas-<proyecto>-<fecha>` (o `varios-proyectos`
