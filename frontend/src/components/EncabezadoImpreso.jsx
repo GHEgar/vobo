@@ -2,8 +2,9 @@ import { Marca } from '@/components/Marca';
 import { useNombreProyecto } from '@/hooks/useInstancia';
 import { tituloDocumento } from '@/utils/marca';
 
-export const EncabezadoImpreso = ({ titulo, children }) => {
-    const nombre = useNombreProyecto();
+export const EncabezadoImpreso = ({ titulo, nombre: propio, children }) => {
+    const actual = useNombreProyecto();
+    const nombre = propio ?? actual;
     return (
         <header>
             <div className="mb-4 flex items-center">
