@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.4.1] - 2026-10-19
+
 ### Agregado
 
 - Avisos automáticos a quien reportó una falla o escribió un comentario: al responderle y cuando
