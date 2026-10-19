@@ -7,6 +7,13 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.10.1] - 2026-10-19
+
+### Cambiado
+
+- Participación usa tequio 0.8.0: la tarjeta del grafo se puede arrastrar, queda unida a su nodo con
+  una línea punteada y doble clic la regresa.
+
 ## [0.10.0] - 2026-10-19
 
 ### Cambiado
