@@ -7,6 +7,8 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.5.0] - 2026-10-19
+
 ### Agregado
 
 - `GET /api/participacion`: quién marcó casos en qué proyecto, en el formato de datos de tequio
