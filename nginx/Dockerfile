@@ -12,4 +12,5 @@ RUN npm run build
 FROM nginxinc/nginx-unprivileged:1.30.4-alpine
 COPY nginx/validacion.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=builder /app/dist /usr/share/nginx/html
+USER nginx
 EXPOSE 8080

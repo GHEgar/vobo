@@ -1,7 +1,9 @@
 FROM node:26-alpine AS development
 WORKDIR /app
-COPY package*.json ./
-COPY vendor/ vendor/
+RUN chown node:node /app
+USER node
+COPY --chown=node:node package*.json ./
+COPY --chown=node:node vendor/ vendor/
 RUN npm ci
-COPY . .
+COPY --chown=node:node . .
 CMD ["npm", "run", "dev", "--", "--host"]
