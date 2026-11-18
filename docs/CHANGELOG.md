@@ -7,6 +7,12 @@ y el proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.10.2] - 2026-11-18
+
+### Corregido
+
+- Las imágenes `web` y de desarrollo del frontend corren sin usuario root.
+
 ## [0.10.1] - 2026-10-19
 
 ### Cambiado
